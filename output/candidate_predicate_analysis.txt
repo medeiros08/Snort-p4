@@ -1,0 +1,56 @@
+=== Candidate Predicate Strength Analysis ===
+Parsed rules          : 4007
+Pre-filter candidates : 3999
+
+Number of preserved predicates per candidate rule
+-------------------------------------------------------
+ 1 preserved predicates :     8 rules (  0.20%)
+ 2 preserved predicates :   488 rules ( 12.20%)
+ 3 preserved predicates :  3483 rules ( 87.10%)
+ 4 preserved predicates :    18 rules (  0.45%)
+ 5 preserved predicates :     2 rules (  0.05%)
+
+Number of delegated predicates per candidate rule
+-------------------------------------------------------
+ 1 delegated predicates :    24 rules (  0.60%)
+ 2 delegated predicates :   343 rules (  8.58%)
+ 3 delegated predicates :   613 rules ( 15.33%)
+ 4 delegated predicates :  1210 rules ( 30.26%)
+ 5 delegated predicates :   417 rules ( 10.43%)
+ 6 delegated predicates :   359 rules (  8.98%)
+ 7 delegated predicates :   316 rules (  7.90%)
+ 8 delegated predicates :   289 rules (  7.23%)
+ 9 delegated predicates :   153 rules (  3.83%)
+10 delegated predicates :   102 rules (  2.55%)
+11 delegated predicates :    71 rules (  1.78%)
+12 delegated predicates :    35 rules (  0.88%)
+13 delegated predicates :    36 rules (  0.90%)
+14 delegated predicates :    18 rules (  0.45%)
+15 delegated predicates :     5 rules (  0.13%)
+16 delegated predicates :     2 rules (  0.05%)
+17 delegated predicates :     2 rules (  0.05%)
+20 delegated predicates :     1 rules (  0.03%)
+23 delegated predicates :     2 rules (  0.05%)
+25 delegated predicates :     1 rules (  0.03%)
+
+Preserved fields among pre-filter candidates
+-------------------------------------------------------
+protocol              3987 ( 99.70%)
+dst_port              3134 ( 78.37%)
+dst_ip                2891 ( 72.29%)
+src_ip                1098 ( 27.46%)
+src_port               391 (  9.78%)
+flags                   14 (  0.35%)
+
+Examples
+-------------------------------------------------------
+SID 105 | preserved=3 | delegated=2 | fields=['protocol', 'src_ip', 'src_port']
+SID 108 | preserved=3 | delegated=2 | fields=['dst_ip', 'dst_port', 'protocol']
+SID 110 | preserved=2 | delegated=3 | fields=['dst_ip', 'protocol']
+SID 115 | preserved=3 | delegated=4 | fields=['protocol', 'src_ip', 'src_port']
+SID 117 | preserved=2 | delegated=2 | fields=['protocol', 'src_ip']
+SID 118 | preserved=3 | delegated=3 | fields=['protocol', 'src_ip', 'src_port']
+SID 119 | preserved=3 | delegated=2 | fields=['protocol', 'src_ip', 'src_port']
+SID 121 | preserved=3 | delegated=3 | fields=['dst_ip', 'dst_port', 'protocol']
+SID 141 | preserved=3 | delegated=2 | fields=['protocol', 'src_ip', 'src_port']
+SID 144 | preserved=3 | delegated=5 | fields=['dst_ip', 'dst_port', 'protocol']

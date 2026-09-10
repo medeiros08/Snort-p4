@@ -1,0 +1,5 @@
+{ "pkt_num" : 1, "gid" : 1, "sid" : 221, "rev" : 12, "msg" : "PROTOCOL-ICMP TFN Probe", "src_addr" : "192.0.2.10", "dst_addr" : "10.0.0.10" }
+{ "pkt_num" : 1, "gid" : 1, "sid" : 384, "rev" : 8, "msg" : "PROTOCOL-ICMP PING", "src_addr" : "192.0.2.10", "dst_addr" : "10.0.0.10" }
+{ "pkt_num" : 2, "gid" : 1, "sid" : 225, "rev" : 13, "msg" : "PROTOCOL-ICMP Stacheldraht gag server response", "src_addr" : "10.0.0.10", "dst_addr" : "192.0.2.20" }
+{ "pkt_num" : 3, "gid" : 1, "sid" : 382, "rev" : 11, "msg" : "PROTOCOL-ICMP PING Windows", "src_addr" : "192.0.2.11", "dst_addr" : "10.0.0.11" }
+{ "pkt_num" : 3, "gid" : 1, "sid" : 384, "rev" : 8, "msg" : "PROTOCOL-ICMP PING", "src_addr" : "192.0.2.11", "dst_addr" : "10.0.0.11" }

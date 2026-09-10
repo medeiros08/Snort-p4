@@ -1,0 +1,3 @@
+alert tcp any any -> 10.0.0.2 80 (flags:S; sid:1001;)
+alert tcp any any -> 10.0.0.2 80 (content:"attack"; sid:1002;)
+alert tcp any any -> any any (pcre:"/malware/i"; sid:1003;)

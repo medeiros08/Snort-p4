@@ -1,0 +1,4 @@
+Sent: 500
+Sent: 1000
+Input packets: 1000
+Elapsed seconds: 1.206904

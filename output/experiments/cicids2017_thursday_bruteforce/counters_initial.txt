@@ -1,0 +1,19 @@
+
+=== Prefilter Counters ===
+
+Counter ID       : 313982712
+
+Candidate / table hit
+---------------------------------------------
+Packets          : 0
+Bytes            : 0
+
+No prefilter match
+---------------------------------------------
+Packets          : 0
+Bytes            : 0
+
+Totals
+---------------------------------------------
+Packets          : 0
+Bytes            : 0

@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv-p4runtime/
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.blg
+
+# Capturas binarias grandes (diagnostico secundario, regeneraveis pelos scripts de replay)
+*.pcap

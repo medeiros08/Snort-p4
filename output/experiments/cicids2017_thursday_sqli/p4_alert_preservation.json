@@ -1,0 +1,22 @@
+{
+  "pcap": "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/experiments/cicids2017_thursday_sqli/candidate_alert_packets.pcap",
+  "interface": "veth1",
+  "input_packets": 150,
+  "input_bytes": 20834,
+  "candidate": {
+    "packets": 150,
+    "bytes": 20834
+  },
+  "no_match": {
+    "packets": 0,
+    "bytes": 0
+  },
+  "observed_packets": 150,
+  "observed_bytes": 20834,
+  "candidate_packet_percentage": 100.0,
+  "no_match_packet_percentage": 0.0,
+  "candidate_byte_percentage": 100.0,
+  "no_match_byte_percentage": 0.0,
+  "packet_accounting_ok": true,
+  "elapsed_seconds": 8.813719749450684
+}

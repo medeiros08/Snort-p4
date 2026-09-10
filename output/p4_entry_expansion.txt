@@ -1,0 +1,6 @@
+=== P4 Entry Expansion ===
+Source entries          : 3999
+Expanded entries        : 6354
+Rules requiring expansion: 2260
+Maximum entries/rule    : 3
+Output                  : C:\Users\amede\OneDrive\Desktop\Snort-p4\output\p4_entries_expanded.json

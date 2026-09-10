@@ -1,0 +1,65 @@
+\begin{thebibliography}{10}
+
+\bibitem{alsabeh2022p4securitysurvey}
+Ali AlSabeh, Joseph Khoury, Elie Kfoury, Jorge Crichigno, and Elias Bou-Harb.
+\newblock A survey on security applications of p4 programmable switches and a
+  stride-based vulnerability assessment.
+\newblock {\em Computer Networks}, 207:108800, 2022.
+
+\bibitem{brum2025rethinking}
+H.~B. Brum, L.~A.~D. Knob, T.~Ferreto, and D.~Siracusa.
+\newblock Rethinking nids rule-based pre-filtering.
+\newblock In {\em IFIP/IEEE International Symposium on Integrated Network
+  Management and Network Operations (CNSM)}, 2025.
+
+\bibitem{fida2026pdpids}
+Mah-Rukh Fida and Azza~H. Ahmed.
+\newblock Leveraging programmable data plane for network intrusion detection: A
+  survey.
+\newblock {\em Computer Networks}, 281:112202, 2026.
+
+\bibitem{hagen2025rna}
+L.~S. Hagen, A.~S. Ilha, R.~Parizotto, and L.~P. Gaspary.
+\newblock Rna: Automating ids/ips event detection offload into programmable
+  forwarding devices.
+\newblock In {\em IEEE/IFIP Network Operations and Management Symposium
+  (NOMS)}, 2025.
+
+\bibitem{hauser2023p4survey}
+Frederik Hauser, Marco H\"aberle, Daniel Merling, Steffen Lindner, Vladimir
+  Gurevich, Florian Zeiger, Reinhard Frank, and Michael Menth.
+\newblock A survey on data plane programming with p4: Fundamentals, advances,
+  and applied research.
+\newblock {\em Journal of Network and Computer Applications}, 212:103561, 2023.
+
+\bibitem{lewis2019p4id}
+Benjamin Lewis, Matthew Broadbent, and Nicholas Race.
+\newblock P4id: P4 enhanced intrusion detection.
+\newblock In {\em 2019 IEEE Conference on Network Function Virtualization and
+  Software Defined Networks (NFV-SDN)}, 2019.
+
+\bibitem{lewis2023fourmidable}
+Benjamin Lewis, Matthew Broadbent, Charalampos Rotsos, and Nicholas Race.
+\newblock 4midable: Flexible network offloading for security vnfs.
+\newblock {\em Journal of Network and Systems Management}, 31:52, 2023.
+
+\bibitem{mazloum2025p4security}
+Ali Mazloum, Ali AlSabeh, Elie Kfoury, and Jorge Crichigno.
+\newblock Security applications in p4: Implementation and lessons learned.
+\newblock {\em Computer Networks}, 257:111011, 2025.
+
+\bibitem{senoski2025p4nips}
+Eduardo~Vudala Senoski, Jo\ ao~Ribeiro~Andreotii, Raphael~Kaviak Machnicki,
+  Jorge~Pires Correia, and Vinicius Fulber-Garcia.
+\newblock P4nips: P4 network intrusion prevention system.
+\newblock In {\em Anais Estendidos do Simp\'osio Brasileiro de
+  Ciberseguran\c{c}a (SBSeg)}, pages 75--84, 2025.
+
+\bibitem{tavares2021p4onids}
+Kairo Tavares and Tiago Ferreto.
+\newblock P4-onids: A p4-based nids optimized for constrained programmable data
+  planes in sdn.
+\newblock In {\em Anais do XXXIX Simpósio Brasileiro de Redes de Computadores
+  e Sistemas Distribuídos}, pages 434--447, 2021.
+
+\end{thebibliography}

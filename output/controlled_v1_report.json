@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "status": "VALID",
+  "rule_sets": {
+    "candidate_sids": 4003,
+    "unsupported_sids": 14,
+    "overlap": []
+  },
+  "snort": {
+    "baseline_total_alerts": 5,
+    "baseline_candidate_alerts": 5,
+    "baseline_unsupported_alerts": 0,
+    "baseline_unknown_alerts": 0,
+    "candidate_run_alerts": 5,
+    "preserved_candidate_alerts": 5,
+    "missing_candidate_alerts": 0,
+    "additional_candidate_alerts": 0,
+    "candidate_alert_preservation_percentage": 100.0,
+    "missing_alert_details": [],
+    "additional_alert_details": []
+  },
+  "p4": {
+    "classified_packets": 3,
+    "candidate_packets": 3,
+    "no_match_packets": 0,
+    "ambiguous_packets": 0,
+    "candidate_packet_percentage": 100.0,
+    "baseline_candidate_alert_packets": 3,
+    "preserved_candidate_alert_packets": 3,
+    "false_negative_alerts": 0,
+    "false_negative_packets": 0,
+    "missing_classification_packets": 0,
+    "alert_packet_preservation_percentage": 100.0,
+    "false_negative_details": [],
+    "missing_classification_details": []
+  },
+  "errors": [],
+  "warnings": []
+}

@@ -1,0 +1,16 @@
+{
+  "configuration": {
+    "retained_install_entries": 322,
+    "baseline_rules": 3611
+  },
+  "eligible_alert_events": 2289,
+  "alert_sid_present_in_candidate_set": 2289,
+  "alert_sid_absent_from_candidate_set": 0,
+  "observed_membership_percentage": 100.0,
+  "matched_install_entries_per_eligible_alert_event": {
+    "mean": 1.0,
+    "min": 1,
+    "max": 1
+  },
+  "interpretation": "Stateless/event membership audit only. It is not dynamic Snort per-packet candidate-set execution and provides no stateful flowbit execution guarantee."
+}

@@ -1,0 +1,22 @@
+{
+  "pcap": "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/alert_preservation_controlled.pcap",
+  "interface": "veth1",
+  "input_packets": 3,
+  "input_bytes": 152,
+  "candidate": {
+    "packets": 3,
+    "bytes": 152
+  },
+  "no_match": {
+    "packets": 0,
+    "bytes": 0
+  },
+  "observed_packets": 3,
+  "observed_bytes": 152,
+  "candidate_packet_percentage": 100.0,
+  "no_match_packet_percentage": 0.0,
+  "candidate_byte_percentage": 100.0,
+  "no_match_byte_percentage": 0.0,
+  "packet_accounting_ok": true,
+  "elapsed_seconds": 1.0344221591949463
+}

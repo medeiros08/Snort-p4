@@ -1,0 +1,4 @@
+tcpdump: listening on veth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+10731 packets captured
+64822 packets received by filter
+52689 packets dropped by kernel
