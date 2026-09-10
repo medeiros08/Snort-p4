@@ -24,8 +24,12 @@ necessarily represent. We present a semantics-aware, target-aware
 Snort-to-P4 compilation approach that classifies each rule-to-predicate
 relation as \textsc{Exact}, \textsc{Necessary}, or \textsc{Unsupported}.
 For necessary predicates, the compiled predicate conservatively retains every
-packet satisfying the source rule, while omitted semantics remain explicit in
-a manifest recording predicate-to-rule provenance. Among
+packet satisfying the source rule within an explicitly enforced packet
+domain, while omitted semantics remain explicit in a manifest recording
+predicate-to-rule provenance. Packets outside that domain, such as those
+carrying IPv4 options, fragments, or truncated headers, are failed open as
+conservative candidates instead of being matched against fields the parser
+cannot locate. Among
 4,017 evaluated rules, 4,003 were classified as necessary, 14 as unsupported,
 and none as exact; backend lowering produced 331 final P4 installation
 entries. Despite this semantic coverage, the original global binary
@@ -65,9 +69,11 @@ Compiling only the representable subset without recording the omitted
 semantics risks presenting a partial implementation as equivalent to the
 original rule. A safe necessary prefilter instead establishes, for a rule
 $r$ and generated predicate $p_r$, the relation $r \Rightarrow p_r$ under a
-stated semantic profile; it does not assume $p_r \Rightarrow r$ or
-$r \Leftrightarrow p_r$. The detailed model is developed in the problem
-formulation.
+stated semantic profile and a stated packet domain; it does not assume
+$p_r \Rightarrow r$ or $r \Leftrightarrow p_r$. Traffic the data plane
+cannot parse as intended is retained by failing open rather than being
+matched against fields read from the wrong offset. The detailed model is
+developed in the problem formulation.
 
 Semantic safety alone, however, does not determine operational usefulness.
 When thousands of necessary predicates are aggregated into a global binary
@@ -103,6 +109,10 @@ This work makes the following contributions:
     target-aware lowering, deduplication, and P4Runtime installation-plan
     generation; the evaluated backend reduces 6,675 predicate instances to
     331 final installation entries as installation state.
+    \item An explicitly enforced packet domain that gates predicate
+    evaluation on IPv4 header form and fails open for options, fragments,
+    truncated headers, and parser errors, validated by a controlled
+    data-plane suite and by trace-level replay accounting.
     \item An empirical evaluation that separates semantic safety from
     ruleset-scale packet-level selectivity, including a causal analysis of
     broad predicates and distributed union coverage.
@@ -340,6 +350,42 @@ classifies the rule as UNSUPPORTED. EXACT would additionally require that all
 detection-relevant predicates be represented without relaxation; no such rule
 occurred in the evaluated Community ruleset.
 
+\subsection{Enforced Packet Domain}
+\label{sec:packet-domain}
+The implication above presupposes that the data plane reads the fields the
+predicate refers to. That presupposition is not free: a parser that assumed a
+fixed 20-byte IPv4 header would read IPv4 option bytes as transport ports, so
+a packet satisfying $r$ could fail $p_r$ and the necessary relation would not
+hold. The implementation therefore makes the precondition explicit rather
+than assumed.
+
+Let $D$ denote the \emph{supported packet domain}: untagged Ethernet carrying
+direct IPv4 with $\mathrm{version}=4$, $\mathrm{IHL}=5$,
+$\mathrm{fragOffset}=0$, flags either zero or \texttt{DF}, and no parser
+error. The P4 parser gates L4 extraction on membership in $D$, and the
+ingress control re-checks the same conditions before applying the predicate
+table. For $x \notin D$, the pipeline executes
+\texttt{packet\_domain\_fallback}, which marks the packet as a candidate
+unconditionally and counts it on a dedicated index. Writing
+$\mathrm{cand}(x)$ for the candidate outcome of the deployed pipeline:
+
+\[
+r(x) \Rightarrow
+\begin{cases}
+p_r(x) \Rightarrow \mathrm{cand}(x), & x \in D,\\
+\mathrm{cand}(x), & x \notin D.
+\end{cases}
+\]
+
+Consequently no packet satisfying a compiled rule is excluded from Snort
+inspection, whether or not the parser can interpret it. The data plane fails
+open by construction: a no-match verdict is emitted only inside $D$, because
+no-match is the only outcome that could ever motivate bypassing the IDS.
+This makes the domain a stated precondition of the selectivity metrics rather
+than a hidden assumption, and it is why candidate rates in
+Section~\ref{sec:results} are reported over $D$ with domain fallback counted
+separately.
+
 \subsection{Semantic Safety versus Operational Selectivity}
 A predicate can be semantically safe as a necessary condition while still
 matching most packets once it is jointly deployed with thousands of other
@@ -457,12 +503,13 @@ and delegated to Snort; it does not mean ignored by the IDS.}
 \midrule
 \texttt{tcp}, \texttt{udp}, \texttt{icmp}, \texttt{ip} & Protocol name is assessed; \texttt{ip} is a wildcard L4 protocol. & Exact IPv4 protocol ternary key, or no L4 key for \texttt{ip}. & Preserved & Within the Ethernet/IPv4 parser scope. \\
 IPv4 address or CIDR; resolved network variable & Resolver substitutes whole-field variables; CIDR is canonicalized to network and prefix length. & IPv4 ternary value/mask. & Preserved & CIDR membership is retained; unsupported or negated expressions do not reach this form. \\
-Exact port or finite port/address list & Resolver flattens lists; finite alternatives are expanded by Cartesian product. & One exact ternary key per concrete alternative. & Preserved / expanded & The union of concrete entries retains the finite-list alternatives. \\
+Exact port or finite port/address list & Resolver flattens lists; finite alternatives are expanded by Cartesian product. & One exact ternary key per concrete alternative. & Preserved / expanded & The union of concrete entries retains the finite-list alternatives, for packets inside the enforced domain $D$ of Section~\ref{sec:packet-domain}. \\
 \texttt{->} or \texttt{<>} & Forward orientation is retained; bidirectional rules swap source/destination addresses, ports, and expansion fields for a reverse entry. & Forward entry; plus reverse entry for \texttt{<>}. & Preserved / expanded & Both directions are materialized for \texttt{<>}; \texttt{<-} falls back. \\
-Supported TCP flags & Flag syntax is normalized to masks; \texttt{*} is lowered to a union of ternary entries. & TCP-flag ternary value/mask. & Preserved / expanded & Valid only for forms accepted by the flag normalizer and with TCP protocol validation. \\
+Supported TCP flags & Flag syntax is normalized to masks; \texttt{*} is lowered to a union of ternary entries. & TCP-flag ternary value/mask. & Preserved / expanded & Valid only for forms accepted by the flag normalizer, with TCP protocol validation, and for packets inside $D$. \\
 Negation, port ranges, unresolved complex header forms & Capability analysis records fallback or unassessed treatment. & Omitted from $p_r$. & Fallback / delegated & Omission can broaden a predicate; absent another selective $H_r$, the rule is UNSUPPORTED. \\
 Payload, PCRE, buffers, flow/state, stream, temporal, and application semantics & Ordered options and buffer context remain in the IR and manifest. & No P4 match. & Delegated & Snort remains responsible for these conditions and for final detection. \\
 Service-style or otherwise nonselective rule & No traditional header is invented; a rule without a selective represented header is not emitted. & No P4 entry. & \textsc{Unsup.} & Entire rule remains in the Snort fallback. \\
+IPv4 options, fragments, truncated headers, non-IPv4 frames & Outside the compiler's scope; handled by the deployed program rather than by lowering. & No table lookup; \texttt{packet\_domain\_fallback} marks a candidate on a dedicated counter. & Fail-open & Retained for Snort without a no-match verdict, so misparsed L4 fields cannot break $r \Rightarrow \mathrm{cand}$. \\
 \bottomrule
 \end{tabular}
 }
@@ -571,6 +618,18 @@ rules, their \texttt{source\_rule\_ids} are unioned in the retained provenance;
 otherwise later per-packet candidate-rule-set analysis would lose rule-level
 information.
 
+The deployed P4 program enforces the packet domain $D$ of
+Section~\ref{sec:packet-domain} around this table. The parser transitions to
+L4 extraction only for direct IPv4 with $\mathrm{IHL}=5$ and no
+fragmentation, and the ingress control repeats the test, additionally
+rejecting parser errors, before the table is applied. Three counter indices
+are kept distinct: \texttt{P4\_CANDIDATE} for a table hit inside $D$,
+\texttt{P4\_NO\_MATCH} for a miss inside $D$, and
+\texttt{PACKET\_DOMAIN\_FALLBACK} for traffic outside $D$, which is marked
+candidate unconditionally. Collapsing the third category into the second
+would overstate selectivity, and collapsing it into the first would hide the
+parser's actual coverage; the metrics below therefore report all three.
+
 \subsection{Candidate Rule Provenance and Prototype Scope}
 The initial prototype deliberately restricts the compilation backend
 to the capability profile described in Table~\ref{tab:capabilities}.
@@ -655,11 +714,29 @@ CS = \frac{N_{\mathrm{candidate}}}
 
 where $N_{\mathrm{candidate}}$ is the number marked candidate and
 $N_{\mathrm{parser\text{-}eligible}}$ is the parser-eligible population.
-Here, a parser-eligible packet is one for which the implemented P4 parser
-produces the Ethernet/IPv4 headers required by the predicate evaluation. A
-candidate packet matches at least one installed predicate, whereas a no-match
-packet is parser eligible but matches none. Candidate and no-match rates use
-only parser-eligible packets as their denominator.
+Here, a parser-eligible packet is one inside the enforced domain $D$ of
+Section~\ref{sec:packet-domain}, that is, one for which the implemented P4
+parser produces the Ethernet/IPv4 headers required by the predicate
+evaluation. A candidate packet matches at least one installed predicate,
+whereas a no-match packet is parser eligible but matches none. Candidate and
+no-match rates use only parser-eligible packets as their denominator.
+Packets outside $D$ are counted as \texttt{PACKET\_DOMAIN\_FALLBACK}: they
+are retained as candidates for Snort but are excluded from this denominator,
+since the prefilter never claims selectivity over traffic it cannot parse.
+
+\paragraph{Packet-domain validation.} Because the metric above depends on
+the parser and the offline matcher agreeing, both are validated directly. A
+controlled data-plane suite sends one crafted frame per case through BMv2
+with the 331-entry plan installed and compares the resulting counter delta
+with the offline expectation. The eleven cases cover TCP, UDP, and ICMP
+candidates, a guaranteed no-match, exact and masked TCP flags, IPv4 options
+($\mathrm{IHL} \neq 5$), a first fragment with MF set, a non-initial
+fragment, a truncated IPv4 header, and a truncated TCP header. Separately,
+each full trace is replayed through BMv2 over a raw AF\_PACKET socket that
+transmits the captured Ethernet bytes without reserialization, after a fresh
+pipeline installation with counters verified at zero and an idle audit
+confirming a zero delta; sender frame counts are then reconciled against the
+sum of the three counter categories.
 
 \paragraph{Installation-state reduction.} The backend artifact distinguishes
 \path{source_entries}, namely the \path{generated/expanded/normalized} predicate
@@ -785,9 +862,11 @@ fallback header form, such as a port range, negated port, or unsupported flag
 encoding, but is emitted only when another selective represented predicate is
 available.
 
-\noindent\textbf{Answer to RQ1.} Under the evaluated target profile, the
-compiler safely derives explicit necessary predicates for most rules while
-making the remaining semantic limitations visible.
+\noindent\textbf{Answer to RQ1.} Under the evaluated target profile and
+within the enforced packet domain, the compiler safely derives explicit
+necessary predicates for most rules while making the remaining semantic
+limitations visible; traffic outside that domain is retained by failing
+open rather than by an unstated parsing assumption.
 
 \subsection{P4 Backend Feasibility (RQ2)}
 Table~\ref{tab:semantic-backend} summarizes the semantic compilation and
@@ -825,6 +904,48 @@ Rules & Exact & Necessary & Unsupported & \shortstack{Predicate\\instances} & Un
 \end{tabular}
 \end{table}
 
+\subsection{Packet-Domain Enforcement and Validation}
+\label{sec:domain-validation}
+Because the selectivity and candidate-set metrics are defined over the
+enforced domain $D$, the correspondence between the deployed parser and the
+offline matcher was validated before those metrics are reported.
+
+The controlled data-plane suite passed all eleven cases with exact counter
+deltas. TCP, UDP, and ICMP candidates, a guaranteed no-match, and exact and
+masked TCP flags were classified inside $D$ as expected. IPv4 options, a
+first fragment with MF set, a non-initial fragment, a truncated IPv4 header,
+and a truncated TCP header were each routed to
+\texttt{PACKET\_DOMAIN\_FALLBACK}, with no candidate or no-match count. No
+case produced a data-plane verdict that disagreed with the offline
+expectation.
+
+Across the evaluated traces, 350 of 35,274 SQLi frames, 2,772 of 191,848 XSS
+frames, and 7,199 of 1,108,658 Brute Force frames fell outside $D$. These
+are dominated by non-IPv4 EtherTypes: ARP (125, 1,660, and 4,074), IPv6
+(195, 820, and 2,523), and smaller LLDP and non-IP EtherType populations.
+Only the held-out trace contains direct-IPv4 frames excluded by
+the header gate itself: 16 frames with fragmentation or reserved flags. They
+are the reason its parser-eligible population is 1,101,459 rather than the
+1,101,475 obtained when fragmentation is not gated; all 16 remain candidates
+through domain fallback.
+
+Trace replay accounting was reconciled against the data plane. SQLi and XSS
+agree frame for frame: 35,274 and 191,848 frames sent, with identical
+totals across the three counters and exact per-category agreement with the
+offline classifier. The Brute Force replay recorded 1,108,571 of 1,108,658
+sent frames, a 0.008\% shortfall confined to the candidate category, with
+domain fallback exact at 7,199 and no-match at zero. That residue is a
+transport-layer measurement loss on a 23-minute replay rather than a
+classification disagreement, so the offline classifier, which covers the
+complete trace population, is used as the primary source for the held-out
+quantities.
+
+Revalidating the frozen analyses under the enforced domain reproduced the
+reported results: the global candidate rate remains 100\% of $D$, the
+strong-discriminator rate 98.942\%, the mean candidate set 324.52 rules, and
+the mean candidate-rule-space reduction 91.01\% on the held-out trace. No
+policy or grouping configuration was retuned during this revalidation.
+
 \subsection{Global Binary Prefilter Selectivity (RQ3)}
 Table~\ref{tab:packet-selectivity} reports packet-level selectivity under
 the current Ethernet/IPv4 parser scope and supported protocols. The original
@@ -840,8 +961,10 @@ binary candidate bit.
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \caption{Packet-level selectivity. Candidate rates are among parser-eligible
-packets; parser-ineligible frames are excluded from the denominator. The
-strong-discriminator rows are a frozen operational ablation.}
+packets, that is, packets inside the enforced domain $D$; frames outside $D$
+are retained as candidates through domain fallback and are excluded from the
+denominator. The strong-discriminator rows are a frozen operational
+ablation.}
 \label{tab:packet-selectivity}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -849,7 +972,7 @@ Trace & Total & Eligible & \shortstack{Global\\candidate} & \shortstack{Global\\
 \midrule
 SQLi & 35274 & 34924 & 34924 & 0 & 99.015\% & 0.985\% \\
 XSS & 191848 & 189076 & 189076 & 0 & 98.869\% & 1.131\% \\
-Brute Force (held-out) & 1108658 & 1101475 & 1101475 & 0 & 98.941\% & 1.059\% \\
+Brute Force (held-out) & 1108658 & 1101459 & 1101459 & 0 & 98.942\% & 1.058\% \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -872,8 +995,8 @@ places 392 semantic candidates in operational fallback and retains the 14
 semantic \textsc{Unsupported} rules in fallback; it is therefore an
 operational ablation, not a revised semantic classification. As shown in
 Table~\ref{tab:packet-selectivity}, the candidate rate nevertheless remained
-between 98.869\% and 99.015\% on the development traces and 98.941\% on the
-held-out trace, where 11,662 parser-eligible packets were no-matches.
+between 98.869\% and 99.015\% on the development traces and 98.942\% on the
+held-out trace, where 11,654 parser-eligible packets were no-matches.
 
 The residual-selectivity audit shows that removing obviously broad predicates
 does not eliminate distributed union coverage from the retained predicates.
@@ -1067,7 +1190,9 @@ the classifier but was not observed in the evaluated ruleset.}
 \subsection{Semantic Safety Does Not Imply Operational Selectivity}
 For a Snort rule $r$ and a generated P4 predicate $p_r$, the relation
 $r \Rightarrow p_r$ states that $p_r$ is a safe necessary condition under the
-supported semantic profile. It does not establish $p_r \Rightarrow r$ or
+supported semantic profile and inside the enforced packet domain $D$, with
+traffic outside $D$ retained through fail-open fallback. It does not
+establish $p_r \Rightarrow r$ or
 $r \Leftrightarrow p_r$. Semantic safety therefore asks whether traffic that
 satisfies the rule also satisfies its compiled predicate; operational
 selectivity asks how much other traffic that predicate can exclude.
@@ -1095,7 +1220,7 @@ Broad predicates were an initial contributor, but they were not a complete
 explanation. The frozen strong-discriminator ablation retained 322 entries
 for 3,611 P4-eligible rules, placed 392 rules in operational fallback, and
 retained 14 semantic \textsc{Unsupported} rules in fallback. Even then, the
-held-out Brute Force trace had a 98.941\% candidate rate among
+held-out Brute Force trace had a 98.942\% candidate rate among
 parser-eligible packets. The residual audit indicates that near-universal
 coverage persisted through the distributed union of many retained predicates.
 Thus, the evidence does not attribute poor selectivity to only three broad
@@ -1246,6 +1371,25 @@ program marks candidate metadata; it does not implement a complete forwarding
 or bypass architecture that safely removes Snort from the path for arbitrary
 traffic.
 
+These parser limits are handled by exclusion rather than by silent
+approximation. IPv4 options, fragments, truncated headers, and parser errors
+are gated out of predicate evaluation and marked candidate through domain
+fallback, so the safety relation is stated over $D$ and the pipeline fails
+open elsewhere. The cost is that selectivity is claimed only over $D$: a
+deployment whose traffic contains substantially more options, fragments, or
+tunneling than the evaluated traces would push a larger share of packets
+into unconditional fallback, which is safe but less informative. Extending
+the parser to cover those cases selectively, rather than conservatively,
+remains future work.
+
+Replay accounting is also not uniform across traces. The SQLi and XSS
+replays reconcile frame for frame with the data-plane counters, whereas the
+held-out Brute Force replay lost 87 of 1,108,658 frames (0.008\%) in the
+transport layer, all within the candidate category. The reported held-out
+quantities therefore derive from the offline classifier over the complete
+trace, with the data-plane replay as corroboration at 99.99\% frame
+agreement rather than as an exact reproduction.
+
 \subsection{Limitations of the Candidate-Set Analysis}
 The candidate rule set analysis reported mean reductions of 95.04\% for SQLi,
 96.11\% for XSS, and 91.01\% for held-out Brute Force. These values are
@@ -1277,8 +1421,9 @@ provenance is retained through backend lowering.
 For RQ1, all 4,017 evaluated rules were parsed; 4,003 admitted safe
 \textsc{Necessary} predicates and 14 remained \textsc{Unsupported}, while no
 rule was \textsc{Exact}. Thus, the compiler established $r \Rightarrow p_r$
-under the supported profile without presenting partial preservation as
-equivalence. For RQ2, 6,675 source predicate instances were lowered to 331
+under the supported profile and inside the enforced packet domain, with
+options, fragments, and truncated headers retained by fail-open fallback,
+and without presenting partial preservation as equivalence. For RQ2, 6,675 source predicate instances were lowered to 331
 final installation entries, with a 95.04\% installation-state reduction and
 331/331 P4Runtime entries handled without reported encoding or validation
 failures on the evaluated BMv2/v1model target.
@@ -1287,7 +1432,7 @@ RQ3 showed that semantic coverage and operational selectivity are distinct.
 Under the evaluated configuration, the original binary global prefilter
 marked all parser-eligible packets as candidates in the SQLi, XSS, and
 held-out Brute Force traces; the frozen strong-discriminator ablation still
-marked 98.941\% of parser-eligible held-out packets. Broad necessary
+marked 98.942\% of parser-eligible held-out packets. Broad necessary
 predicates contributed initially, but the residual analysis indicated that
 distributed union coverage among retained predicates also sustained the
 near-universal candidate behavior.

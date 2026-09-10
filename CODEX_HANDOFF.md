@@ -1,5 +1,14 @@
 # Codex Handoff
 
+> **Nota de estado (2026-09-09).** Este handoff é de 2026-08-26 e está
+> desatualizado. A auditoria pedida na seção 13 foi executada, a janela
+> Brute Force foi rodada, o parser P4 recebeu o gate de domínio de pacotes
+> (IHL=5, sem fragmentação, fail-open via `packet_domain_fallback`) e todas
+> as análises foram revalidadas. O estado atual está em
+> `paper/IDS_P4/PARSER_DOMAIN_RECONCILIATION.md` e em
+> `output/analysis/ipv4_packet_domain_correction/`. As seções 12 e 13 abaixo
+> não valem mais.
+
 ## 1. Objetivo científico atual
 
 Avaliar uma arquitetura híbrida em que o P4 atua como prefilter/candidate marker para o Snort, preservando a semântica do ruleset e medindo correção, cobertura do parser e seletividade operacional. O P4 não substitui o Snort e não é evidência de detecção da ground truth do CIC-IDS2017.

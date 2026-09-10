@@ -1,5 +1,12 @@
 # Final Scientific Closing Audit
 
+> **Addendum (2026-09-09).** The blocking parser finding recorded below was
+> repaired in `p4/ids_prefilter.p4` and revalidated after this audit was
+> written. See `PARSER_DOMAIN_RECONCILIATION.md` for the repair, its
+> evidence, the effect on frozen values, and the resulting manuscript
+> changes. The `NOT_READY` recommendation is superseded for that blocker
+> only; the rest of this document is unchanged and still applies.
+
 ## 1. Executive summary
 
 **Final recommendation: NOT_READY.** The closing pass reached the requested
