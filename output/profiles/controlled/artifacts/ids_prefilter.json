@@ -1,0 +1,1470 @@
+{
+  "header_types" : [
+    {
+      "name" : "scalars_0",
+      "id" : 0,
+      "fields" : [
+        ["metadata_t.prefilter_candidate", 1, false],
+        ["metadata_t.l4_src_port", 16, false],
+        ["metadata_t.l4_dst_port", 16, false],
+        ["metadata_t.tcp_flags", 8, false],
+        ["_padding_0", 7, false]
+      ]
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "fields" : [
+        ["ingress_port", 9, false],
+        ["egress_spec", 9, false],
+        ["egress_port", 9, false],
+        ["instance_type", 32, false],
+        ["packet_length", 32, false],
+        ["enq_timestamp", 32, false],
+        ["enq_qdepth", 19, false],
+        ["deq_timedelta", 32, false],
+        ["deq_qdepth", 19, false],
+        ["ingress_global_timestamp", 48, false],
+        ["egress_global_timestamp", 48, false],
+        ["mcast_grp", 16, false],
+        ["egress_rid", 16, false],
+        ["checksum_error", 1, false],
+        ["parser_error", 32, false],
+        ["priority", 3, false],
+        ["_padding", 3, false]
+      ]
+    },
+    {
+      "name" : "ethernet_t",
+      "id" : 2,
+      "fields" : [
+        ["dstAddr", 48, false],
+        ["srcAddr", 48, false],
+        ["etherType", 16, false]
+      ]
+    },
+    {
+      "name" : "ipv4_t",
+      "id" : 3,
+      "fields" : [
+        ["version", 4, false],
+        ["ihl", 4, false],
+        ["diffserv", 8, false],
+        ["totalLen", 16, false],
+        ["identification", 16, false],
+        ["flags", 3, false],
+        ["fragOffset", 13, false],
+        ["ttl", 8, false],
+        ["protocol", 8, false],
+        ["hdrChecksum", 16, false],
+        ["srcAddr", 32, false],
+        ["dstAddr", 32, false]
+      ]
+    },
+    {
+      "name" : "tcp_t",
+      "id" : 4,
+      "fields" : [
+        ["srcPort", 16, false],
+        ["dstPort", 16, false],
+        ["seqNo", 32, false],
+        ["ackNo", 32, false],
+        ["dataOffset", 4, false],
+        ["reserved", 3, false],
+        ["ns", 1, false],
+        ["cwr", 1, false],
+        ["ece", 1, false],
+        ["urg", 1, false],
+        ["ack", 1, false],
+        ["psh", 1, false],
+        ["rst", 1, false],
+        ["syn", 1, false],
+        ["fin", 1, false],
+        ["window", 16, false],
+        ["checksum", 16, false],
+        ["urgentPtr", 16, false]
+      ]
+    },
+    {
+      "name" : "udp_t",
+      "id" : 5,
+      "fields" : [
+        ["srcPort", 16, false],
+        ["dstPort", 16, false],
+        ["length", 16, false],
+        ["checksum", 16, false]
+      ]
+    },
+    {
+      "name" : "icmp_t",
+      "id" : 6,
+      "fields" : [
+        ["type", 8, false],
+        ["code", 8, false],
+        ["checksum", 16, false]
+      ]
+    }
+  ],
+  "headers" : [
+    {
+      "name" : "scalars",
+      "id" : 0,
+      "header_type" : "scalars_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "header_type" : "standard_metadata",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ethernet",
+      "id" : 2,
+      "header_type" : "ethernet_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ipv4",
+      "id" : 3,
+      "header_type" : "ipv4_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "tcp",
+      "id" : 4,
+      "header_type" : "tcp_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "udp",
+      "id" : 5,
+      "header_type" : "udp_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "icmp",
+      "id" : 6,
+      "header_type" : "icmp_t",
+      "metadata" : false,
+      "pi_omit" : true
+    }
+  ],
+  "header_stacks" : [],
+  "header_union_types" : [],
+  "header_unions" : [],
+  "header_union_stacks" : [],
+  "field_lists" : [],
+  "errors" : [
+    ["NoError", 0],
+    ["PacketTooShort", 1],
+    ["NoMatch", 2],
+    ["StackOutOfBounds", 3],
+    ["HeaderTooShort", 4],
+    ["ParserTimeout", 5],
+    ["ParserInvalidArgument", 6]
+  ],
+  "enums" : [],
+  "parsers" : [
+    {
+      "name" : "parser",
+      "id" : 0,
+      "init_state" : "start",
+      "parse_states" : [
+        {
+          "name" : "start",
+          "id" : 0,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ethernet"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x0800",
+              "mask" : null,
+              "next_state" : "parse_ipv4"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "etherType"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_ipv4",
+          "id" : 1,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ipv4"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x06",
+              "mask" : null,
+              "next_state" : "parse_tcp"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x11",
+              "mask" : null,
+              "next_state" : "parse_udp"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x01",
+              "mask" : null,
+              "next_state" : "parse_icmp"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["ipv4", "protocol"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_tcp",
+          "id" : 2,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "tcp"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        },
+        {
+          "name" : "parse_udp",
+          "id" : 3,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "udp"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        },
+        {
+          "name" : "parse_icmp",
+          "id" : 4,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "icmp"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        }
+      ]
+    }
+  ],
+  "parse_vsets" : [],
+  "deparsers" : [
+    {
+      "name" : "deparser",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+        "line" : 496,
+        "column" : 8,
+        "source_fragment" : "MyDeparser"
+      },
+      "order" : ["ethernet", "ipv4", "tcp", "udp", "icmp"],
+      "primitives" : []
+    }
+  ],
+  "meter_arrays" : [],
+  "counter_arrays" : [
+    {
+      "name" : "MyIngress.prefilter_counter",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+        "line" : 276,
+        "column" : 6,
+        "source_fragment" : "prefilter_counter"
+      },
+      "size" : 2,
+      "is_direct" : false
+    }
+  ],
+  "register_arrays" : [],
+  "calculations" : [
+    {
+      "name" : "calc",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+        "line" : 466,
+        "column" : 8,
+        "source_fragment" : "update_checksum( ..."
+      },
+      "algo" : "csum16",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["ipv4", "version"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ihl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "diffserv"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "totalLen"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "identification"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "flags"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "fragOffset"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ttl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "protocol"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "srcAddr"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "dstAddr"]
+        }
+      ]
+    }
+  ],
+  "learn_lists" : [],
+  "actions" : [
+    {
+      "name" : "NoAction",
+      "id" : 0,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "MyIngress.send_to_ids",
+      "id" : 1,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.prefilter_candidate"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x01"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 286,
+            "column" : 8,
+            "source_fragment" : "meta.prefilter_candidate = 1"
+          }
+        },
+        {
+          "op" : "count",
+          "parameters" : [
+            {
+              "type" : "counter_array",
+              "value" : "MyIngress.prefilter_counter"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 288,
+            "column" : 8,
+            "source_fragment" : "prefilter_counter.count( ..."
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.no_prefilter_match",
+      "id" : 2,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.prefilter_candidate"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 296,
+            "column" : 8,
+            "source_fragment" : "meta.prefilter_candidate = 0"
+          }
+        },
+        {
+          "op" : "count",
+          "parameters" : [
+            {
+              "type" : "counter_array",
+              "value" : "MyIngress.prefilter_counter"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00000001"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 298,
+            "column" : 8,
+            "source_fragment" : "prefilter_counter.count( ..."
+          }
+        }
+      ]
+    },
+    {
+      "name" : "ids_prefilter381",
+      "id" : 3,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.l4_src_port"]
+            },
+            {
+              "type" : "field",
+              "value" : ["tcp", "srcPort"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 381,
+            "column" : 12,
+            "source_fragment" : "meta.l4_src_port = ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.l4_dst_port"]
+            },
+            {
+              "type" : "field",
+              "value" : ["tcp", "dstPort"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 384,
+            "column" : 12,
+            "source_fragment" : "meta.l4_dst_port = ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.tcp_flags"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "|",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "&",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "<<",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "&",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "|",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "<<",
+                                          "left" : {
+                                            "type" : "expression",
+                                            "value" : {
+                                              "op" : "&",
+                                              "left" : {
+                                                "type" : "expression",
+                                                "value" : {
+                                                  "op" : "|",
+                                                  "left" : {
+                                                    "type" : "expression",
+                                                    "value" : {
+                                                      "op" : "&",
+                                                      "left" : {
+                                                        "type" : "expression",
+                                                        "value" : {
+                                                          "op" : "<<",
+                                                          "left" : {
+                                                            "type" : "expression",
+                                                            "value" : {
+                                                              "op" : "&",
+                                                              "left" : {
+                                                                "type" : "expression",
+                                                                "value" : {
+                                                                  "op" : "|",
+                                                                  "left" : {
+                                                                    "type" : "expression",
+                                                                    "value" : {
+                                                                      "op" : "&",
+                                                                      "left" : {
+                                                                        "type" : "expression",
+                                                                        "value" : {
+                                                                          "op" : "<<",
+                                                                          "left" : {
+                                                                            "type" : "expression",
+                                                                            "value" : {
+                                                                              "op" : "&",
+                                                                              "left" : {
+                                                                                "type" : "expression",
+                                                                                "value" : {
+                                                                                  "op" : "|",
+                                                                                  "left" : {
+                                                                                    "type" : "expression",
+                                                                                    "value" : {
+                                                                                      "op" : "&",
+                                                                                      "left" : {
+                                                                                        "type" : "expression",
+                                                                                        "value" : {
+                                                                                          "op" : "<<",
+                                                                                          "left" : {
+                                                                                            "type" : "expression",
+                                                                                            "value" : {
+                                                                                              "op" : "&",
+                                                                                              "left" : {
+                                                                                                "type" : "expression",
+                                                                                                "value" : {
+                                                                                                  "op" : "|",
+                                                                                                  "left" : {
+                                                                                                    "type" : "expression",
+                                                                                                    "value" : {
+                                                                                                      "op" : "&",
+                                                                                                      "left" : {
+                                                                                                        "type" : "expression",
+                                                                                                        "value" : {
+                                                                                                          "op" : "<<",
+                                                                                                          "left" : {
+                                                                                                            "type" : "expression",
+                                                                                                            "value" : {
+                                                                                                              "op" : "&",
+                                                                                                              "left" : {
+                                                                                                                "type" : "expression",
+                                                                                                                "value" : {
+                                                                                                                  "op" : "|",
+                                                                                                                  "left" : {
+                                                                                                                    "type" : "expression",
+                                                                                                                    "value" : {
+                                                                                                                      "op" : "&",
+                                                                                                                      "left" : {
+                                                                                                                        "type" : "expression",
+                                                                                                                        "value" : {
+                                                                                                                          "op" : "<<",
+                                                                                                                          "left" : {
+                                                                                                                            "type" : "expression",
+                                                                                                                            "value" : {
+                                                                                                                              "op" : "&",
+                                                                                                                              "left" : {
+                                                                                                                                "type" : "field",
+                                                                                                                                "value" : ["tcp", "cwr"]
+                                                                                                                              },
+                                                                                                                              "right" : {
+                                                                                                                                "type" : "hexstr",
+                                                                                                                                "value" : "0x03"
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          },
+                                                                                                                          "right" : {
+                                                                                                                            "type" : "hexstr",
+                                                                                                                            "value" : "0x1"
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      },
+                                                                                                                      "right" : {
+                                                                                                                        "type" : "hexstr",
+                                                                                                                        "value" : "0x03"
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  },
+                                                                                                                  "right" : {
+                                                                                                                    "type" : "expression",
+                                                                                                                    "value" : {
+                                                                                                                      "op" : "&",
+                                                                                                                      "left" : {
+                                                                                                                        "type" : "expression",
+                                                                                                                        "value" : {
+                                                                                                                          "op" : "&",
+                                                                                                                          "left" : {
+                                                                                                                            "type" : "field",
+                                                                                                                            "value" : ["tcp", "ece"]
+                                                                                                                          },
+                                                                                                                          "right" : {
+                                                                                                                            "type" : "hexstr",
+                                                                                                                            "value" : "0x03"
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      },
+                                                                                                                      "right" : {
+                                                                                                                        "type" : "hexstr",
+                                                                                                                        "value" : "0x01"
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              },
+                                                                                                              "right" : {
+                                                                                                                "type" : "hexstr",
+                                                                                                                "value" : "0x07"
+                                                                                                              }
+                                                                                                            }
+                                                                                                          },
+                                                                                                          "right" : {
+                                                                                                            "type" : "hexstr",
+                                                                                                            "value" : "0x1"
+                                                                                                          }
+                                                                                                        }
+                                                                                                      },
+                                                                                                      "right" : {
+                                                                                                        "type" : "hexstr",
+                                                                                                        "value" : "0x07"
+                                                                                                      }
+                                                                                                    }
+                                                                                                  },
+                                                                                                  "right" : {
+                                                                                                    "type" : "expression",
+                                                                                                    "value" : {
+                                                                                                      "op" : "&",
+                                                                                                      "left" : {
+                                                                                                        "type" : "expression",
+                                                                                                        "value" : {
+                                                                                                          "op" : "&",
+                                                                                                          "left" : {
+                                                                                                            "type" : "field",
+                                                                                                            "value" : ["tcp", "urg"]
+                                                                                                          },
+                                                                                                          "right" : {
+                                                                                                            "type" : "hexstr",
+                                                                                                            "value" : "0x07"
+                                                                                                          }
+                                                                                                        }
+                                                                                                      },
+                                                                                                      "right" : {
+                                                                                                        "type" : "hexstr",
+                                                                                                        "value" : "0x01"
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              },
+                                                                                              "right" : {
+                                                                                                "type" : "hexstr",
+                                                                                                "value" : "0x0f"
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "right" : {
+                                                                                            "type" : "hexstr",
+                                                                                            "value" : "0x1"
+                                                                                          }
+                                                                                        }
+                                                                                      },
+                                                                                      "right" : {
+                                                                                        "type" : "hexstr",
+                                                                                        "value" : "0x0f"
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "right" : {
+                                                                                    "type" : "expression",
+                                                                                    "value" : {
+                                                                                      "op" : "&",
+                                                                                      "left" : {
+                                                                                        "type" : "expression",
+                                                                                        "value" : {
+                                                                                          "op" : "&",
+                                                                                          "left" : {
+                                                                                            "type" : "field",
+                                                                                            "value" : ["tcp", "ack"]
+                                                                                          },
+                                                                                          "right" : {
+                                                                                            "type" : "hexstr",
+                                                                                            "value" : "0x0f"
+                                                                                          }
+                                                                                        }
+                                                                                      },
+                                                                                      "right" : {
+                                                                                        "type" : "hexstr",
+                                                                                        "value" : "0x01"
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "right" : {
+                                                                                "type" : "hexstr",
+                                                                                "value" : "0x1f"
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "right" : {
+                                                                            "type" : "hexstr",
+                                                                            "value" : "0x1"
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "right" : {
+                                                                        "type" : "hexstr",
+                                                                        "value" : "0x1f"
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "right" : {
+                                                                    "type" : "expression",
+                                                                    "value" : {
+                                                                      "op" : "&",
+                                                                      "left" : {
+                                                                        "type" : "expression",
+                                                                        "value" : {
+                                                                          "op" : "&",
+                                                                          "left" : {
+                                                                            "type" : "field",
+                                                                            "value" : ["tcp", "psh"]
+                                                                          },
+                                                                          "right" : {
+                                                                            "type" : "hexstr",
+                                                                            "value" : "0x1f"
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "right" : {
+                                                                        "type" : "hexstr",
+                                                                        "value" : "0x01"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "right" : {
+                                                                "type" : "hexstr",
+                                                                "value" : "0x3f"
+                                                              }
+                                                            }
+                                                          },
+                                                          "right" : {
+                                                            "type" : "hexstr",
+                                                            "value" : "0x1"
+                                                          }
+                                                        }
+                                                      },
+                                                      "right" : {
+                                                        "type" : "hexstr",
+                                                        "value" : "0x3f"
+                                                      }
+                                                    }
+                                                  },
+                                                  "right" : {
+                                                    "type" : "expression",
+                                                    "value" : {
+                                                      "op" : "&",
+                                                      "left" : {
+                                                        "type" : "expression",
+                                                        "value" : {
+                                                          "op" : "&",
+                                                          "left" : {
+                                                            "type" : "field",
+                                                            "value" : ["tcp", "rst"]
+                                                          },
+                                                          "right" : {
+                                                            "type" : "hexstr",
+                                                            "value" : "0x3f"
+                                                          }
+                                                        }
+                                                      },
+                                                      "right" : {
+                                                        "type" : "hexstr",
+                                                        "value" : "0x01"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "right" : {
+                                                "type" : "hexstr",
+                                                "value" : "0x7f"
+                                              }
+                                            }
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0x1"
+                                          }
+                                        }
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x7f"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "&",
+                                          "left" : {
+                                            "type" : "field",
+                                            "value" : ["tcp", "syn"]
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0x7f"
+                                          }
+                                        }
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x01"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0xff"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0x1"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0xff"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "&",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "&",
+                          "left" : {
+                            "type" : "field",
+                            "value" : ["tcp", "fin"]
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0xff"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x01"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 387,
+            "column" : 12,
+            "source_fragment" : "meta.tcp_flags = ..."
+          }
+        }
+      ]
+    },
+    {
+      "name" : "ids_prefilter366",
+      "id" : 4,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.prefilter_candidate"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 366,
+            "column" : 8,
+            "source_fragment" : "meta.prefilter_candidate = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.l4_src_port"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 368,
+            "column" : 8,
+            "source_fragment" : "meta.l4_src_port = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.l4_dst_port"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 369,
+            "column" : 8,
+            "source_fragment" : "meta.l4_dst_port = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.tcp_flags"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00"
+            }
+          ],
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 371,
+            "column" : 8,
+            "source_fragment" : "meta.tcp_flags = 0"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "ids_prefilter406",
+      "id" : 5,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.l4_src_port"]
+            },
+            {
+              "type" : "field",
+              "value" : ["udp", "srcPort"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 406,
+            "column" : 12,
+            "source_fragment" : "meta.l4_src_port = ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata_t.l4_dst_port"]
+            },
+            {
+              "type" : "field",
+              "value" : ["udp", "dstPort"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 409,
+            "column" : 12,
+            "source_fragment" : "meta.l4_dst_port = ..."
+          }
+        }
+      ]
+    }
+  ],
+  "pipelines" : [
+    {
+      "name" : "ingress",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+        "line" : 257,
+        "column" : 8,
+        "source_fragment" : "MyIngress"
+      },
+      "init_table" : "tbl_ids_prefilter366",
+      "tables" : [
+        {
+          "name" : "tbl_ids_prefilter366",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 366,
+            "column" : 33,
+            "source_fragment" : "= 0; ..."
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [4],
+          "actions" : ["ids_prefilter366"],
+          "base_default_next" : "node_3",
+          "next_tables" : {
+            "ids_prefilter366" : "node_3"
+          },
+          "default_entry" : {
+            "action_id" : 4,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_ids_prefilter381",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 381,
+            "column" : 29,
+            "source_fragment" : "= ..."
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [3],
+          "actions" : ["ids_prefilter381"],
+          "base_default_next" : "node_5",
+          "next_tables" : {
+            "ids_prefilter381" : "node_5"
+          },
+          "default_entry" : {
+            "action_id" : 3,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_ids_prefilter406",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 406,
+            "column" : 29,
+            "source_fragment" : "= ..."
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [5],
+          "actions" : ["ids_prefilter406"],
+          "base_default_next" : "node_7",
+          "next_tables" : {
+            "ids_prefilter406" : "node_7"
+          },
+          "default_entry" : {
+            "action_id" : 5,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "MyIngress.ids_prefilter",
+          "id" : 3,
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 309,
+            "column" : 10,
+            "source_fragment" : "ids_prefilter"
+          },
+          "key" : [
+            {
+              "match_type" : "ternary",
+              "name" : "hdr.ipv4.protocol",
+              "target" : ["ipv4", "protocol"],
+              "mask" : null
+            },
+            {
+              "match_type" : "ternary",
+              "name" : "hdr.ipv4.srcAddr",
+              "target" : ["ipv4", "srcAddr"],
+              "mask" : null
+            },
+            {
+              "match_type" : "ternary",
+              "name" : "hdr.ipv4.dstAddr",
+              "target" : ["ipv4", "dstAddr"],
+              "mask" : null
+            },
+            {
+              "match_type" : "ternary",
+              "name" : "meta.l4_src_port",
+              "target" : ["scalars", "metadata_t.l4_src_port"],
+              "mask" : null
+            },
+            {
+              "match_type" : "ternary",
+              "name" : "meta.l4_dst_port",
+              "target" : ["scalars", "metadata_t.l4_dst_port"],
+              "mask" : null
+            },
+            {
+              "match_type" : "ternary",
+              "name" : "meta.tcp_flags",
+              "target" : ["scalars", "metadata_t.tcp_flags"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "ternary",
+          "type" : "simple",
+          "max_size" : 8192,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [1, 2, 0],
+          "actions" : ["MyIngress.send_to_ids", "MyIngress.no_prefilter_match", "NoAction"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "MyIngress.send_to_ids" : null,
+            "MyIngress.no_prefilter_match" : null,
+            "NoAction" : null
+          },
+          "default_entry" : {
+            "action_id" : 2,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        }
+      ],
+      "action_profiles" : [],
+      "conditionals" : [
+        {
+          "name" : "node_3",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 379,
+            "column" : 12,
+            "source_fragment" : "hdr.tcp.isValid()"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "d2b",
+              "left" : null,
+              "right" : {
+                "type" : "field",
+                "value" : ["tcp", "$valid$"]
+              }
+            }
+          },
+          "true_next" : "tbl_ids_prefilter381",
+          "false_next" : "node_5"
+        },
+        {
+          "name" : "node_5",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 404,
+            "column" : 12,
+            "source_fragment" : "hdr.udp.isValid()"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "d2b",
+              "left" : null,
+              "right" : {
+                "type" : "field",
+                "value" : ["udp", "$valid$"]
+              }
+            }
+          },
+          "true_next" : "tbl_ids_prefilter406",
+          "false_next" : "node_7"
+        },
+        {
+          "name" : "node_7",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+            "line" : 419,
+            "column" : 12,
+            "source_fragment" : "hdr.ipv4.isValid()"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "d2b",
+              "left" : null,
+              "right" : {
+                "type" : "field",
+                "value" : ["ipv4", "$valid$"]
+              }
+            }
+          },
+          "false_next" : null,
+          "true_next" : "MyIngress.ids_prefilter"
+        }
+      ]
+    },
+    {
+      "name" : "egress",
+      "id" : 1,
+      "source_info" : {
+        "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+        "line" : 443,
+        "column" : 8,
+        "source_fragment" : "MyEgress"
+      },
+      "init_table" : null,
+      "tables" : [],
+      "action_profiles" : [],
+      "conditionals" : []
+    }
+  ],
+  "checksums" : [
+    {
+      "name" : "cksum",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+        "line" : 466,
+        "column" : 8,
+        "source_fragment" : "update_checksum( ..."
+      },
+      "target" : ["ipv4", "hdrChecksum"],
+      "type" : "generic",
+      "calculation" : "calc",
+      "verify" : false,
+      "update" : true,
+      "if_cond" : {
+        "type" : "expression",
+        "value" : {
+          "op" : "d2b",
+          "left" : null,
+          "right" : {
+            "type" : "field",
+            "value" : ["ipv4", "$valid$"]
+          }
+        }
+      }
+    }
+  ],
+  "force_arith" : [],
+  "extern_instances" : [],
+  "field_aliases" : [
+    [
+      "queueing_metadata.enq_timestamp",
+      ["standard_metadata", "enq_timestamp"]
+    ],
+    [
+      "queueing_metadata.enq_qdepth",
+      ["standard_metadata", "enq_qdepth"]
+    ],
+    [
+      "queueing_metadata.deq_timedelta",
+      ["standard_metadata", "deq_timedelta"]
+    ],
+    [
+      "queueing_metadata.deq_qdepth",
+      ["standard_metadata", "deq_qdepth"]
+    ],
+    [
+      "intrinsic_metadata.ingress_global_timestamp",
+      ["standard_metadata", "ingress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.egress_global_timestamp",
+      ["standard_metadata", "egress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.mcast_grp",
+      ["standard_metadata", "mcast_grp"]
+    ],
+    [
+      "intrinsic_metadata.egress_rid",
+      ["standard_metadata", "egress_rid"]
+    ],
+    [
+      "intrinsic_metadata.priority",
+      ["standard_metadata", "priority"]
+    ]
+  ],
+  "program" : "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/p4/ids_prefilter.p4",
+  "__meta__" : {
+    "version" : [2, 23],
+    "compiler" : "https://github.com/p4lang/p4c"
+  }
+}

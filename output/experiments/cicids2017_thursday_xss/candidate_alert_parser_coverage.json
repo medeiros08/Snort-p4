@@ -1,0 +1,37 @@
+{
+  "total_packets": 528,
+  "parser_eligible_packets": 528,
+  "parser_ineligible_packets": 0,
+  "direct_ipv4_packets": 528,
+  "vlan_packets": 0,
+  "vlan_ipv4_packets": 0,
+  "arp_packets": 0,
+  "ipv6_packets": 0,
+  "lldp_packets": 0,
+  "other_packets": 0,
+  "parser_ineligible_breakdown": {
+    "vlan": 0,
+    "arp": 0,
+    "ipv6": 0,
+    "lldp": 0,
+    "other": 0,
+    "malformed": 0
+  },
+  "vlan_ids": {},
+  "vlan_inner_ip_protocols": {},
+  "direct_ipv4_protocols": {
+    "1": 7,
+    "17": 521
+  },
+  "direct_ipv4_fragment_packets": 0,
+  "malformed_frame_numbers": [],
+  "truncated_frame_numbers": [],
+  "parser_ineligible_involving_192.168.10.50": 0,
+  "parser_ineligible_involving_172.16.0.1": 0,
+  "parser_ineligible_snort_alerts": [],
+  "candidate_alert_packets_parser_ineligible": [],
+  "candidate_counter_packets": 528,
+  "no_match_counter_packets": 0,
+  "prefilter_accounted_packets": 528,
+  "parser_to_counter_accounting": "VALID"
+}

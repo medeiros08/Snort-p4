@@ -1,0 +1,44 @@
+=== Real Ruleset Semantic Analysis ===
+Candidate rules      : 4017
+Parsed rules         : 4007
+Parse failures       : 10
+
+Semantic classifications
+---------------------------------------------
+EXACT       :     0 (  0.00%)
+NECESSARY   :  4000 ( 99.83%)
+UNSUPPORTED :     7 (  0.17%)
+---------------------------------------------
+Rule coverage  : 4000/4007 (99.83%)
+
+Most frequent preserved predicates
+---------------------------------------------
+protocol                  4007
+dst_ip                    3979
+src_ip                    3957
+dst_port                  3242
+src_port                  454
+flags                     14
+
+Most frequent delegated predicates
+---------------------------------------------
+content                   7392
+flow                      3831
+service                   2928
+http_uri                  1731
+pcre                      1076
+http_header               579
+flowbits                  439
+byte_jump                 335
+byte_test                 319
+file_data                 263
+isdataat                  257
+http_client_body          243
+http_raw_uri              208
+pkt_data                  197
+bufferlen                 191
+itype                     124
+http_method               123
+icode                     79
+detection_filter          33
+http_cookie               32

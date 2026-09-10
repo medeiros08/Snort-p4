@@ -1,0 +1,54 @@
+{
+  "total_packets": 35274,
+  "parser_eligible_packets": 34924,
+  "parser_ineligible_packets": 350,
+  "direct_ipv4_packets": 34924,
+  "vlan_packets": 0,
+  "vlan_ipv4_packets": 0,
+  "arp_packets": 125,
+  "ipv6_packets": 195,
+  "lldp_packets": 0,
+  "other_packets": 30,
+  "parser_ineligible_breakdown": {
+    "vlan": 0,
+    "arp": 125,
+    "ipv6": 195,
+    "lldp": 0,
+    "other": 30,
+    "malformed": 0
+  },
+  "vlan_ids": {},
+  "vlan_inner_ip_protocols": {},
+  "direct_ipv4_protocols": {
+    "6": 29639,
+    "17": 5285
+  },
+  "direct_ipv4_fragment_packets": 0,
+  "malformed_frame_numbers": [],
+  "truncated_frame_numbers": [],
+  "parser_ineligible_involving_192.168.10.50": 0,
+  "parser_ineligible_involving_172.16.0.1": 0,
+  "parser_ineligible_snort_alerts": [],
+  "candidate_alert_packets_parser_ineligible": [],
+  "veth0_received_packets": 35274,
+  "veth0_parser_eligible_packets": 34924,
+  "veth0_parser_ineligible_packets": 350,
+  "capture_comparison": {
+    "ordered_frame_mismatches": 0,
+    "mismatch_frame_numbers_sample": []
+  },
+  "candidate_counter_packets": 34924,
+  "no_match_counter_packets": 0,
+  "prefilter_accounted_packets": 34924,
+  "input_to_veth_accounting": "VALID",
+  "parser_to_counter_accounting": "VALID",
+  "replay": {
+    "method": "AF_PACKET raw socket",
+    "interface": "veth1",
+    "capture_interface": "veth0",
+    "capture_direction": "in",
+    "inter_seconds": 0.02,
+    "frames_preserved_raw": true,
+    "tcpdump_kernel_drops": 0
+  }
+}

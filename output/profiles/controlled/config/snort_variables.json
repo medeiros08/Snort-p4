@@ -1,0 +1,31 @@
+{
+  "HOME_NET": "10.0.0.0/24",
+  "EXTERNAL_NET": "any",
+  "HTTP_SERVERS": "10.0.0.0/24",
+  "SQL_SERVERS": "10.0.0.0/24",
+  "SMTP_SERVERS": "10.0.0.0/24",
+  "TELNET_SERVERS": "10.0.0.0/24",
+  "SIP_SERVERS": "10.0.0.0/24",
+  "HTTP_PORTS": [
+    80,
+    8080
+  ],
+  "ORACLE_PORTS": [
+    1521
+  ],
+  "FILE_DATA_PORTS": [
+    80,
+    110,
+    143
+  ],
+  "SIP_PORTS": [
+    5060,
+    5061
+  ],
+  "SSH_PORTS": [
+    22
+  ],
+  "FTP_PORTS": [
+    21
+  ]
+}

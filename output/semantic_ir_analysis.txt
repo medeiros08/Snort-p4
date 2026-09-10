@@ -1,0 +1,88 @@
+=== Semantic IR Analysis ===
+
+Candidate rules     : 4017
+Parsed rules        : 4017
+Parse failures      : 0
+Semantic failures   : 0
+
+Rule types
+--------------------------------------------------
+TRADITIONAL           4007 ( 99.75%)
+SERVICE                 10 (  0.25%)
+
+Predicate kinds (total occurrences)
+--------------------------------------------------
+METADATA              26901
+HEADER                24293
+PAYLOAD                9639
+FLOW_STATE             4281
+BUFFER                 3406
+APPLICATION            3012
+TEMPORAL                 33
+POST_DETECTION            1
+
+Rules containing each predicate kind
+--------------------------------------------------
+METADATA              4017 (100.00%)
+HEADER                4007 ( 99.75%)
+PAYLOAD               3922 ( 97.64%)
+FLOW_STATE            3841 ( 95.62%)
+APPLICATION           2941 ( 73.21%)
+BUFFER                2248 ( 55.96%)
+TEMPORAL                33 (  0.82%)
+POST_DETECTION           1 (  0.02%)
+
+Backend treatments (total occurrences)
+--------------------------------------------------
+OUT_OF_SCOPE          26901
+UNASSESSED            24293
+DELEGATED             20372
+
+Rules containing each backend treatment
+--------------------------------------------------
+OUT_OF_SCOPE          4017 (100.00%)
+UNASSESSED            4007 ( 99.75%)
+DELEGATED             3938 ( 98.03%)
+
+Most frequent semantic operators
+--------------------------------------------------
+raw                             20035
+content                          7417
+reference                        6737
+msg                              4017
+metadata                         4017
+classtype                        4017
+sid                              4017
+rev                              4017
+exact                            4007
+flow                             3841
+service                          2930
+http_uri                         1735
+pcre                             1080
+http_header                       581
+flowbits                          439
+byte_jump                         335
+byte_test                         321
+file_data                         263
+isdataat                          257
+option                            251
+http_client_body                  244
+http_raw_uri                      209
+pkt_data                          197
+bufferlen                         191
+http_method                       123
+gid                                79
+detection_filter                   33
+http_cookie                        32
+dsize                              23
+dce_iface                          15
+dce_opnum                          15
+dce_stub_data                      14
+byte_extract                       12
+service_header                     10
+ber_data                            8
+raw_data                            7
+ssl_state                           7
+http_stat_code                      5
+sip_stat_code                       4
+sip_method                          3

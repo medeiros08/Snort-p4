@@ -1,0 +1,643 @@
+from copy import deepcopy
+
+
+SUPPORTED_L3_PROTOCOLS = {
+    "tcp",
+    "udp",
+    "icmp",
+}
+
+
+HEADER_FIELDS_CURRENT_BACKEND = {
+    "protocol",
+    "src_ip",
+    "src_port",
+    "direction",
+    "dst_ip",
+    "dst_port",
+    "flags",
+}
+
+
+HEADER_FIELDS_FUTURE_P4 = {
+    "ttl",
+    "id",
+    "ip_proto",
+
+    "seq",
+    "ack",
+
+    "itype",
+    "icode",
+    "icmp_id",
+    "icmp_seq",
+
+    "fragbits",
+}
+
+
+def is_variable(value):
+    if value is None:
+        return False
+
+    return (
+        isinstance(value, str)
+        and value.strip().startswith("$")
+    )
+
+
+def is_any(value):
+    if value is None:
+        return False
+
+    return (
+        isinstance(value, str)
+        and value.strip().lower() == "any"
+    )
+
+
+def is_python_list(value):
+    return isinstance(
+        value,
+        list,
+    )
+
+
+def is_textual_list(value):
+    if not isinstance(
+        value,
+        str,
+    ):
+        return False
+
+    text = value.strip()
+
+    return (
+        text.startswith("[")
+        and text.endswith("]")
+    )
+
+
+def is_list(value):
+    return (
+        is_python_list(value)
+        or is_textual_list(value)
+    )
+
+
+def is_negated(value):
+    if not isinstance(
+        value,
+        str,
+    ):
+        return False
+
+    return value.strip().startswith("!")
+
+
+def is_port_range(value):
+    if value is None:
+        return False
+
+    if not isinstance(
+        value,
+        str,
+    ):
+        return False
+
+    text = value.strip()
+
+    return (
+        ":" in text
+        and not is_textual_list(text)
+        and not is_variable(text)
+    )
+
+
+def is_exact_port(value):
+    if value is None:
+        return False
+
+    if isinstance(
+        value,
+        int,
+    ):
+        return (
+            0 <= value <= 65535
+        )
+
+    try:
+        port = int(
+            str(value).strip()
+        )
+
+        return (
+            0 <= port <= 65535
+        )
+
+    except ValueError:
+        return False
+
+
+def is_ipv4_or_cidr(value):
+    if value is None:
+        return False
+
+    if not isinstance(
+        value,
+        str,
+    ):
+        return False
+
+    text = value.strip()
+
+    if is_any(text):
+        return False
+
+    if is_variable(text):
+        return False
+
+    if is_textual_list(text):
+        return False
+
+    if is_negated(text):
+        return False
+
+    address_part = text.split(
+        "/",
+        1,
+    )[0]
+
+    parts = address_part.split(".")
+
+    if len(parts) != 4:
+        return False
+
+    try:
+        numbers = [
+            int(part)
+            for part in parts
+        ]
+
+    except ValueError:
+        return False
+
+    if not all(
+        0 <= number <= 255
+        for number in numbers
+    ):
+        return False
+
+    if "/" in text:
+
+        try:
+            prefix = int(
+                text.split(
+                    "/",
+                    1,
+                )[1]
+            )
+
+        except ValueError:
+            return False
+
+        if not (
+            0 <= prefix <= 32
+        ):
+            return False
+
+    return True
+
+
+def parse_textual_list(value):
+    """
+    Convert a simple textual Snort list:
+
+        [80,443,8080]
+
+    into:
+
+        ["80", "443", "8080"]
+
+    This is intentionally conservative. Nested lists or
+    more complex Snort expressions are left as raw items
+    and assessed individually.
+    """
+
+    text = value.strip()
+
+    if not (
+        text.startswith("[")
+        and text.endswith("]")
+    ):
+        return None
+
+    inner = text[
+        1:-1
+    ].strip()
+
+    if not inner:
+        return []
+
+    return [
+        item.strip()
+        for item in inner.split(",")
+        if item.strip()
+    ]
+
+
+def normalize_list_items(value):
+    """
+    Return list items from either:
+
+        Python list:
+            [80, 8080]
+
+    or textual Snort list:
+            "[80,8080]"
+    """
+
+    if is_python_list(value):
+        return value
+
+    if is_textual_list(value):
+        return parse_textual_list(
+            value
+        )
+
+    return None
+
+
+def assess_protocol(predicate):
+    value = str(
+        predicate.value
+    ).strip().lower()
+
+    if value in SUPPORTED_L3_PROTOCOLS:
+        return (
+            "PRESERVED",
+            "supported_ip_protocol",
+        )
+
+    if value == "ip":
+        return (
+            "PRESERVED",
+            "protocol_wildcard",
+        )
+
+    return (
+        "DELEGATED",
+        "application_or_unsupported_protocol",
+    )
+
+
+def assess_ip_list(value):
+    items = normalize_list_items(
+        value
+    )
+
+    if items is None:
+        return (
+            "FALLBACK",
+            "invalid_address_list",
+        )
+
+    if not items:
+        return (
+            "FALLBACK",
+            "empty_address_list",
+        )
+
+    for item in items:
+
+        if is_negated(item):
+            return (
+                "FALLBACK",
+                "address_list_contains_negation",
+            )
+
+        if is_variable(item):
+            return (
+                "UNASSESSED",
+                "address_list_contains_variable",
+            )
+
+        if not is_ipv4_or_cidr(
+            item
+        ):
+            return (
+                "FALLBACK",
+                "address_list_contains_unsupported_element",
+            )
+
+    return (
+        "EXPANDED",
+        "address_list_requires_expansion",
+    )
+
+
+def assess_ip(predicate):
+    value = predicate.value
+
+    if is_any(value):
+        return (
+            "PRESERVED",
+            "wildcard",
+        )
+
+    if is_variable(value):
+        return (
+            "UNASSESSED",
+            "requires_variable_resolution",
+        )
+
+    if is_negated(value):
+        return (
+            "FALLBACK",
+            "negated_address_not_supported",
+        )
+
+    if is_list(value):
+        return assess_ip_list(
+            value
+        )
+
+    if is_ipv4_or_cidr(value):
+        return (
+            "PRESERVED",
+            "ipv4_or_cidr_supported",
+        )
+
+    return (
+        "FALLBACK",
+        "unsupported_address_expression",
+    )
+
+
+def assess_port_list(value):
+    """
+    A list is EXPANDED only if every element is an exact
+    supported port.
+
+    Examples:
+
+        [80,443]
+            -> EXPANDED
+
+        [135,139,445,593,1024:]
+            -> FALLBACK
+
+        [80,!443]
+            -> FALLBACK
+    """
+
+    items = normalize_list_items(
+        value
+    )
+
+    if items is None:
+        return (
+            "FALLBACK",
+            "invalid_port_list",
+        )
+
+    if not items:
+        return (
+            "FALLBACK",
+            "empty_port_list",
+        )
+
+    for item in items:
+
+        if is_variable(item):
+            return (
+                "UNASSESSED",
+                "port_list_contains_variable",
+            )
+
+        if is_negated(item):
+            return (
+                "FALLBACK",
+                "port_list_contains_negation",
+            )
+
+        if is_port_range(item):
+            return (
+                "FALLBACK",
+                "port_list_contains_range",
+            )
+
+        if not is_exact_port(item):
+            return (
+                "FALLBACK",
+                "port_list_contains_unsupported_element",
+            )
+
+    return (
+        "EXPANDED",
+        "port_list_requires_expansion",
+    )
+
+
+def assess_port(predicate):
+    value = predicate.value
+
+    if is_any(value):
+        return (
+            "PRESERVED",
+            "wildcard",
+        )
+
+    if is_variable(value):
+        return (
+            "UNASSESSED",
+            "requires_variable_resolution",
+        )
+
+    if is_negated(value):
+        return (
+            "FALLBACK",
+            "negated_port_not_supported",
+        )
+
+    if is_list(value):
+        return assess_port_list(
+            value
+        )
+
+    if is_port_range(value):
+        return (
+            "FALLBACK",
+            "port_range_not_supported",
+        )
+
+    if is_exact_port(value):
+        return (
+            "PRESERVED",
+            "exact_port_supported",
+        )
+
+    return (
+        "FALLBACK",
+        "unsupported_port_expression",
+    )
+
+
+def assess_direction(predicate):
+    value = str(
+        predicate.value
+    ).strip()
+
+    if value == "->":
+        return (
+            "PRESERVED",
+            "forward_direction_supported",
+        )
+
+    if value == "<>":
+        return (
+            "EXPANDED",
+            "bidirectional_requires_expansion",
+        )
+
+    return (
+        "FALLBACK",
+        "unsupported_direction",
+    )
+
+
+def assess_flags(predicate):
+    """
+    Current backend has partial TCP flags support.
+
+    Simple forms are passed to the backend normalizer.
+    Historical/unknown encodings containing digits are
+    conservatively sent to fallback.
+    """
+
+    value = str(
+        predicate.value
+    ).strip()
+
+    if any(
+        character.isdigit()
+        for character in value
+    ):
+        return (
+            "FALLBACK",
+            "unsupported_flags_encoding",
+        )
+
+    return (
+        "PRESERVED",
+        "flags_supported_by_backend_normalizer",
+    )
+
+
+def assess_future_header(predicate):
+    """
+    These fields are semantically suitable for P4, but
+    are not implemented in the current backend.
+    """
+
+    return (
+        "DELEGATED",
+        "p4_candidate_not_implemented_in_current_backend",
+    )
+
+
+def assess_header_predicate(predicate):
+    field = predicate.field
+
+    if field == "protocol":
+        return assess_protocol(
+            predicate
+        )
+
+    if field in {
+        "src_ip",
+        "dst_ip",
+    }:
+        return assess_ip(
+            predicate
+        )
+
+    if field in {
+        "src_port",
+        "dst_port",
+    }:
+        return assess_port(
+            predicate
+        )
+
+    if field == "direction":
+        return assess_direction(
+            predicate
+        )
+
+    if field == "flags":
+        return assess_flags(
+            predicate
+        )
+
+    if field in HEADER_FIELDS_FUTURE_P4:
+        return assess_future_header(
+            predicate
+        )
+
+    return (
+        "DELEGATED",
+        "header_field_not_supported_by_current_backend",
+    )
+
+
+def assess_rule(
+    semantic_rule
+):
+    """
+    Return a deep copy of the semantic rule with
+    backend treatments assigned to UNASSESSED
+    header predicates.
+
+    The original semantic IR remains target-neutral.
+    """
+
+    assessed_rule = deepcopy(
+        semantic_rule
+    )
+
+    reasons = []
+
+    for predicate in (
+        assessed_rule.predicates
+    ):
+
+        if predicate.kind != "HEADER":
+            continue
+
+        if (
+            predicate.backend_treatment
+            != "UNASSESSED"
+        ):
+            continue
+
+        treatment, reason = (
+            assess_header_predicate(
+                predicate
+            )
+        )
+
+        predicate.backend_treatment = (
+            treatment
+        )
+
+        reasons.append(
+            {
+                "field": predicate.field,
+                "value": predicate.value,
+                "treatment": treatment,
+                "reason": reason,
+            }
+        )
+
+    return assessed_rule, reasons

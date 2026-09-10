@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "profile": "cicids2017",
+  "built_at_utc": "2026-08-25T20:04:39.214251+00:00",
+  "active_profile": {
+    "profile": "cicids2017",
+    "profile_file": "config/profiles/cicids2017.json",
+    "compiler_variables_file": "config/snort_variables.json",
+    "snort_configuration_file": "config/snort3_experiment.lua",
+    "HOME_NET": "192.168.10.0/24",
+    "EXTERNAL_NET": "any",
+    "network_variables": {
+      "HOME_NET": "192.168.10.0/24",
+      "EXTERNAL_NET": "any",
+      "HTTP_SERVERS": "192.168.10.0/24",
+      "SQL_SERVERS": "192.168.10.0/24",
+      "SMTP_SERVERS": "192.168.10.0/24",
+      "TELNET_SERVERS": "192.168.10.0/24",
+      "SIP_SERVERS": "192.168.10.0/24"
+    },
+    "port_variables": {
+      "HTTP_PORTS": [
+        80,
+        8080
+      ],
+      "ORACLE_PORTS": [
+        1521
+      ],
+      "FILE_DATA_PORTS": [
+        80,
+        110,
+        143
+      ],
+      "SIP_PORTS": [
+        5060,
+        5061
+      ],
+      "SSH_PORTS": [
+        22
+      ],
+      "FTP_PORTS": [
+        21
+      ]
+    },
+    "snort_default_file_magic_disabled": true,
+    "extra_variables_ignored": []
+  },
+  "snort_split": {
+    "source_sids": 4017,
+    "candidate_rules": 4003,
+    "non_candidate_rules": 14,
+    "semantic_counts": {
+      "NECESSARY": 4003,
+      "UNSUPPORTED": 14
+    },
+    "validation_errors": []
+  },
+  "semantic_manifest": {
+    "schema_version": "2.0"
+  },
+  "backend": {
+    "validation_errors": 0,
+    "validation_warnings": 0,
+    "fits_table": null
+  },
+  "p4_install": {
+    "source_entries": 6675,
+    "final_install_entries": 331,
+    "reduction_percentage": 95.04119850187266
+  },
+  "p4runtime": {
+    "source_install_entries": 331,
+    "encoded_entries": 331,
+    "encoding_failures": 0,
+    "validation_errors": 0
+  },
+  "snapshot_directory": "output/profiles/cicids2017",
+  "status": "VALID"
+}

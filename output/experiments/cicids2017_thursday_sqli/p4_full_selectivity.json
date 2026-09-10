@@ -1,0 +1,22 @@
+{
+  "pcap": "/home/arthur/datasets/cicids2017/windows/thursday_web_sqli.pcap",
+  "interface": "veth1",
+  "input_packets": 35274,
+  "input_bytes": 22324997,
+  "candidate": {
+    "packets": 30503,
+    "bytes": 19280007
+  },
+  "no_match": {
+    "packets": 0,
+    "bytes": 0
+  },
+  "observed_packets": 30503,
+  "observed_bytes": 19280007,
+  "candidate_packet_percentage": 100.0,
+  "no_match_packet_percentage": 0.0,
+  "candidate_byte_percentage": 100.0,
+  "no_match_byte_percentage": 0.0,
+  "packet_accounting_ok": false,
+  "elapsed_seconds": 731.3559973239899
+}

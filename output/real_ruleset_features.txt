@@ -1,0 +1,32 @@
+=== Snort Rule Feature Analysis ===
+Candidate rules : 4017
+Parsed rules    : 4007
+Parse failures  : 10
+
+Most common options by number of rules
+-------------------------------------------------------
+rev                        4007 rules (100.00%)
+msg                        4007 rules (100.00%)
+metadata                   4007 rules (100.00%)
+sid                        4007 rules (100.00%)
+classtype                  4007 rules (100.00%)
+content                    3888 rules ( 97.03%)
+flow                       3831 rules ( 95.61%)
+reference                  3230 rules ( 80.61%)
+service                    2928 rules ( 73.07%)
+http_uri                   1688 rules ( 42.13%)
+pcre                       1023 rules ( 25.53%)
+http_header                 555 rules ( 13.85%)
+file_data                   263 rules (  6.56%)
+byte_test                   252 rules (  6.29%)
+flowbits                    242 rules (  6.04%)
+http_client_body            236 rules (  5.89%)
+isdataat                    209 rules (  5.22%)
+http_raw_uri                205 rules (  5.12%)
+pkt_data                    195 rules (  4.87%)
+bufferlen                   191 rules (  4.77%)
+byte_jump                   173 rules (  4.32%)
+itype                       124 rules (  3.09%)
+http_method                 123 rules (  3.07%)
+icode                        79 rules (  1.97%)
+gid                          70 rules (  1.75%)

@@ -1,0 +1,16 @@
+{
+  "configuration": {
+    "retained_install_entries": 322,
+    "p4_eligible_rules": 3611,
+    "operational_fallback_rules": 392,
+    "unsupported_fallback_rules": 14
+  },
+  "dependency_status": "SAFE_FOR_INDEPENDENT_RULESET_SPLIT",
+  "observed_baseline_alerts": 2391,
+  "eligible_alert_events": 2289,
+  "fallback_alert_events": 102,
+  "p4_covered_eligible_alert_events": 2289,
+  "missing_eligible_alert_events": 0,
+  "observed_preservation_percentage": 100.0,
+  "scope": "Observed event-level predicate membership only; no claim of full semantic equivalence from finite traffic."
+}

@@ -1,0 +1,43 @@
+{
+  "profile": "controlled",
+  "profile_file": "config/profiles/controlled.json",
+  "compiler_variables_file": "config/snort_variables.json",
+  "snort_configuration_file": "config/snort3_experiment.lua",
+  "HOME_NET": "10.0.0.0/24",
+  "EXTERNAL_NET": "any",
+  "network_variables": {
+    "HOME_NET": "10.0.0.0/24",
+    "EXTERNAL_NET": "any",
+    "HTTP_SERVERS": "10.0.0.0/24",
+    "SQL_SERVERS": "10.0.0.0/24",
+    "SMTP_SERVERS": "10.0.0.0/24",
+    "TELNET_SERVERS": "10.0.0.0/24",
+    "SIP_SERVERS": "10.0.0.0/24"
+  },
+  "port_variables": {
+    "HTTP_PORTS": [
+      80,
+      8080
+    ],
+    "ORACLE_PORTS": [
+      1521
+    ],
+    "FILE_DATA_PORTS": [
+      80,
+      110,
+      143
+    ],
+    "SIP_PORTS": [
+      5060,
+      5061
+    ],
+    "SSH_PORTS": [
+      22
+    ],
+    "FTP_PORTS": [
+      21
+    ]
+  },
+  "snort_default_file_magic_disabled": true,
+  "extra_variables_ignored": []
+}

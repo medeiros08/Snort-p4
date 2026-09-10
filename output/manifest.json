@@ -1,0 +1,71 @@
+[
+  {
+    "rule_id": 1001,
+    "classification": "EXACT",
+    "preserved": [
+      {
+        "name": "protocol",
+        "value": "tcp"
+      },
+      {
+        "name": "dst_ip",
+        "value": "10.0.0.2"
+      },
+      {
+        "name": "dst_port",
+        "value": "80"
+      },
+      {
+        "name": "flags",
+        "value": "S"
+      }
+    ],
+    "delegated": [],
+    "data_plane_action": "DIRECT",
+    "final_detection": "DATA_PLANE"
+  },
+  {
+    "rule_id": 1002,
+    "classification": "NECESSARY",
+    "preserved": [
+      {
+        "name": "protocol",
+        "value": "tcp"
+      },
+      {
+        "name": "dst_ip",
+        "value": "10.0.0.2"
+      },
+      {
+        "name": "dst_port",
+        "value": "80"
+      }
+    ],
+    "delegated": [
+      {
+        "name": "content",
+        "value": "attack"
+      }
+    ],
+    "data_plane_action": "PREFILTER",
+    "final_detection": "SNORT"
+  },
+  {
+    "rule_id": 1003,
+    "classification": "UNSUPPORTED",
+    "preserved": [
+      {
+        "name": "protocol",
+        "value": "tcp"
+      }
+    ],
+    "delegated": [
+      {
+        "name": "pcre",
+        "value": "/malware/i"
+      }
+    ],
+    "data_plane_action": "DELEGATE",
+    "final_detection": "SNORT"
+  }
+]

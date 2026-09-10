@@ -1,0 +1,15 @@
+{
+  "partition": {
+    "p4_eligible_rules": 3611,
+    "operational_fallback_rules": 392,
+    "unsupported_fallback_rules": 14
+  },
+  "flowbit_edges": {
+    "eligible_to_eligible": 636,
+    "eligible_to_fallback": 0,
+    "fallback_to_eligible": 0,
+    "fallback_to_fallback": 0,
+    "cross_partition": 0
+  },
+  "status": "SAFE_FOR_INDEPENDENT_RULESET_SPLIT"
+}

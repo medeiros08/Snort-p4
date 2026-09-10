@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "source_rules_file": "snort3-community.rules",
+  "manifest_file": "semantic_manifest.json",
+  "manifest_records": 4017,
+  "manifest_indexed_sids": 4017,
+  "source_lines": 4017,
+  "source_sids": 4017,
+  "candidate_rules": 4003,
+  "non_candidate_rules": 14,
+  "semantic_counts": {
+    "NECESSARY": 4003,
+    "UNSUPPORTED": 14
+  },
+  "candidate_class_counts": {
+    "NECESSARY": 4003
+  },
+  "non_candidate_class_counts": {
+    "UNSUPPORTED": 14
+  },
+  "manifest_failures": [],
+  "missing_in_manifest": [],
+  "missing_in_source": [],
+  "duplicate_source_sids": [],
+  "lines_without_sid": [],
+  "validation_errors": []
+}
