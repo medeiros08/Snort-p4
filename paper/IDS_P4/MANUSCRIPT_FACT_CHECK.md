@@ -1,5 +1,12 @@
 # Manuscript Fact Check
 
+> **Addendum (2026-09-09).** This check was run against the pre-correction
+> frozen sources. Three held-out values changed after the IPv4
+> packet-domain repair: parser-eligible 1,101,475 to 1,101,459, strong
+> candidate rate 98.941% to 98.942%, and strong no-match 11,662 to 11,654.
+> Every other value in the table below is unchanged. See
+> `PARSER_DOMAIN_RECONCILIATION.md`.
+
 Scope: factual audit of quantitative and experimental claims in `main.tex`
 against the frozen official sources only:
 `../../output/analysis/FINAL_EXPERIMENTAL_RESULTS.md` and

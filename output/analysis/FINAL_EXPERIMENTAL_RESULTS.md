@@ -1,5 +1,13 @@
 # Final Experimental Results
 
+> **Addendum (2026-09-09).** This consolidation is frozen at the
+> pre-correction state (2026-08-31). After the IPv4 packet-domain repair in
+> `p4/ids_prefilter.p4`, three held-out values changed: parser-eligible
+> 1,101,475 to 1,101,459, strong candidate rate 98.941% to 98.942%, and
+> strong no-match 11,662 to 11,654. All other values here were reproduced
+> unchanged by the revalidation in `ipv4_packet_domain_correction/`. See
+> `../../paper/IDS_P4/PARSER_DOMAIN_RECONCILIATION.md`.
+
 This frozen consolidation uses only the artifacts listed in `final_experimental_summary.json`. It does not run experiments, modify policy, or rebuild the pipeline. The active evaluated profile is `cicids2017` with `HOME_NET=192.168.10.0/24`.
 
 ## 1. Semantic compilation
