@@ -1,5 +1,11 @@
 # Conclusion Writing Audit
 
+> **Addendum (2026-09-09).** The held-out strong-discriminator candidate
+> rate cited below is now 98.942% (was 98.941%) after the IPv4
+> packet-domain repair, and the Conclusion's `r => p_r` statement is now
+> qualified by the enforced packet domain and its fail-open handling. See
+> `PARSER_DOMAIN_RECONCILIATION.md`.
+
 ## Paragraphs Written
 
 1. Research problem and semantics-aware, target-aware compilation framing.

@@ -1,5 +1,15 @@
 # RQ Alignment Audit
 
+> **Addendum (2026-09-09).** Two statements below are outdated. First, the
+> held-out values in the RQ3 row are now 98.942% and 11,654 no-matches
+> (were 98.941% and 11,662) after the IPv4 packet-domain repair; see
+> `PARSER_DOMAIN_RECONCILIATION.md`. Second, the section
+> `Appendix and Variable Profile Status` describes a placeholder appendix:
+> the frozen profile was inserted shortly afterwards and verified in
+> `APPENDIX_PROFILE_AUDIT.md`, so `app:snort-profile` is no longer a
+> placeholder. The `Remaining Overclaims and TODOs` list is likewise
+> resolved except for the LaTeX compilation item.
+
 ## Current Research Questions
 
 **RQ1 -- Semantic Coverage.** To what extent can Snort 3 rules be safely
