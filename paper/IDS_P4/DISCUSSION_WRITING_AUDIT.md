@@ -1,5 +1,10 @@
 # Discussion Writing Audit
 
+> **Addendum (2026-09-09).** The held-out strong-discriminator candidate
+> rate cited below is now 98.942% (was 98.941%) after the IPv4
+> packet-domain repair. The Discussion also now qualifies `r => p_r` by the
+> enforced packet domain. See `PARSER_DOMAIN_RECONCILIATION.md`.
+
 ## Subsections written
 
 1. Semantic Safety Does Not Imply Operational Selectivity

@@ -1,5 +1,12 @@
 # Final Static Editorial and LaTeX Audit
 
+> **Addendum (2026-09-09).** The 98.941% held-out strong candidate rate
+> verified below is now 98.942% after the IPv4 packet-domain repair; every
+> other value checked here is unchanged. The LaTeX build status recorded in
+> this audit predates the reconciliation edits and no longer describes the
+> current `main.tex`, which has not been recompiled. See
+> `PARSER_DOMAIN_RECONCILIATION.md`.
+
 ## 1. Executive Summary
 
 This static audit covered `main.tex`, `references.bib`, the manuscript audit files, and the frozen consolidated results. No experiment, frozen result, or scientific interpretation was changed. Three mechanical edits were made in `main.tex`: an unsupported generalization phrase was narrowed to a held-out observation, `candidate rule set` terminology was standardized, and an in-text reference to the semantic/backend table was added.

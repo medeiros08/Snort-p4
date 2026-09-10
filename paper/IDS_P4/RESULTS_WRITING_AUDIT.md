@@ -1,5 +1,12 @@
 # Results Writing Audit
 
+> **Addendum (2026-09-09).** Three held-out values cited below changed after
+> the IPv4 packet-domain repair: parser-eligible 1,101,475 to 1,101,459,
+> strong candidate rate 98.941% to 98.942%, and strong no-match 11,662 to
+> 11,654. The Results section also gained the subsection
+> `Packet-Domain Enforcement and Validation`, which did not exist when this
+> audit was written. See `PARSER_DOMAIN_RECONCILIATION.md`.
+
 ## Scope
 
 Only `main.tex` was edited. The Results section was written against the frozen
