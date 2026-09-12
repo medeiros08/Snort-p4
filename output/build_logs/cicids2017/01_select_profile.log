@@ -1,0 +1,16 @@
+
+=== Experimental Profile Selection ===
+
+Selected profile        : cicids2017
+HOME_NET                : 192.168.10.0/24
+EXTERNAL_NET            : any
+
+Snort experiment isolation
+-------------------------------------------------------
+Default file_magic.rules: DISABLED
+
+Compiler variables      : /mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/config/snort_variables.json
+Snort configuration     : /mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/config/snort3_experiment.lua
+Active-profile metadata : /mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/config/active_profile.json
+
+Profile selection status: VALID
