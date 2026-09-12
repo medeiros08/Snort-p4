@@ -1,0 +1,19 @@
+
+=== Final P4 Entry Lowering ===
+
+Source normalized entries       : 6675
+Unique before flag lowering     : 327
+Groups containing TCP flags     : 13
+Groups expanded by '*' flags    : 2
+Additional entries from flags   : 4
+Before final dedup              : 331
+Duplicates after lowering       : 0
+Final install entries           : 331
+
+Total entries removed           : 6344
+Reduction                       : 95.04%
+Maximum rules/install entry     : 1228
+Validation errors               : 0
+
+Output:
+/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/p4_install_entries.json

@@ -3,6 +3,8 @@ import re
 import sys
 from pathlib import Path
 
+import pipeline_gate
+
 
 PROJECT_ROOT = (
     Path(__file__)
@@ -682,6 +684,7 @@ def main():
                 candidate_lines
             ),
             encoding="utf-8",
+            newline="",
         )
 
         UNSUPPORTED_OUTPUT.write_text(
@@ -689,6 +692,7 @@ def main():
                 unsupported_lines
             ),
             encoding="utf-8",
+            newline="",
         )
 
     # --------------------------------------------------------
@@ -774,6 +778,7 @@ def main():
             ensure_ascii=False,
         ),
         encoding="utf-8",
+        newline="",
     )
 
     print(
@@ -889,6 +894,10 @@ def main():
         f"{REPORT_OUTPUT}"
     )
 
+
+    pipeline_gate.aplicar(
+        REPORT_OUTPUT
+    )
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,7 @@
+import backend_fields
+
+import paths
+
 import ast
 import json
 
@@ -5,9 +9,17 @@ from copy import deepcopy
 from itertools import product
 from pathlib import Path
 
+import pipeline_gate
 
-INPUT_FILE = "../output/p4_entries.json"
-OUTPUT_FILE = "../output/p4_entries_expanded.json"
+
+INPUT_FILE = (
+    paths.OUTPUT_DIR
+    / "p4_entries.json"
+)
+OUTPUT_FILE = (
+    paths.OUTPUT_DIR
+    / "p4_entries_expanded.json"
+)
 
 
 # ============================================================
@@ -15,13 +27,8 @@ OUTPUT_FILE = "../output/p4_entries_expanded.json"
 # ============================================================
 
 
-EXPANDABLE_FIELDS = {
-    "src_ip",
-    "dst_ip",
-    "src_port",
-    "dst_port",
-    "tcp_flags",
-}
+# Fonte unica do vocabulario, compartilhada com p4_backend.py.
+EXPANDABLE_FIELDS = backend_fields.EXPANSIVEIS
 
 
 # ============================================================
@@ -1148,6 +1155,7 @@ def main():
         output_path,
         "w",
         encoding="utf-8",
+        newline="\n",
     ) as file:
 
         json.dump(
@@ -1271,6 +1279,10 @@ def main():
         output_path.resolve()
     )
 
+
+    pipeline_gate.aplicar(
+        OUTPUT_FILE
+    )
 
 if __name__ == "__main__":
     main()

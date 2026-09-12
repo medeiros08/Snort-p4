@@ -1,0 +1,20 @@
+# Preserva os bytes exatos dos artefatos e do ruleset em qualquer plataforma.
+#
+# Sem isto, com core.autocrlf=true um checkout no Windows materializa
+# rules/snort3-community.rules em CRLF; o particionador entao produz
+# snort_candidate.rules com bytes diferentes dos congelados, e nenhuma
+# validacao do pipeline percebe (o Snort -T so procura a string
+# "successfully validated").
+
+* text=auto eol=lf
+
+# Dados cujos bytes sao evidencia experimental: git nunca converte.
+*.rules -text
+*.json  -text
+*.jsonl -text
+*.p4info.txt -text
+
+# Binarios.
+*.pcap -text
+*.pdf  -text
+*.zip  -text

@@ -1,0 +1,26 @@
+
+=== P4Runtime Entry Normalization ===
+
+Source entries          : 6675
+Normalized entries      : 6675
+Failed entries          : 0
+
+Normalized entry features
+-------------------------------------------------------
+Entries with IPv4       : 6650
+Entries with ports      : 6273
+Entries with TCP flags  : 13
+
+Orientations
+-------------------------------------------------------
+forward                6663
+reverse                  12
+
+IP protocol values
+-------------------------------------------------------
+  1 (ICMP ) :    128
+  6 (TCP  ) :   6283
+ 17 (UDP  ) :    230
+
+Output:
+/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/p4runtime_entries.json

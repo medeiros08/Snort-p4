@@ -1,0 +1,25 @@
+
+=== Snort Experimental Rule Split ===
+
+Manifest records       : 4017
+Manifest indexed SIDs  : 4017
+Source rule SIDs       : 4017
+
+Semantic classes
+--------------------------------------------------
+NECESSARY              4003
+UNSUPPORTED              14
+
+Candidate rules        : 4003
+Non-candidate rules    : 14
+
+Missing in manifest    : 0
+Missing in source      : 0
+Duplicate source SIDs  : 0
+Lines without SID      : 0
+
+Split status           : VALID
+
+Candidate output       : /mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/snort_candidate.rules
+Unsupported output     : /mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/snort_unsupported.rules
+Report                 : /mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/snort_experiment_split.json

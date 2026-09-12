@@ -1,0 +1,149 @@
+--------------------------------------------------
+o")~   Snort++ 3.12.2.0
+--------------------------------------------------
+Loading /home/arthur/snort3-install/etc/snort/snort.lua:
+Loading snort_defaults.lua:
+Finished snort_defaults.lua:
+	ssh
+	host_cache
+	pop
+	binder
+	stream_tcp
+	mms
+	smtp
+	gtp_inspect
+	packets
+	dce_http_proxy
+	ips
+	stream_icmp
+	normalizer
+	wizard
+	appid
+	js_norm
+	file_inspect
+	http2_inspect
+	http_inspect
+	ftp_data
+	stream_udp
+	ftp_server
+	port_scan
+	search_engine
+	dce_http_server
+	dce_tcp
+	dce_smb
+	iec104
+	cip
+	telnet
+	ssl
+	sip
+	rpc_decode
+	netflow
+	modbus
+	host_tracker
+	stream_user
+	stream_ip
+	process
+	back_orifice
+	classifications
+	dnp3
+	opcua
+	active
+	ftp_client
+	daq
+	socks
+	decode
+	alerts
+	stream
+	network
+	references
+	arp_spoof
+	output
+	hosts
+	dns
+	dce_udp
+	imap
+	file_policy
+	s7commplus
+	stream_file
+Finished /home/arthur/snort3-install/etc/snort/snort.lua:
+Loading file_inspect.rules_file:
+Loading file_magic.rules:
+Finished file_magic.rules:
+Finished file_inspect.rules_file:
+Loading rule args:
+Loading rules/snort3-community.rules:
+Finished rules/snort3-community.rules:
+Finished rule args:
+--------------------------------------------------
+pcre counts
+               pcre_rules: 1080
+              pcre_native: 1080
+--------------------------------------------------
+ips policies rule stats
+              id  loaded  shared enabled    file
+               1    4236       0    4236    /home/arthur/snort3-install/etc/snort/snort.lua
+--------------------------------------------------
+rule counts
+       total rules loaded: 4236
+               text rules: 4236
+            option chains: 4236
+            chain headers: 288
+                 flowbits: 48
+     flowbits not checked: 23
+--------------------------------------------------
+port rule counts
+             tcp     udp    icmp      ip
+     any     472      58     147      22
+     src     169      15       0       0
+     dst     775     150       0       0
+    both       6      11       0       0
+   total    1422     234     147      22
+--------------------------------------------------
+service rule counts          to-srv  to-cli
+                   dcerpc:       72      20
+                     dhcp:        2       2
+                      dns:       28       7
+                  file_id:      219     219
+                      ftp:       90       4
+                 ftp-data:        1      94
+                     http:     2084     253
+                    http2:     2084     253
+                    http3:     2084     253
+                     imap:       35     115
+                      irc:        5       2
+                 kerberos:        3       0
+                     ldap:        0       1
+                    mysql:        3       0
+              netbios-dgm:        1       1
+               netbios-ns:        4       3
+              netbios-ssn:       69      17
+                     nntp:        2       0
+                     pop3:       23     115
+                      rdp:        5       0
+                      sip:        5       5
+                     smtp:      129       2
+                     snmp:       18       7
+                     ssdp:        3       0
+                      ssl:       20      42
+                   sunrpc:       68       4
+                   telnet:       12       6
+                     tftp:        1       0
+                     wins:        1       0
+                    total:     7071    1425
+--------------------------------------------------
+fast pattern groups
+                      src: 114
+                      dst: 312
+                      any: 8
+                to_server: 69
+                to_client: 48
+--------------------------------------------------
+search engine (ac_bnfa)
+        fast pattern only: 7097
+appid: MaxRss diff: 2984
+appid: patterns loaded: 300
+--------------------------------------------------
+pcap DAQ configured to passive.
+
+Snort successfully validated the configuration (with 0 warnings).
+o")~   Snort exiting

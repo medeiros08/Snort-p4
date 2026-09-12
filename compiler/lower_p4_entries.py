@@ -1,11 +1,21 @@
+import paths
+
 import json
 
 from copy import deepcopy
 from pathlib import Path
 
+import pipeline_gate
 
-INPUT_FILE = "../output/p4runtime_entries.json"
-OUTPUT_FILE = "../output/p4_install_entries.json"
+
+INPUT_FILE = (
+    paths.OUTPUT_DIR
+    / "p4runtime_entries.json"
+)
+OUTPUT_FILE = (
+    paths.OUTPUT_DIR
+    / "p4_install_entries.json"
+)
 
 
 # ============================================================
@@ -1143,6 +1153,7 @@ def main():
         output_path,
         "w",
         encoding="utf-8",
+        newline="\n",
     ) as file:
 
         json.dump(
@@ -1256,6 +1267,10 @@ def main():
         output_path.resolve()
     )
 
+
+    pipeline_gate.aplicar(
+        OUTPUT_FILE
+    )
 
 if __name__ == "__main__":
     main()

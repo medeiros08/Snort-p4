@@ -1,3 +1,6 @@
+import backend_fields
+
+
 PROTOCOL_MAP = {
     "icmp": 1,
     "tcp": 6,
@@ -164,6 +167,8 @@ def get_backend_field_map(
 
     fields = {}
 
+    collisions = []
+
     for predicate in get_backend_predicates(
         rule_manifest
     ):
@@ -191,6 +196,25 @@ def get_backend_field_map(
         ):
             continue
 
+        if field in fields:
+
+            # O mesmo campo aparece mais de uma vez na regra. Manter apenas
+            # uma das condicoes conjuntas continua sendo uma relaxacao
+            # segura (A e B implica B), mas ate aqui isso acontecia em
+            # silencio absoluto: sem contador, sem aviso, sem campo de
+            # falha. A colisao passa a ser registrada na entrada.
+            collisions.append(
+                {
+                    "field": field,
+                    "kept": predicate.get(
+                        "value"
+                    ),
+                    "discarded": fields[field].get(
+                        "value"
+                    ),
+                }
+            )
+
         fields[field] = {
             "value": predicate.get(
                 "value"
@@ -213,7 +237,10 @@ def get_backend_field_map(
             ),
         }
 
-    return fields
+    # Devolve tambem as colisoes para que build_p4_entry possa registra-las
+    # na entrada. Antes, o mesmo campo aparecendo duas vezes era
+    # sobrescrito sem deixar rastro nenhum.
+    return fields, collisions
 
 
 # ============================================================
@@ -354,7 +381,7 @@ def build_p4_entry(
     }:
         return None
 
-    fields = get_backend_field_map(
+    fields, collisions = get_backend_field_map(
         rule_manifest
     )
 
@@ -461,8 +488,14 @@ def build_p4_entry(
             == "EXPANDED"
         ):
 
+            # Traduz para o nome usado na chave da tabela. Sem isto,
+            # um `flags` EXPANDED viraria expansion_fields=["flags"],
+            # nome que o expansor nao reconhece, e a entrada nunca seria
+            # expandida.
             expansion_fields.append(
-                field
+                backend_fields.nome_de_backend(
+                    field
+                )
             )
 
     entry = {
@@ -512,5 +545,11 @@ def build_p4_entry(
             "name": "send_to_ids",
         },
     }
+
+    # Chave acrescentada APENAS quando houve colisao, para nao alterar os
+    # artefatos de um ruleset que nao a exercita. Nenhuma das 4.017 regras
+    # do ruleset avaliado repete um campo de cabecalho.
+    if collisions:
+        entry["field_collisions"] = collisions
 
     return entry

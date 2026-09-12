@@ -1,11 +1,24 @@
 __pycache__/
 *.pyc
 .venv-p4runtime/
-*.aux
-*.log
-*.fls
-*.fdb_latexmk
-*.blg
 
-# Capturas binarias grandes (diagnostico secundario, regeneraveis pelos scripts de replay)
+# Artefatos de compilacao do LaTeX.
+#
+# Escopados em paper/. O padrao global *.log engolia tambem os 39 logs de
+# proveniencia em output/ — entre eles os *_install.log que registram
+# "331 escritas / 331 lidas" e os build_logs com a versao do Snort e a
+# contagem de regras carregadas. Nenhum estava versionado, ao contrario do
+# que afirma CODEX_HANDOFF.md secao 14.
+paper/**/*.aux
+paper/**/*.log
+paper/**/*.fls
+paper/**/*.fdb_latexmk
+paper/**/*.blg
+
+# Diagnostico volumoso e regeneravel pelos scripts de replay.
+#
+# Capturas binarias e o dump pacote a pacote do BMv2 (198 MB, sendo
+# 203 MB so em bmv2_full_selectivity.log). Os logs de proveniencia, que sao
+# pequenos e sao evidencia experimental, ficam versionados.
 *.pcap
+output/experiments/**/bmv2*.log

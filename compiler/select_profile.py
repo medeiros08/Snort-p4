@@ -618,6 +618,7 @@ def write_json(
         )
         + "\n",
         encoding="utf-8",
+        newline="",
     )
 
 
@@ -768,6 +769,7 @@ def main():
     SNORT_CONFIG_FILE.write_text(
         snort_lua,
         encoding="utf-8",
+        newline="",
     )
 
     # ========================================================

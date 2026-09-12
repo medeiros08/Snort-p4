@@ -1,9 +1,15 @@
+import paths
+
 import json
 from collections import Counter
 from pathlib import Path
+import sys
 
 
-MANIFEST_FILE = "../output/semantic_manifest.json"
+MANIFEST_FILE = (
+    paths.OUTPUT_DIR
+    / "semantic_manifest.json"
+)
 
 
 def fail(errors, rule_id, message):
@@ -480,6 +486,12 @@ def main():
 
     print()
 
+    parse_failures = (
+        manifest
+        .get("summary", {})
+        .get("failures", 0)
+    )
+
     if errors:
 
         print(
@@ -496,7 +508,7 @@ def main():
                 f"{error['message']}"
             )
 
-    else:
+    elif not parse_failures:
 
         print(
             "Manifest status: VALID"
@@ -518,6 +530,37 @@ def main():
                 f"SID {warning['rule_id']}: "
                 f"{warning['message']}"
             )
+
+    # Gate de falha.
+    #
+    # Este e o unico estagio que verifica os invariantes semanticos do
+    # manifesto, e ate aqui imprimia os erros e terminava com codigo 0, de
+    # modo que o build prosseguia sobre um manifesto invalido.
+    #
+    # summary.failures entra no gate porque nunca era lido por ninguem: uma
+    # regra que falha no parse some do manifesto sem virar UNSUPPORTED e sem
+    # aparecer em qualquer das duas particoes.
+    if errors or parse_failures:
+
+        print()
+        print(
+            "GATE: FALHOU — manifesto semantico invalido:"
+        )
+
+        if errors:
+            print(
+                f"       erros de invariante: "
+                f"{len(errors)}"
+            )
+
+        if parse_failures:
+            print(
+                f"       summary.failures: "
+                f"{parse_failures} regra(s) "
+                f"sumiram no parsing"
+            )
+
+        sys.exit(1)
 
 
 if __name__ == "__main__":
