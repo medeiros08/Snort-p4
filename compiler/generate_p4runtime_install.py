@@ -833,6 +833,171 @@ def verify_p4info_text(
 # ============================================================
 
 
+def decode_ternary_field(
+    campo
+):
+    """Reconstroi a forma semantica de um campo codificado.
+
+    Inverso de encode_match_field. Devolve (nome_semantico, valor) ou
+    (None, None) se o field_id nao pertencer ao contrato.
+    """
+
+    identificador = campo.get(
+        "field_id"
+    )
+
+    semantico = None
+
+    for nome, info in FIELD_INFO.items():
+
+        if info["field_id"] == identificador:
+            semantico = nome
+            break
+
+    if semantico is None:
+        return None, None
+
+    ternary = campo.get(
+        "ternary",
+        {},
+    )
+
+    valor = int(
+        ternary.get("value_hex", "")
+        or "0",
+        16,
+    )
+
+    mascara = int(
+        ternary.get("mask_hex", "")
+        or "0",
+        16,
+    )
+
+    if semantico in ("src_ip", "dst_ip"):
+
+        octetos = [
+            (valor >> deslocamento) & 0xFF
+            for deslocamento in (24, 16, 8, 0)
+        ]
+
+        # Conta os 1 iniciais da mascara. Uma mascara de prefixo valida
+        # tem todos os 1 contiguos a esquerda; se nao tiver, prefix_len
+        # devolvido nao reconstroi a mascara e a comparacao acusa.
+        prefixo = 0
+
+        for bit in range(31, -1, -1):
+
+            if mascara & (1 << bit):
+                prefixo += 1
+            else:
+                break
+
+        return semantico, {
+            "value": ".".join(
+                str(o) for o in octetos
+            ),
+            "prefix_len": prefixo,
+        }
+
+    if semantico == "tcp_flags":
+
+        return semantico, {
+            "value": valor,
+            "mask": mascara,
+        }
+
+    return semantico, valor
+
+
+def verify_round_trip(
+    source_entry,
+    encoded_entry,
+):
+    """Compara a entrada codificada com a de origem, por decodificacao."""
+
+    problemas = []
+
+    identificador = encoded_entry.get(
+        "install_entry_id"
+    )
+
+    origem = source_entry.get(
+        "match",
+        {},
+    )
+
+    reconstruido = {}
+
+    for campo in encoded_entry.get("match", []):
+
+        nome, valor = decode_ternary_field(
+            campo
+        )
+
+        if nome is None:
+
+            problemas.append(
+                {
+                    "install_entry_id": identificador,
+                    "message": (
+                        "campo codificado com field_id "
+                        f"{campo.get('field_id')} fora "
+                        "do contrato"
+                    ),
+                }
+            )
+            continue
+
+        # FIELD_INFO e o match semantico usam o mesmo nome, "tcp_flags".
+        reconstruido[nome] = valor
+
+    faltando = set(origem) - set(reconstruido)
+    sobrando = set(reconstruido) - set(origem)
+
+    for nome in sorted(faltando):
+
+        problemas.append(
+            {
+                "install_entry_id": identificador,
+                "message": (
+                    f"campo {nome} presente na entrada "
+                    "de origem e ausente da codificada"
+                ),
+            }
+        )
+
+    for nome in sorted(sobrando):
+
+        problemas.append(
+            {
+                "install_entry_id": identificador,
+                "message": (
+                    f"campo {nome} apareceu na entrada "
+                    "codificada sem existir na origem"
+                ),
+            }
+        )
+
+    for nome in sorted(set(origem) & set(reconstruido)):
+
+        if origem[nome] != reconstruido[nome]:
+
+            problemas.append(
+                {
+                    "install_entry_id": identificador,
+                    "message": (
+                        f"campo {nome} nao sobrevive ao "
+                        "round-trip: origem "
+                        f"{origem[nome]!r}, decodificado "
+                        f"{reconstruido[nome]!r}"
+                    ),
+                }
+            )
+
+    return problemas
+
+
 def validate_encoded_entries(
     entries
 ):
@@ -1168,6 +1333,45 @@ def main():
             encoded_entries
         )
     )
+
+    # Round-trip: decodifica cada entrada codificada de volta para a forma
+    # semantica e compara com a de origem. Decodificar e independente de
+    # codificar, ao contrario das checagens de largura e canonicidade, que
+    # uma codificacao errada satisfaz sem esforco.
+    por_identificador = {
+        entrada.get("install_entry_id"): entrada
+        for entrada in source_entries
+    }
+
+    for codificada in encoded_entries:
+
+        origem = por_identificador.get(
+            codificada.get(
+                "install_entry_id"
+            )
+        )
+
+        if origem is None:
+
+            validation_errors.append(
+                {
+                    "install_entry_id": codificada.get(
+                        "install_entry_id"
+                    ),
+                    "message": (
+                        "entrada codificada sem "
+                        "correspondente na origem"
+                    ),
+                }
+            )
+            continue
+
+        validation_errors.extend(
+            verify_round_trip(
+                origem,
+                codificada,
+            )
+        )
 
     # ========================================================
     # Field-use statistics
