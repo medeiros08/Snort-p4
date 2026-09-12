@@ -623,61 +623,208 @@ def encode_entry(
 # ============================================================
 
 
+def _blocos_de(texto, nome):
+    """Itera o corpo bruto de cada bloco `nome {` do texto protobuf.
+
+    Implementado com a stdlib: este modulo faz parte do nucleo do
+    compilador, que nao tem dependencia de terceiros, entao nao pode
+    recorrer a google.protobuf.text_format.
+    """
+
+    linhas = texto.splitlines()
+    indice = 0
+
+    while indice < len(linhas):
+
+        despida = linhas[indice].strip()
+
+        if despida == f"{nome} {{":
+
+            profundidade = 1
+            corpo = []
+            indice += 1
+
+            while indice < len(linhas) and profundidade > 0:
+
+                atual = linhas[indice]
+
+                profundidade += (
+                    atual.count("{") - atual.count("}")
+                )
+
+                if profundidade > 0:
+                    corpo.append(atual)
+
+                indice += 1
+
+            yield "\n".join(corpo)
+
+        else:
+            indice += 1
+
+
+def _campo_de(corpo, chave):
+    """Le `chave: valor` no nivel superficial de um corpo de bloco."""
+
+    for linha in corpo.splitlines():
+
+        despida = linha.strip()
+
+        if despida.startswith(f"{chave}:"):
+
+            valor = despida.split(":", 1)[1].strip()
+
+            return valor.strip('"')
+
+    return None
+
+
 def verify_p4info_text(
     text
 ):
     """
-    Fail early if the compiled P4Info does not contain the
-    contract used by this generator.
+    Falha cedo se o P4Info compilado nao corresponder ao contrato usado
+    por este gerador.
 
-    We deliberately verify names and IDs instead of silently
-    assuming that the P4 program has not changed.
+    A verificacao e ESTRUTURAL: percorre o bloco da tabela e confere a
+    adjacencia entre cada id e seu nome. A versao anterior procurava
+    fragmentos soltos por substring — incluindo 'id: 1' ate 'id: 6', que
+    ocorrem em praticamente qualquer P4Info — e portanto aprovaria um P4
+    recompilado em que os campos tivessem trocado de id.
     """
 
-    required_fragments = [
-        f'id: {TABLE_ID}',
-        f'name: "{TABLE_NAME}"',
+    problemas = []
 
-        'id: 1',
-        'name: "hdr.ipv4.protocol"',
+    # ---- localizar a tabela pelo nome ----
+    tabela = None
 
-        'id: 2',
-        'name: "hdr.ipv4.srcAddr"',
+    for corpo in _blocos_de(text, "tables"):
 
-        'id: 3',
-        'name: "hdr.ipv4.dstAddr"',
+        preambulos = list(
+            _blocos_de(corpo, "preamble")
+        )
 
-        'id: 4',
-        'name: "meta.l4_src_port"',
+        if not preambulos:
+            continue
 
-        'id: 5',
-        'name: "meta.l4_dst_port"',
+        if _campo_de(preambulos[0], "name") == TABLE_NAME:
+            tabela = corpo
+            preambulo = preambulos[0]
+            break
 
-        'id: 6',
-        'name: "meta.tcp_flags"',
-
-        f'id: {ACTION_ID}',
-        f'name: "{ACTION_NAME}"',
-    ]
-
-    missing = []
-
-    for fragment in (
-        required_fragments
-    ):
-
-        if fragment not in text:
-
-            missing.append(
-                fragment
-            )
-
-    if missing:
+    if tabela is None:
 
         raise ValueError(
-            "Compiled P4Info does not match the "
-            "expected backend contract. Missing: "
-            f"{missing}"
+            "Compiled P4Info does not contain table "
+            f"{TABLE_NAME!r}."
+        )
+
+    identificador = _campo_de(preambulo, "id")
+
+    if identificador != str(TABLE_ID):
+        problemas.append(
+            f"table id: esperado {TABLE_ID}, "
+            f"encontrado {identificador}"
+        )
+
+    # ---- conferir cada match field ----
+    encontrados = {}
+
+    for corpo in _blocos_de(tabela, "match_fields"):
+
+        bruto = _campo_de(corpo, "id")
+
+        if bruto is None:
+            continue
+
+        encontrados[bruto] = {
+            "name": _campo_de(corpo, "name"),
+            "bitwidth": _campo_de(corpo, "bitwidth"),
+            "match_type": _campo_de(corpo, "match_type"),
+        }
+
+    for campo, info in sorted(
+        FIELD_INFO.items(),
+        key=lambda par: par[1]["field_id"],
+    ):
+
+        chave = str(info["field_id"])
+
+        if chave not in encontrados:
+            problemas.append(
+                f"{campo}: field_id {chave} ausente da tabela"
+            )
+            continue
+
+        achado = encontrados[chave]
+
+        if achado["name"] != info["p4_name"]:
+            problemas.append(
+                f"{campo}: field_id {chave} deveria ser "
+                f"{info['p4_name']!r}, e {achado['name']!r}"
+            )
+
+        if achado["bitwidth"] != str(info["bitwidth"]):
+            problemas.append(
+                f"{campo}: bitwidth esperado "
+                f"{info['bitwidth']}, encontrado "
+                f"{achado['bitwidth']}"
+            )
+
+        # O codificador monta value/mask para todos os campos; um campo
+        # que deixasse de ser ternary nao aceitaria mascara.
+        if achado["match_type"] != "TERNARY":
+            problemas.append(
+                f"{campo}: match_type esperado TERNARY, "
+                f"encontrado {achado['match_type']}"
+            )
+
+    # ---- conferir a acao ----
+    referencias = {
+        _campo_de(corpo, "id")
+        for corpo in _blocos_de(tabela, "action_refs")
+    }
+
+    if str(ACTION_ID) not in referencias:
+        problemas.append(
+            f"action id {ACTION_ID} nao esta entre os "
+            f"action_refs da tabela: {sorted(referencias)}"
+        )
+
+    nome_da_acao = None
+
+    for corpo in _blocos_de(text, "actions"):
+
+        preambulos = list(
+            _blocos_de(corpo, "preamble")
+        )
+
+        if not preambulos:
+            continue
+
+        if _campo_de(preambulos[0], "id") == str(ACTION_ID):
+            nome_da_acao = _campo_de(
+                preambulos[0], "name"
+            )
+            break
+
+    if nome_da_acao is None:
+        problemas.append(
+            f"action id {ACTION_ID} nao tem bloco actions"
+        )
+
+    elif nome_da_acao != ACTION_NAME:
+        problemas.append(
+            f"action id {ACTION_ID} deveria ser "
+            f"{ACTION_NAME!r}, e {nome_da_acao!r}"
+        )
+
+    if problemas:
+
+        raise ValueError(
+            "Compiled P4Info does not match the expected "
+            "backend contract:\n  "
+            + "\n  ".join(problemas)
         )
 
 
