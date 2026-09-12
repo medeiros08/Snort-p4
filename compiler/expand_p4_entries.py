@@ -1,3 +1,5 @@
+import backend_fields
+
 import paths
 
 import ast
@@ -25,13 +27,8 @@ OUTPUT_FILE = (
 # ============================================================
 
 
-EXPANDABLE_FIELDS = {
-    "src_ip",
-    "dst_ip",
-    "src_port",
-    "dst_port",
-    "tcp_flags",
-}
+# Fonte unica do vocabulario, compartilhada com p4_backend.py.
+EXPANDABLE_FIELDS = backend_fields.EXPANSIVEIS
 
 
 # ============================================================
