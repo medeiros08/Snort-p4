@@ -1,3 +1,5 @@
+import paths
+
 import ast
 import json
 
@@ -8,8 +10,14 @@ from pathlib import Path
 import pipeline_gate
 
 
-INPUT_FILE = "../output/p4_entries.json"
-OUTPUT_FILE = "../output/p4_entries_expanded.json"
+INPUT_FILE = (
+    paths.OUTPUT_DIR
+    / "p4_entries.json"
+)
+OUTPUT_FILE = (
+    paths.OUTPUT_DIR
+    / "p4_entries_expanded.json"
+)
 
 
 # ============================================================

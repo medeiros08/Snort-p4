@@ -1,3 +1,5 @@
+import paths
+
 import json
 import ipaddress
 import re
@@ -8,8 +10,14 @@ from pathlib import Path
 import pipeline_gate
 
 
-INPUT_FILE = "../output/p4_entries_expanded.json"
-OUTPUT_FILE = "../output/p4runtime_entries.json"
+INPUT_FILE = (
+    paths.OUTPUT_DIR
+    / "p4_entries_expanded.json"
+)
+OUTPUT_FILE = (
+    paths.OUTPUT_DIR
+    / "p4runtime_entries.json"
+)
 
 
 # ============================================================

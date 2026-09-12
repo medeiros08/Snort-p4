@@ -1,3 +1,5 @@
+import paths
+
 import json
 import ipaddress
 
@@ -7,8 +9,14 @@ from pathlib import Path
 import pipeline_gate
 
 
-INPUT_FILE = "../output/p4runtime_entries.json"
-OUTPUT_FILE = "../output/backend_validation.json"
+INPUT_FILE = (
+    paths.OUTPUT_DIR
+    / "p4runtime_entries.json"
+)
+OUTPUT_FILE = (
+    paths.OUTPUT_DIR
+    / "backend_validation.json"
+)
 
 
 # ============================================================
