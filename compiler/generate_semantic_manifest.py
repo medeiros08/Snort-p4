@@ -252,16 +252,14 @@ def main():
             "snort-p4-semantic"
         ),
 
-        "ruleset": str(
+        "ruleset": Path(
             ruleset_path
-        ),
+        ).as_posix(),
 
-        "variable_profile": str(
-            Path(
-                "../config/"
-                "snort_variables.json"
-            )
-        ),
+        "variable_profile": Path(
+            "../config/"
+            "snort_variables.json"
+        ).as_posix(),
 
         "summary": {
             "candidate_rules": (
@@ -320,6 +318,7 @@ def main():
         output_path,
         "w",
         encoding="utf-8",
+        newline="\n",
     ) as file:
 
         json.dump(

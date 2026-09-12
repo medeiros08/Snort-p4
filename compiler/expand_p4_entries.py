@@ -1148,6 +1148,7 @@ def main():
         output_path,
         "w",
         encoding="utf-8",
+        newline="\n",
     ) as file:
 
         json.dump(

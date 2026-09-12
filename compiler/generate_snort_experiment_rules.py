@@ -682,6 +682,7 @@ def main():
                 candidate_lines
             ),
             encoding="utf-8",
+            newline="",
         )
 
         UNSUPPORTED_OUTPUT.write_text(
@@ -689,6 +690,7 @@ def main():
                 unsupported_lines
             ),
             encoding="utf-8",
+            newline="",
         )
 
     # --------------------------------------------------------
@@ -774,6 +776,7 @@ def main():
             ensure_ascii=False,
         ),
         encoding="utf-8",
+        newline="",
     )
 
     print(
