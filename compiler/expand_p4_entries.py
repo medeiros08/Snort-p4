@@ -5,6 +5,8 @@ from copy import deepcopy
 from itertools import product
 from pathlib import Path
 
+import pipeline_gate
+
 
 INPUT_FILE = "../output/p4_entries.json"
 OUTPUT_FILE = "../output/p4_entries_expanded.json"
@@ -1272,6 +1274,10 @@ def main():
         output_path.resolve()
     )
 
+
+    pipeline_gate.aplicar(
+        OUTPUT_FILE
+    )
 
 if __name__ == "__main__":
     main()
