@@ -1,3 +1,5 @@
+import paths
+
 import json
 
 from copy import deepcopy
@@ -6,8 +8,14 @@ from pathlib import Path
 import pipeline_gate
 
 
-INPUT_FILE = "../output/p4runtime_entries.json"
-OUTPUT_FILE = "../output/p4_install_entries.json"
+INPUT_FILE = (
+    paths.OUTPUT_DIR
+    / "p4runtime_entries.json"
+)
+OUTPUT_FILE = (
+    paths.OUTPUT_DIR
+    / "p4_install_entries.json"
+)
 
 
 # ============================================================

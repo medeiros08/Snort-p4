@@ -1,8 +1,13 @@
+import paths
+
 import json
 from pathlib import Path
 
 
-CONFIG_FILE = "../config/snort_variables.json"
+CONFIG_FILE = (
+    paths.CONFIG_DIR
+    / "snort_variables.json"
+)
 
 
 def load_variables():

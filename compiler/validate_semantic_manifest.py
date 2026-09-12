@@ -1,10 +1,15 @@
+import paths
+
 import json
 from collections import Counter
 from pathlib import Path
 import sys
 
 
-MANIFEST_FILE = "../output/semantic_manifest.json"
+MANIFEST_FILE = (
+    paths.OUTPUT_DIR
+    / "semantic_manifest.json"
+)
 
 
 def fail(errors, rule_id, message):
