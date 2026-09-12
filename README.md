@@ -1,0 +1,120 @@
+# Snort-p4
+
+Tradução semântica de regras Snort 3 para um prefilter em P4.
+
+O P4 atua como **marcador de candidatos** para o Snort, não como substituto.
+O data plane classifica cada pacote em uma de três categorias e o Snort
+continua fazendo a detecção; regras que o compilador não consegue
+representar de forma conservadora continuam exigindo fallback.
+
+## A propriedade central
+
+    Snort(regra, pacote)  =>  P4_candidato(regra, pacote)
+
+Se um pacote pode satisfazer a regra Snort original, o prefilter não pode
+descartá-lo. Uma implementação pode ser deliberadamente **mais permissiva**;
+não pode ser silenciosamente mais restritiva.
+
+Quando a propriedade não pode ser preservada, o tratamento é `FALLBACK`,
+`UNSUPPORTED` ou limitação explícita — nunca descartar a informação em
+silêncio.
+
+## As três categorias do data plane
+
+| Categoria | Contador | Significado |
+|---|---|---|
+| `P4_CANDIDATE` | 0 | Um predicado instalado casou, dentro do domínio suportado |
+| `P4_NO_MATCH` | 1 | Dentro do domínio, nenhum predicado casou |
+| `PACKET_DOMAIN_FALLBACK` | 2 | Fora do domínio (não-IPv4, `IHL != 5`, fragmento, truncado, erro de parser) — candidato conservador |
+
+Taxas de candidato e no-match usam **apenas o domínio suportado** como
+denominador. Colapsar o fallback em no-match superestima a seletividade;
+colapsá-lo em candidato esconde a cobertura real do parser.
+
+## Pipeline
+
+    regras Snort
+        -> parser -> resolução de variáveis -> IR semântica
+        -> análise de capacidade do alvo -> classificação -> manifesto
+        -> backend P4 -> expansão -> normalização -> lowering
+        -> plano P4Runtime -> BMv2
+
+Os estágios até o manifesto rodam num processo só, acoplados por objeto
+Python. Do manifesto em diante, cada estágio é um processo que se comunica
+com o seguinte por arquivo JSON em `output/`.
+
+## Requisitos
+
+O **compilador não tem dependência de terceiros**. Os 22 módulos do
+pipeline oficial usam apenas a biblioteca padrão, e qualquer Python 3.10+
+recompila o ruleset e reproduz os artefatos.
+
+O que exige ambiente pesado é a instalação no BMv2 e os experimentos:
+
+| Extra | Para quê | Pacotes |
+|---|---|---|
+| `experiments` | leitura/escrita de pcap | `scapy` |
+| `p4runtime` | instalar no BMv2, ler contadores | `grpcio`, `protobuf` + bindings `p4.v1` |
+| `dev` | suíte de testes via pytest | `pytest` |
+
+Os bindings `p4.v1` e `p4.config.v1` **não estão no PyPI** — vêm da
+compilação de `p4lang/PI` ou do `p4runtime-shell`.
+
+Fora do Python: Snort 3 (validado com 3.12.2.0), `p4c-bm2-ss` e
+`simple_switch_grpc`.
+
+## Comandos
+
+    # instalar (só os extras; o núcleo não precisa de nada)
+    pip install -e .[dev]
+    pip install -e .[experiments,p4runtime]   # só no rig com BMv2
+
+    # rodar a suíte — um veredito único
+    python tests/run_tests.py
+    python tests/run_tests.py -v              # saída completa das falhas
+
+    # reconstruir um perfil inteiro (exige Snort e p4c)
+    python compiler/build_profile.py cicids2017
+
+    # estágios isolados (funcionam de qualquer diretório)
+    python compiler/generate_semantic_manifest.py
+    python compiler/validate_semantic_manifest.py
+    python compiler/validate_backend.py
+
+`build_profile.py` verifica o toolchain **antes** de escrever qualquer
+coisa. Numa máquina sem Snort e sem p4c ele aborta com código 1 sem tocar em
+nenhum arquivo.
+
+Todos os estágios falham com código diferente de zero quando o artefato que
+gravaram declara erro. Um build que termina com sucesso é um build cujos
+artefatos estão limpos.
+
+## Reprodutibilidade
+
+Os artefatos em `output/` são reproduzíveis byte a byte a partir do código,
+em qualquer plataforma. A verificação é comparar os dez artefatos gerados
+numa cópia isolada com os versionados.
+
+Os artefatos por perfil ficam em `output/profiles/<perfil>/`. Os logs de
+proveniência são versionados; o dump de runtime do BMv2 e as capturas
+`.pcap` não, por serem volumosos e regeneráveis.
+
+## Documentação
+
+| Arquivo | Conteúdo |
+|---|---|
+| `docs/semantic_model.md` | modelo semântico: classes, tratamentos, invariantes |
+| `docs/snort3_support_matrix.md` | matriz de suporte da linguagem |
+| `CODEX_HANDOFF.md` | estado do projeto, resultados congelados, pendências |
+| `docs/review/` | auditorias |
+| `paper/IDS_P4/` | manuscrito e auditorias do manuscrito |
+
+## Limitações conhecidas
+
+`EXACT = 0` no ruleset avaliado: toda assinatura real carrega `content`,
+`flow` ou `service`, que são delegados ao Snort. A categoria é alcançável,
+apenas vazia neste dataset.
+
+A avaliação usa um ruleset (snort3-community, 4.017 regras), um perfil e um
+dataset (CIC-IDS2017). Não há medição de throughput, latência nem validação
+em hardware — só BMv2.
