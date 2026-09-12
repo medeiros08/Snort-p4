@@ -1,0 +1,25 @@
+
+=== Semantic Manifest Generation ===
+
+Candidate rules      : 4017
+Compiled rules       : 4017
+Failures             : 0
+
+Rule types
+--------------------------------------------------
+TRADITIONAL           4007
+SERVICE                 10
+
+Semantic classification
+--------------------------------------------------
+EXACT               0 (  0.00%)
+NECESSARY        4003 ( 99.65%)
+UNSUPPORTED        14 (  0.35%)
+
+Prefilter eligibility
+--------------------------------------------------
+Candidate      : 4003
+Not candidate  : 14
+
+Output:
+/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/semantic_manifest.json

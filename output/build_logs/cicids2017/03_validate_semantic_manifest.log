@@ -1,0 +1,31 @@
+
+=== Semantic Manifest Validation ===
+
+Rules                    : 4017
+Errors                   : 0
+Warnings                 : 0
+
+Rule types
+--------------------------------------------------
+TRADITIONAL           4007
+SERVICE                 10
+
+Classification
+--------------------------------------------------
+EXACT               0
+NECESSARY        4003
+UNSUPPORTED        14
+
+Prefilter eligibility
+--------------------------------------------------
+Candidate              : 4003
+Not candidate          : 14
+
+Invariant checks
+------------------------------------------------------------
+Rules with UNASSESSED  : 0
+EXACT with DELEGATED   : 0
+EXACT with FALLBACK    : 0
+SERVICE with headers   : 0
+
+Manifest status: VALID

@@ -1,0 +1,27 @@
+
+=== P4 Entry Expansion ===
+
+Source entries               : 4003
+Concrete entries             : 6675
+Rules declaring expansion    : 2661
+Rules with actual expansion  : 2362
+Rules with list expansion    : 2651
+Rules with <> expansion      : 11
+Duplicates removed           : 0
+Maximum entries/rule         : 9
+Average entries/rule         : 1.67
+Concrete empty matches       : 0
+Unresolved list values       : 0
+
+Expansion distribution
+--------------------------------------------------
+   1 entries/rule :  1641 rules
+   2 entries/rule :  2222 rules
+   3 entries/rule :   103 rules
+   4 entries/rule :     9 rules
+   5 entries/rule :     1 rules
+   6 entries/rule :     1 rules
+   9 entries/rule :    26 rules
+
+Output:
+/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/p4_entries_expanded.json
