@@ -1,0 +1,37 @@
+
+=== Backend / P4 Compatibility Validation ===
+
+Source entries                : 6675
+Normalized entries            : 6675
+Validation errors             : 0
+Validation warnings           : 0
+
+Normalized match deduplication
+------------------------------------------------------------
+Unique matches                 : 327
+Duplicate entries              : 6348
+Duplicated match groups        : 157
+Maximum duplicate multiplicity : 1228
+
+TCP flag lowering
+------------------------------------------------------------
+Direct ternary                 : 11
+Need multi-entry expansion     : 2
+Estimated additional entries   : 4
+
+Table capacity
+------------------------------------------------------------
+Configured table size          : 8192
+Raw concrete entries           : 6675
+Unique concrete matches        : 327
+After flag lowering (estimated): 331
+Fits configured table          : True
+
+Protocols
+------------------------------------------------------------
+  1 (ICMP ) :    128
+  6 (TCP  ) :   6283
+ 17 (UDP  ) :    230
+
+Backend status                : VALID_WITH_FLAG_EXPANSION
+Output                        : /mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/backend_validation.json

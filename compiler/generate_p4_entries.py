@@ -1,12 +1,22 @@
+import paths
+
 import json
 from collections import Counter
 from pathlib import Path
 
 from p4_backend import build_p4_entry
 
+import pipeline_gate
 
-MANIFEST_FILE = "../output/semantic_manifest.json"
-OUTPUT_FILE = "../output/p4_entries.json"
+
+MANIFEST_FILE = (
+    paths.OUTPUT_DIR
+    / "semantic_manifest.json"
+)
+OUTPUT_FILE = (
+    paths.OUTPUT_DIR
+    / "p4_entries.json"
+)
 
 
 def main():
@@ -178,6 +188,7 @@ def main():
         output_path,
         "w",
         encoding="utf-8",
+        newline="\n",
     ) as file:
 
         json.dump(
@@ -298,6 +309,10 @@ def main():
         output_path.resolve()
     )
 
+
+    pipeline_gate.aplicar(
+        OUTPUT_FILE
+    )
 
 if __name__ == "__main__":
     main()

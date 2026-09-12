@@ -1,0 +1,26 @@
+
+=== P4Runtime Install Plan Generation ===
+
+Source install entries : 331
+Encoded entries        : 331
+Encoding failures      : 0
+Validation errors      : 0
+
+P4Info contract
+-------------------------------------------------------
+Table ID               : 43167662
+Action ID              : 30911920
+
+Field usage
+-------------------------------------------------------
+protocol                327
+src_ip                  108
+dst_ip                  214
+src_port                108
+dst_port                220
+tcp_flags                17
+
+Priority               : 1
+
+Install plan status    : VALID
+Output                 : /mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/p4runtime_install_plan.json

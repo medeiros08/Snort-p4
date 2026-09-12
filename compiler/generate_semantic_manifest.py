@@ -1,3 +1,5 @@
+import paths
+
 import json
 
 from collections import Counter
@@ -26,13 +28,27 @@ from semantic_manifest import (
     build_manifest_record,
 )
 
+import pipeline_gate
+
 
 RULESET_FILE = (
+    paths.RULES_DIR
+    / "snort3-community.rules"
+)
+
+# Rotulos gravados no manifesto. Mantidos relativos e literais para que
+# o artefato nao dependa de onde o repositorio esta instalado.
+RULESET_LABEL = (
     "../rules/snort3-community.rules"
 )
 
+VARIABLES_LABEL = (
+    "../config/snort_variables.json"
+)
+
 OUTPUT_FILE = (
-    "../output/semantic_manifest.json"
+    paths.OUTPUT_DIR
+    / "semantic_manifest.json"
 )
 
 
@@ -252,16 +268,9 @@ def main():
             "snort-p4-semantic"
         ),
 
-        "ruleset": str(
-            ruleset_path
-        ),
+        "ruleset": RULESET_LABEL,
 
-        "variable_profile": str(
-            Path(
-                "../config/"
-                "snort_variables.json"
-            )
-        ),
+        "variable_profile": VARIABLES_LABEL,
 
         "summary": {
             "candidate_rules": (
@@ -320,6 +329,7 @@ def main():
         output_path,
         "w",
         encoding="utf-8",
+        newline="\n",
     ) as file:
 
         json.dump(
@@ -432,6 +442,10 @@ def main():
         output_path.resolve()
     )
 
+
+    pipeline_gate.aplicar(
+        OUTPUT_FILE
+    )
 
 if __name__ == "__main__":
     main()

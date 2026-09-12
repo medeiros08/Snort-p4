@@ -577,6 +577,46 @@ def create_build_report(
         or {}
     )
 
+    # O status do build e derivado dos erros que este proprio relatorio
+    # coleta. Antes era o literal "VALID", de modo que um build com
+    # validation_errors nao vazios era reportado como valido.
+    build_errors = []
+
+    for rotulo, secao in (
+        ("snort_split", split),
+        ("backend", backend),
+        ("p4runtime", runtime_plan),
+    ):
+
+        valor = (
+            secao.get("validation_errors")
+            if isinstance(secao, dict)
+            else None
+        )
+
+        if isinstance(valor, bool):
+            quantidade = int(valor)
+
+        elif isinstance(valor, int):
+            quantidade = valor
+
+        elif valor:
+            quantidade = len(valor)
+
+        else:
+            quantidade = 0
+
+        if quantidade:
+            build_errors.append(
+                f"{rotulo}.validation_errors={quantidade}"
+            )
+
+    build_status = (
+        "VALID"
+        if not build_errors
+        else "INVALID: " + ", ".join(build_errors)
+    )
+
     report = {
         "schema_version": "1.0",
 
@@ -648,10 +688,8 @@ def create_build_report(
             ),
 
             "fits_table": (
-                nested_value(
-                    backend,
-                    "capacity",
-                    "fits"
+                backend.get(
+                    "estimated_entries_fit_table"
                 )
             ),
         },
@@ -704,14 +742,15 @@ def create_build_report(
             ),
         },
 
-        "snapshot_directory": str(
+        "snapshot_directory": (
             profile_dir
             .relative_to(
                 PROJECT_ROOT
             )
+            .as_posix()
         ),
 
-        "status": "VALID",
+        "status": build_status,
     }
 
     report_file = (
@@ -763,6 +802,45 @@ def main():
     profile_name = (
         args.profile.strip()
     )
+
+    # Preflight de ambiente.
+    #
+    # O estagio 01 reescreve config/ e os estagios 02-09 reescrevem os
+    # artefatos na raiz de output/. Verificar o toolchain depois disso
+    # significa destruir o estado congelado para so entao descobrir que o
+    # build nao pode terminar. As duas checagens abaixo custam nada e
+    # acontecem antes de qualquer escrita.
+    ferramentas_ausentes = []
+
+    if not SNORT3_BINARY.exists():
+        ferramentas_ausentes.append(
+            f"snort ({SNORT3_BINARY})"
+        )
+
+    if shutil.which("p4c-bm2-ss") is None:
+        ferramentas_ausentes.append(
+            "p4c-bm2-ss (nao esta no PATH)"
+        )
+
+    if ferramentas_ausentes:
+
+        print()
+        print(
+            "ERROR: toolchain incompleto; "
+            "nenhum arquivo foi modificado."
+        )
+
+        for ferramenta in ferramentas_ausentes:
+            print(f"  ausente: {ferramenta}")
+
+        print()
+        print(
+            "O build reescreveria config/ e "
+            "output/ antes de falhar, entao "
+            "foi interrompido aqui."
+        )
+
+        sys.exit(1)
 
     logs_dir = (
         OUTPUT_DIR

@@ -1,0 +1,74 @@
+[project]
+name = "snort-p4"
+version = "0.1.0"
+description = "Traducao semantica de regras Snort 3 para um prefilter P4"
+requires-python = ">=3.10"
+
+# O nucleo do compilador nao tem dependencia de terceiros.
+#
+# Isto nao e acidente e nao deve ser perdido: os 22 modulos do pipeline
+# oficial (parsing -> IR semantica -> manifesto -> backend P4 -> expansao ->
+# normalizacao -> lowering -> plano P4Runtime) usam exclusivamente a
+# biblioteca padrao. Verificado por analise de AST sobre os imports:
+# nenhum modulo do nucleo importa scapy, grpc, protobuf ou os bindings p4.
+#
+# A consequencia pratica e que qualquer pessoa com um Python 3.10+ consegue
+# recompilar o ruleset e reproduzir os artefatos congelados, sem instalar
+# nada. So a instalacao no BMv2 e os experimentos de replay precisam do
+# ambiente pesado.
+dependencies = []
+
+[project.optional-dependencies]
+
+# Experimentos offline sobre captura: leitura e escrita de pcap,
+# construcao de quadros. Usado por 15 arquivos de tests/.
+experiments = [
+    "scapy>=2.5",
+]
+
+# Instalacao no BMv2 e leitura de contadores. Usado por 7 arquivos
+# (compiler/install_p4runtime.py, compiler/read_prefilter_counters.py e
+# cinco de tests/).
+#
+# ATENCAO: alem dos dois pacotes abaixo, este grupo exige os bindings
+# Python do P4Runtime — os modulos `p4.v1` e `p4.config.v1`. Eles NAO estao
+# no PyPI: vem da compilacao de p4lang/PI ou do p4runtime-shell, e portanto
+# nao podem ser declarados aqui. Sem eles, os sete arquivos falham com
+# ModuleNotFoundError: No module named 'p4'.
+p4runtime = [
+    "grpcio>=1.50",
+    "protobuf>=4.21",
+]
+
+dev = [
+    "pytest>=7.0",
+]
+
+
+[tool.pytest.ini_options]
+
+# Os testes importam os modulos do compilador por nome (`from parser import
+# parse_rule`), entao os dois diretorios precisam estar no path.
+pythonpath = ["compiler", "tests"]
+
+testpaths = ["tests"]
+
+python_files = ["test_*.py"]
+
+markers = [
+    "bmv2: exige simple_switch_grpc rodando, veth configuradas e os bindings p4.v1",
+    "scapy: exige scapy instalado",
+    "pcap: exige um arquivo pcap do CIC-IDS2017 que nao acompanha o repositorio",
+    "root: exige privilegio para abrir socket raw (AF_PACKET)",
+]
+
+
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+# O projeto e executado como scripts, nao importado como biblioteca
+# instalada. Declarar zero modulos faz de `pip install -e .[dev]` apenas o
+# instalador dos extras, sem tentar empacotar compiler/ e tests/.
+[tool.setuptools]
+py-modules = []
