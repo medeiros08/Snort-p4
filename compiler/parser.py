@@ -3,17 +3,34 @@ import re
 from typing import Dict, List
 
 
-SUPPORTED_OPTIONS = {
-    "flags",
-    "sid",
-}
+class RegraMalformada(ValueError):
+    """Regra que o Snort 3 tambem rejeitaria."""
 
-UNSUPPORTED_OPTIONS = {
-    "content",
-    "pcre",
-    "flowbits",
-    "file_data",
-}
+
+def _aspas_desbalanceadas(texto: str) -> bool:
+    """Conta aspas duplas nao escapadas.
+
+    Numero impar significa string aberta: o resto da regra e absorvido
+    pela opcao corrente. Ver parse_option, que faz strip('"') cego.
+    """
+
+    total = 0
+    escapado = False
+
+    for caractere in texto:
+
+        if escapado:
+            escapado = False
+            continue
+
+        if caractere == "\\":
+            escapado = True
+            continue
+
+        if caractere == '"':
+            total += 1
+
+    return total % 2 == 1
 
 
 def split_options(
@@ -168,7 +185,12 @@ def parse_traditional_rule(
         r"(?P<protocol>\w+)\s+"
         r"(?P<src_ip>\S+)\s+"
         r"(?P<src_port>\S+)\s+"
-        r"(?P<direction>->|<>|<-)\s+"
+        # O Snort 3 aceita apenas "->" e "<>". Ver parse_rule_dir em
+        # src/parser/parse_rule.cc: qualquer outro operador produz
+        # ParseError("illegal direction specifier"). Aceitar "<-" aqui
+        # gerava predicado com orientacao invertida para uma regra que
+        # o Snort sequer carrega.
+        r"(?P<direction>->|<>)\s+"
         r"(?P<dst_ip>\S+)\s+"
         r"(?P<dst_port>\S+)\s*"
         r"\((?P<options>.*)\)$",
@@ -325,6 +347,16 @@ def parse_rule(
     """
 
     rule = rule.strip()
+
+    # Aspa aberta faz a opcao corrente absorver o resto da regra: msg
+    # engole content e sid, a regra fica sem sid e sem predicado de
+    # deteccao, e o classificador a declara EXACT. Rejeitar aqui e o
+    # comportamento do proprio Snort, que nao carrega a regra.
+    if _aspas_desbalanceadas(rule):
+        raise RegraMalformada(
+            f"Unbalanced quotes in rule: "
+            f"{rule}"
+        )
 
     traditional = (
         parse_traditional_rule(
