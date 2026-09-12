@@ -4,6 +4,8 @@ import ipaddress
 from collections import Counter
 from pathlib import Path
 
+import pipeline_gate
+
 
 INPUT_FILE = "../output/p4runtime_entries.json"
 OUTPUT_FILE = "../output/backend_validation.json"
@@ -1448,6 +1450,10 @@ def main():
                 f"{issue.get('message')}"
             )
 
+
+    pipeline_gate.aplicar(
+        OUTPUT_FILE
+    )
 
 if __name__ == "__main__":
     main()

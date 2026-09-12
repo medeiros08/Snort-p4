@@ -3,6 +3,8 @@ import json
 from copy import deepcopy
 from pathlib import Path
 
+import pipeline_gate
+
 
 INPUT_FILE = "../output/p4runtime_entries.json"
 OUTPUT_FILE = "../output/p4_install_entries.json"
@@ -1257,6 +1259,10 @@ def main():
         output_path.resolve()
     )
 
+
+    pipeline_gate.aplicar(
+        OUTPUT_FILE
+    )
 
 if __name__ == "__main__":
     main()

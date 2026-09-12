@@ -4,6 +4,8 @@ from pathlib import Path
 
 from p4_backend import build_p4_entry
 
+import pipeline_gate
+
 
 MANIFEST_FILE = "../output/semantic_manifest.json"
 OUTPUT_FILE = "../output/p4_entries.json"
@@ -299,6 +301,10 @@ def main():
         output_path.resolve()
     )
 
+
+    pipeline_gate.aplicar(
+        OUTPUT_FILE
+    )
 
 if __name__ == "__main__":
     main()

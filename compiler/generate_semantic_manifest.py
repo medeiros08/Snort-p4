@@ -26,6 +26,8 @@ from semantic_manifest import (
     build_manifest_record,
 )
 
+import pipeline_gate
+
 
 RULESET_FILE = (
     "../rules/snort3-community.rules"
@@ -431,6 +433,10 @@ def main():
         output_path.resolve()
     )
 
+
+    pipeline_gate.aplicar(
+        OUTPUT_FILE
+    )
 
 if __name__ == "__main__":
     main()

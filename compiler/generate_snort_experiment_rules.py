@@ -3,6 +3,8 @@ import re
 import sys
 from pathlib import Path
 
+import pipeline_gate
+
 
 PROJECT_ROOT = (
     Path(__file__)
@@ -892,6 +894,10 @@ def main():
         f"{REPORT_OUTPUT}"
     )
 
+
+    pipeline_gate.aplicar(
+        REPORT_OUTPUT
+    )
 
 if __name__ == "__main__":
     main()

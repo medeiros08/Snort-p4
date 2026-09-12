@@ -3,6 +3,8 @@ import json
 
 from pathlib import Path
 
+import pipeline_gate
+
 
 INPUT_FILE = "../output/p4_install_entries.json"
 P4INFO_FILE = "../output/ids_prefilter.p4info.txt"
@@ -1274,6 +1276,10 @@ def main():
         f"{output_path.resolve()}"
     )
 
+
+    pipeline_gate.aplicar(
+        OUTPUT_FILE
+    )
 
 if __name__ == "__main__":
     main()

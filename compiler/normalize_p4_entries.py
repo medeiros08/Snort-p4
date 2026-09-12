@@ -5,6 +5,8 @@ import re
 from collections import Counter
 from pathlib import Path
 
+import pipeline_gate
+
 
 INPUT_FILE = "../output/p4_entries_expanded.json"
 OUTPUT_FILE = "../output/p4runtime_entries.json"
@@ -1040,6 +1042,10 @@ def main():
                 f"{failure['original_match']}"
             )
 
+
+    pipeline_gate.aplicar(
+        OUTPUT_FILE
+    )
 
 if __name__ == "__main__":
     main()
