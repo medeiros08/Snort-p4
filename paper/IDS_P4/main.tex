@@ -9,8 +9,12 @@
 \usepackage{pdflscape}
 
 \title{From Semantic Safety to Candidate-Rule-Space Reduction in Snort-to-P4 Compilation}
-\author{Arthur de Freitas Medeiros}
-\date{August 2026}
+\author{
+  Arthur de Freitas Medeiros\\
+  Universidade Federal do Pampa (UNIPAMPA)\\
+  \texttt{arthurfreitas.aluno@unipampa.edu.br}
+}
+\date{September 2026}
 
 \begin{document}
 
@@ -1069,8 +1073,10 @@ SID membership. These are not interchangeable claims of equivalence.
 
 For SQLi, XSS, and held-out Brute Force, the semantic split had zero missing
 or additional alerts, and all observed parser-eligible candidate-alert
-packets matched the P4 table. Thus, observed alert preservation was 100\% in
-the three traces. In held-out Brute Force, FULL Snort produced 2,391 alerts
+packets matched the P4 table. No \textsc{Unsupported} rule fired in any of the
+three traces, which limits the discriminating power of the semantic split
+comparison; Section~\ref{sec:threats} states this explicitly. Thus, observed
+alert preservation was 100\% in the three traces. In held-out Brute Force, FULL Snort produced 2,391 alerts
 from five SIDs (254, 399, 402, 650, and 1394). All 2,391 candidate-alert
 packets were parser eligible and P4 candidates; none was a P4 no-match. The
 strong-discriminator audit covered 2,289 eligible alert events through
@@ -1295,6 +1301,7 @@ in coordinated programmable-data-plane and IDS processing
 \cite{hagen2025rna}.
 
 \section{Threats to Validity and Limitations}
+\label{sec:threats}
 \subsection{Construct Validity}
 The reported metrics characterize different constructs and should not be
 collapsed into a single notion of offloading effectiveness. Semantic coverage
@@ -1335,6 +1342,20 @@ both the original partition and the strong-discriminator partition, and no
 cross-partition flowbit dependency was observed in the evaluated ruleset.
 The absence of these static cross-partition dependencies does not establish
 safety for arbitrary Snort rulesets or all stateful mechanisms.
+
+Semantic split preservation has limited discriminating power in the evaluated
+traces. The \textsc{Unsupported} partition contains 14 rules, and none of them
+produced an alert in any of the three traces. The comparison of the
+\textsc{Unsupported} side therefore contrasted an empty expected set with an
+empty run, and the candidate side necessarily coincided with the FULL alert
+set. The reported zero missing and zero additional alerts are correct, but a
+partition that assigned rules incorrectly would yield the same result whenever
+the misassigned rules are silent on the evaluated traffic. This measure
+establishes that removing the 14 \textsc{Unsupported} rules did not perturb the
+observed alerts; it does not establish that the split is correct for rules that
+the traces never exercised. Rulesets or traces that activate
+\textsc{Unsupported} rules would be required to give this check discriminating
+power.
 
 \subsection{External Validity}
 These results should be interpreted within the experimental Snort variable
@@ -1450,6 +1471,23 @@ Future work should implement candidate-set-aware and dependency-aware IDS
 execution, investigate provenance-aware selection beyond coarse grouping,
 then evaluate execution cost on hardware targets and broader rulesets,
 profiles, traffic datasets, and parser/protocol/encapsulation coverage.
+
+\section*{Artifact Availability}
+The compiler, the experimental variable profile, the analysis scripts, and the
+frozen output artifacts reported in this paper are available at
+\url{https://github.com/medeiros08/Snort-p4}. The repository contains the
+compilation pipeline from rule parsing to P4Runtime entry generation, the
+semantic manifest with predicate-to-rule provenance, the compiled P4 program
+and its P4Info, and the JSON artifacts underlying every table and figure. A
+regression check reproduces the ten frozen pipeline artifacts byte for byte
+from the committed sources.
+
+The CICIDS2017 traces are not redistributed here; they are obtained from the
+Canadian Institute for Cybersecurity. The BMv2 target, Snort~3, and the P4
+compiler are third-party software and are not redistributed. The Snort version
+used to produce the frozen alert artifacts was Snort++ 3.12.2.0, as recorded in
+the committed build logs.
+
 \appendix
 \section{Experimental Snort Variable Profile}
 \label{app:snort-profile}
