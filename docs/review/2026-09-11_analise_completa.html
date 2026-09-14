@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análise completa — Snort-p4</title>
+<style>
+:root{
+  --bg:#fbfaf8; --surface:#ffffff; --surface-2:#f4f2ee; --ink:#1c1a17; --ink-2:#53504a;
+  --ink-3:#86827a; --line:#e4e0d9; --line-2:#cfcabf;
+  --crit:#a02020; --crit-bg:#fbeaea; --alto:#a85a12; --alto-bg:#fdf1e3;
+  --medio:#7a6a16; --medio-bg:#faf5df; --baixo:#3c6a57; --baixo-bg:#e9f3ee;
+  --ref:#5a5a5a; --ref-bg:#efefef; --ok:#2f6b4f; --accent:#2b5a8c; --accent-bg:#eaf1f8;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#16151a; --surface:#1e1d23; --surface-2:#26252c; --ink:#eceaf0; --ink-2:#b3b0ba;
+    --ink-3:#82808b; --line:#31303a; --line-2:#44424e;
+    --crit:#ff8b85; --crit-bg:#3a1f20; --alto:#f0ae6a; --alto-bg:#352617;
+    --medio:#dcc96a; --medio-bg:#2f2b16; --baixo:#7cc9a5; --baixo-bg:#172c24;
+    --ref:#a0a0a8; --ref-bg:#2a2a2e; --ok:#7cc9a5; --accent:#8ab6e8; --accent-bg:#1c2733;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16151a; --surface:#1e1d23; --surface-2:#26252c; --ink:#eceaf0; --ink-2:#b3b0ba;
+  --ink-3:#82808b; --line:#31303a; --line-2:#44424e;
+  --crit:#ff8b85; --crit-bg:#3a1f20; --alto:#f0ae6a; --alto-bg:#352617;
+  --medio:#dcc96a; --medio-bg:#2f2b16; --baixo:#7cc9a5; --baixo-bg:#172c24;
+  --ref:#a0a0a8; --ref-bg:#2a2a2e; --ok:#7cc9a5; --accent:#8ab6e8; --accent-bg:#1c2733;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:1rem}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:250px minmax(0,1fr);gap:2.5rem;
+  max-width:1240px;margin:0 auto;padding:2rem 1.5rem 6rem}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;gap:1rem;padding:1rem}}
+
+/* nav */
+nav{position:sticky;top:1.5rem;align-self:start;max-height:calc(100vh - 3rem);overflow-y:auto;
+  font-size:.82rem;border-right:1px solid var(--line);padding-right:1rem}
+@media(max-width:900px){nav{position:static;border-right:none;border-bottom:1px solid var(--line);
+  padding:0 0 1rem;margin-bottom:1rem;max-height:none}}
+nav .navtitle{font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);
+  margin:0 0 .6rem;font-weight:600}
+nav a{display:block;padding:.25rem 0;color:var(--ink-2);text-decoration:none;border-left:2px solid transparent;
+  padding-left:.6rem;margin-left:-.6rem}
+nav a:hover{color:var(--accent);border-left-color:var(--accent)}
+nav a.sub{padding-left:1.4rem;font-size:.78rem;color:var(--ink-3)}
+
+/* header */
+header{margin-bottom:2.5rem}
+h1{font-size:1.95rem;line-height:1.2;margin:0 0 .4rem;letter-spacing:-.02em}
+.sub{color:var(--ink-2);margin:0 0 1.2rem}
+.meta{display:flex;flex-wrap:wrap;gap:.5rem;font-size:.78rem}
+.meta span{background:var(--surface-2);border:1px solid var(--line);border-radius:999px;
+  padding:.2rem .7rem;color:var(--ink-2)}
+.meta code{font-family:var(--mono);font-size:.95em}
+
+/* scoreboard */
+.score{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:.6rem;margin:1.5rem 0 0}
+.score div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.7rem .8rem}
+.score b{display:block;font-size:1.5rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.score small{color:var(--ink-3);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+.score .c-crit b{color:var(--crit)} .score .c-alto b{color:var(--alto)}
+.score .c-ok b{color:var(--ok)} .score .c-ref b{color:var(--ref)}
+
+h2{font-size:1.3rem;margin:3rem 0 .3rem;padding-top:.6rem;border-top:1px solid var(--line);letter-spacing:-.01em}
+h2:first-of-type{margin-top:2rem}
+h3{font-size:1.02rem;margin:2rem 0 .5rem}
+p{margin:.8rem 0}
+ul,ol{margin:.8rem 0;padding-left:1.3rem} li{margin:.35rem 0}
+code{font-family:var(--mono);font-size:.87em;background:var(--surface-2);
+  padding:.1em .38em;border-radius:4px;border:1px solid var(--line)}
+pre{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;
+  padding:.9rem 1rem;overflow-x:auto;font-size:.8rem;line-height:1.5}
+pre code{background:none;border:none;padding:0}
+strong{font-weight:650}
+.lead{font-size:1.05rem;color:var(--ink-2)}
+
+/* finding cards */
+.f{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--line-2);
+  border-radius:10px;padding:1.1rem 1.3rem;margin:1rem 0}
+.f.crit{border-left-color:var(--crit)} .f.alto{border-left-color:var(--alto)}
+.f.medio{border-left-color:var(--medio)} .f.baixo{border-left-color:var(--baixo)}
+.f h3{margin:0 0 .6rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:baseline}
+.f h3 .id{font-family:var(--mono);font-size:.78rem;color:var(--ink-3);font-weight:600}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 .8rem}
+.tag{font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;font-weight:650;
+  padding:.15rem .55rem;border-radius:5px;white-space:nowrap}
+.t-crit{background:var(--crit-bg);color:var(--crit)} .t-alto{background:var(--alto-bg);color:var(--alto)}
+.t-medio{background:var(--medio-bg);color:var(--medio)} .t-baixo{background:var(--baixo-bg);color:var(--baixo)}
+.t-conf{background:var(--baixo-bg);color:var(--baixo)} .t-plaus{background:var(--medio-bg);color:var(--medio)}
+.t-ref{background:var(--ref-bg);color:var(--ref)} .t-nv{background:var(--ref-bg);color:var(--ref)}
+.t-file{background:var(--accent-bg);color:var(--accent);font-family:var(--mono);text-transform:none;letter-spacing:0}
+
+/* tables */
+.tw{overflow-x:auto;margin:1rem 0;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.86rem;min-width:420px}
+th,td{text-align:left;padding:.55rem .8rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface-2);font-weight:600;font-size:.76rem;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--ink-2);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--surface-2)}
+td.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:.82rem}
+td code{font-size:.8rem}
+
+/* filter bar */
+.filters{position:sticky;top:0;z-index:5;background:var(--bg);padding:.8rem 0;margin:1.5rem 0 0;
+  border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.filters .lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);
+  margin-right:.2rem;font-weight:600}
+button.fb{font:inherit;font-size:.78rem;cursor:pointer;background:var(--surface);color:var(--ink-2);
+  border:1px solid var(--line-2);border-radius:999px;padding:.22rem .75rem}
+button.fb:hover{border-color:var(--accent);color:var(--accent)}
+button.fb[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.hidden{display:none !important}
+
+.note{background:var(--accent-bg);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0;font-size:.92rem}
+.note strong{color:var(--accent)}
+.good{background:var(--baixo-bg);border:1px solid var(--line);border-left:3px solid var(--baixo);
+  border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--line);
+  font-size:.82rem;color:var(--ink-3)}
+.themetoggle{position:fixed;bottom:1.2rem;right:1.2rem;z-index:10;background:var(--surface);
+  border:1px solid var(--line-2);color:var(--ink-2);border-radius:999px;padding:.45rem .9rem;
+  font:inherit;font-size:.78rem;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.09)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <p class="navtitle">Conteúdo</p>
+  <a href="#resumo">1 · Sumário executivo</a>
+  <a href="#metodo">2 · Como foi feita</a>
+  <a href="#solido">3 · O que está sólido</a>
+  <a href="#criticos">4 · Achados críticos</a>
+  <a href="#c1" class="sub">C1 Ablação vazia</a>
+  <a href="#c2" class="sub">C2 Snapshot pré-correção</a>
+  <a href="#c3" class="sub">C3 PDF desatualizado</a>
+  <a href="#c4" class="sub">C4 Preservação pré-correção</a>
+  <a href="#c5" class="sub">C5 Strong nunca instalada</a>
+  <a href="#c6" class="sub">C6 Pipeline não falha</a>
+  <a href="#altos">5 · Achados altos</a>
+  <a href="#menores">6 · Médios e baixos</a>
+  <a href="#refutados">7 · Refutados</a>
+  <a href="#correcao">8 · Correção própria</a>
+  <a href="#recom">9 · Recomendações</a>
+  <a href="#apendice">10 · Evidência</a>
+</nav>
+
+<main>
+<header>
+  <h1>Análise completa do projeto Snort-p4</h1>
+  <p class="sub lead">Compilador de tradução semântica de regras Snort 3 para P4 — código, data plane, experimentos e manuscrito.</p>
+  <div class="meta">
+    <span>2026-09-11</span>
+    <span>commit <code>162e3fe</code></span>
+    <span>análise estática e de artefatos</span>
+    <span>nenhum arquivo alterado</span>
+  </div>
+  <div class="score">
+    <div><b>58</b><small>examinados</small></div>
+    <div class="c-ok"><b>38</b><small>confirmados</small></div>
+    <div><b>10</b><small>plausíveis</small></div>
+    <div class="c-ref"><b>2</b><small>refutados</small></div>
+    <div class="c-crit"><b>6</b><small>críticos</small></div>
+    <div class="c-alto"><b>12</b><small>altos</small></div>
+  </div>
+</header>
+
+<h2 id="resumo">1 · Sumário executivo</h2>
+<p>O projeto está em muito melhor forma do que uma auditoria desta profundidade normalmente encontra. <strong>Nenhum número do manuscrito está errado ou sem lastro</strong> — a aritmética de ponta a ponta se sustenta contra os artefatos, e a disciplina sobre afirmações de desempenho é exemplar: não há uma única alegação de throughput, latência ou line-rate sem ressalva explícita. A separação das três categorias de contador é respeitada em todas as taxas reportadas. O matcher offline é semanticamente equivalente ao parser P4, condição a condição. O lowering de flags TCP está correto para todas as formas presentes no ruleset.</p>
+<p>Os problemas que restam quase não são erros de cálculo. São de <strong>proveniência, de gate e de interpretação</strong>:</p>
+<ol>
+  <li><strong>A ablação de agrupamento é vazia.</strong> A métrica nunca lê a variável <code>groups</code>. As quatro "estratégias" são quatro re-execuções bit a bit do mesmo cálculo. Duas subseções do manuscrito repousam sobre uma comparação que não compara nada.</li>
+  <li><strong>O snapshot congelado do perfil contém o data plane pré-correção</strong>, byte a byte idêntico à cópia rotulada <code>pre_correction</code>.</li>
+  <li><strong>O <code>main.pdf</code> é anterior à correção</strong>, por três horas.</li>
+  <li><strong>A preservação de alertas é medição pré-correção</strong> apresentada sem ressalva.</li>
+  <li><strong>A configuração strong-discriminator nunca rodou no data plane</strong> e aparece ao lado de colunas que rodaram.</li>
+  <li><strong>Nenhum estágio do pipeline consegue falhar.</strong> Zero <code>sys.exit</code> em oito scripts, incluindo os dois validadores.</li>
+</ol>
+
+<h2 id="metodo">2 · Como esta análise foi feita</h2>
+<p>Três ondas, com verificação adversarial obrigatória antes de qualquer achado entrar no relatório.</p>
+<p><strong>Onda 1 — seis agentes em paralelo</strong>, cada um com um recorte: semântica da tradução; back-end P4 e lowering; cobertura da linguagem Snort 3; testes e validação; engenharia e reprodutibilidade; manuscrito versus artefatos.</p>
+<p><strong>Onda 2 — verificação adversarial.</strong> Cada achado alto ou crítico foi entregue a céticos independentes instruídos a <em>demoli-lo</em>, com lentes distintas: <em>verdade do código</em> (o código faz literalmente isto, nestas linhas?) e <em>caça à mitigação</em> (existe algo em outro lugar que já impede esta consequência?). Quatro reconciliações dirigidas atacaram pontos onde os agentes se contradisseram.</p>
+<p><strong>Onda 3 — verificação direta:</strong> execução da suíte de testes, comparação de hashes, contagem em artefatos, leitura de mtimes.</p>
+<div class="tw"><table>
+<thead><tr><th>Status</th><th>Significado</th></tr></thead>
+<tbody>
+<tr><td><span class="tag t-conf">Confirmado</span></td><td>Resistiu à tentativa de refutação, ou foi medido diretamente</td></tr>
+<tr><td><span class="tag t-plaus">Plausível</span></td><td>Mecanismo confirmado, consequência ou severidade em disputa</td></tr>
+<tr><td><span class="tag t-ref">Refutado</span></td><td>A verificação derrubou o achado. Listados na seção 7, por transparência</td></tr>
+<tr><td><span class="tag t-nv">Não verificado</span></td><td>Ficou sem verificação adversarial. Marcado como tal, não como fato</td></tr>
+</tbody></table></div>
+<div class="note"><strong>Limites.</strong> A máquina não tem BMv2, veth, gRPC nem LaTeX — nada foi re-executado no data plane. Os módulos <code>scapy</code>, <code>grpc</code>, <code>google.protobuf</code> e <code>pytest</code> não estão instalados. A equivalência entre o matcher offline e o parser P4 foi verificada por leitura pareada, não por teste diferencial com fuzzing. Sem binário do Snort 3, não foi possível confirmar empiricamente quais formas sintáticas o Snort aceita ou rejeita — onde isso importa (M11, M13), a afirmação vem do código-fonte do Snort ou está marcada como não confirmada.</div>
+
+<h2 id="solido">3 · O que está sólido</h2>
+<div class="good">
+<p>Registrar isto importa tanto quanto registrar os defeitos — parte do valor da auditoria é saber onde <strong>não</strong> mexer.</p>
+<ul>
+<li><strong>Rastreabilidade numérica completa.</strong> Todos os valores do <code>main.tex</code> (4.017 / 4.003 / 14 / 6.675 / 327 / 331, taxas e distribuições) têm artefato de lastro e conferem.</li>
+<li><strong>Contabilidade das três categorias.</strong> Nenhuma taxa soma <code>PACKET_DOMAIN_FALLBACK</code> a candidato ou no-match; todas usam o domínio suportado como denominador.</li>
+<li><strong>Disciplina sobre desempenho.</strong> As 21 ocorrências de line-rate/throughput/latência/hardware estão em negações, limitações ou trabalho relacionado.</li>
+<li><strong>Fidelidade do matcher offline.</strong> <code>tests/p4_packet_domain.py:31-89</code> equivale a <code>p4/ids_prefilter.p4:162-266</code> e <code>:428-438</code>, condição a condição.</li>
+<li><strong>Accounting de contadores.</strong> Todo pacote incrementa exatamente um dos três índices: <code>apply()</code> if/else estrito, <code>default_action</code> cobre o miss, sem <code>recirculate</code>/<code>clone</code>/<code>resubmit</code>.</li>
+<li><strong>Aritmética 6.675 → 327 → 331.</strong> Dedup só agrupa matches idênticos com a mesma ação; 327 − 13 + 17 = 331.</li>
+<li><strong>Lowering de flags TCP.</strong> Os quatro ramos conferidos contra o <code>CheckTcpFlags</code> do Snort — todos corretos.</li>
+<li><strong>Determinismo.</strong> Sem <code>random</code>, <code>hash()</code> ou iteração não ordenada nos módulos do pipeline; sem timestamp nos artefatos compilados.</li>
+<li><strong>Proveniência do dataset.</strong> Cada uma das três janelas tem sha256 individual, contagem de pacotes, janela temporal em microssegundos e breakdown de protocolos — mais rigoroso que a norma da área.</li>
+</ul>
+</div>
+
+<div class="filters" role="group" aria-label="Filtros">
+  <span class="lbl">Severidade</span>
+  <button class="fb" data-sev="all" aria-pressed="true">todas</button>
+  <button class="fb" data-sev="crit" aria-pressed="false">críticos</button>
+  <button class="fb" data-sev="alto" aria-pressed="false">altos</button>
+  <button class="fb" data-sev="medio" aria-pressed="false">médios</button>
+  <button class="fb" data-sev="baixo" aria-pressed="false">baixos</button>
+</div>
+
+<h2 id="criticos">4 · Achados críticos</h2>
+
+<article class="f crit" data-sev="crit" id="c1">
+<h3><span class="id">C1</span> A ablação de agrupamento não mede agrupamento</h3>
+<div class="tags"><span class="tag t-crit">Crítico</span><span class="tag t-conf">Confirmado</span>
+<span class="tag t-file">tests/analyze_grouped_prefilter_feasibility.py:136,145,149,216</span></div>
+<p>A métrica <code>candidate_rules_per_packet</code> é estruturalmente insensível à estratégia de agrupamento. O objeto <code>compiled</code> é construído <strong>uma vez, fora</strong> do laço de estratégias, e o laço de pacotes calcula:</p>
+<pre><code>matched = [i for i in candidate_indices if compiled_entry_matches_packet(compiled[i], packet)]   # :136
+rules.update(entry["provenance"]["source_rule_ids"])                                              # :145
+candidate_sizes.append(len(rules))                                                                # :149</code></pre>
+<p><code>matched</code> depende só de <code>compiled</code> e do pacote. <code>rules</code> depende só de <code>matched</code>. A variável <code>groups</code> é lida num único ponto do laço (<code>:146</code>, <code>active_groups.add</code>) e alimenta exclusivamente <code>activated_groups_per_packet</code> e <code>group_hits</code> — <strong>nunca</strong> <code>candidate_rules_per_packet</code>.</p>
+<p>Por isso os valores são idênticos bit a bit nas quatro estratégias (SQLi <code>179,2847898293437</code>; XSS <code>140,48995641964078</code>): é a métrica <em>ungrouped</em> recalculada quatro vezes sobre o mesmo objeto. O contrafactual confirma: a união real de regras do grupo <code>protocol=6</code> é <strong>3.439 regras</strong>, contra o máximo de 1.228 e mediana 27 reportados.</p>
+<p><strong>Consequência.</strong> A conclusão <code>GROUPING_LIMITED_BY_OVERLAP</code> não é sustentada por esses dados, e duas subseções do manuscrito (L1049-1062 e L1253-1269) descrevem uma comparação que não ocorreu. Um revisor que abrir o script chega a isto em dez minutos.</p>
+</article>
+
+<article class="f crit" data-sev="crit" id="c2">
+<h3><span class="id">C2</span> O snapshot congelado do perfil contém o data plane pré-correção</h3>
+<div class="tags"><span class="tag t-crit">Crítico</span><span class="tag t-conf">Confirmado por hash e mtime</span><span class="tag t-file">output/profiles/cicids2017/artifacts/</span></div>
+<div class="tw"><table>
+<thead><tr><th>Arquivo</th><th>sha256 (16)</th><th>Bytes</th><th>mtime</th></tr></thead>
+<tbody>
+<tr><td><code>output/ids_prefilter.json</code></td><td><code>f5167adc69e8ae05</code></td><td class="num">69.830</td><td>2026-09-01 20:46</td></tr>
+<tr><td><code>…/profiles/cicids2017/artifacts/ids_prefilter.json</code></td><td><code>41b6215bb5fb3931</code></td><td class="num">62.927</td><td>2026-08-25 17:04</td></tr>
+<tr><td><code>…/profiles/controlled/artifacts/ids_prefilter.json</code></td><td><code>41b6215bb5fb3931</code></td><td class="num">62.927</td><td>—</td></tr>
+<tr><td><code>…/historical/…_pre_correction/ids_prefilter.json</code></td><td><code>41b6215bb5fb3931</code></td><td class="num">62.927</td><td>2026-08-25 17:04</td></tr>
+</tbody></table></div>
+<p>O snapshot do perfil <code>cicids2017</code> — que a convenção do projeto trata como artefato congelado autoritativo — é <strong>byte a byte idêntico à cópia explicitamente rotulada <code>pre_correction</code></strong>. O mesmo vale para o <code>p4info.txt</code>. O programa corrigido existe apenas na raiz, com mtime dois minutos posterior à correção do fonte <code>p4/ids_prefilter.p4</code> (20:44).</p>
+<p><strong>Cenário de falha.</strong> Quem restaurar o ambiente a partir de <code>output/profiles/cicids2017/artifacts/</code> sobe o BMv2 com o parser <em>sem</em> o gate <code>(version, ihl, flags, fragOffset) ∈ {(4,5,0,0), (4,5,2,0)}</code> — exatamente o data plane que a auditoria interna declarou <code>NOT_READY</code>. Nada no diretório do snapshot avisa.</p>
+</article>
+
+<article class="f crit" data-sev="crit" id="c3">
+<h3><span class="id">C3</span> O <code>main.pdf</code> é anterior à correção que desbloqueou o artigo</h3>
+<div class="tags"><span class="tag t-crit">Crítico</span><span class="tag t-conf">Confirmado</span><span class="tag t-file">paper/IDS_P4/main.pdf</span></div>
+<div class="tw"><table>
+<thead><tr><th>Arquivo</th><th>mtime</th></tr></thead>
+<tbody>
+<tr><td><code>paper/IDS_P4/main.pdf</code></td><td>2026-09-01 <strong>17:28</strong></td></tr>
+<tr><td><code>paper/IDS_P4/main.aux</code></td><td>2026-09-01 17:28</td></tr>
+<tr><td><code>p4/ids_prefilter.p4</code></td><td>2026-09-01 <strong>20:44</strong></td></tr>
+<tr><td><code>paper/IDS_P4/main.tex</code></td><td>2026-09-09 21:30</td></tr>
+</tbody></table></div>
+<p>O PDF não é apenas mais antigo que o <code>.tex</code> — é <strong>três horas mais antigo que a própria correção do P4</strong>. O <code>main.aux</code> não contém <code>\newlabel</code> para <code>sec:packet-domain</code> nem <code>sec:domain-validation</code>, ambos presentes no <code>main.tex</code> atual (L354 e L908). O PDF de 29 páginas não contém a subseção <em>Enforced Packet Domain</em>, a linha de fail-open da tabela de semântica, o parágrafo <em>Packet-domain validation</em> nem a subseção <em>Packet-Domain Enforcement and Validation</em>. Submetê-lo é submeter a versão bloqueada.</p>
+</article>
+
+<article class="f crit" data-sev="crit" id="c4">
+<h3><span class="id">C4</span> A preservação de alertas é medição pré-correção, sem ressalva</h3>
+<div class="tags"><span class="tag t-crit">Crítico</span><span class="tag t-conf">Confirmado por mtime</span><span class="tag t-file">main.tex Tabela 7 · L1091-1107</span></div>
+<div class="tw"><table>
+<thead><tr><th>Artefato</th><th>mtime</th></tr></thead>
+<tbody>
+<tr><td><code>…/sqli/p4_alert_preservation.json</code></td><td>2026-08-25 20:18</td></tr>
+<tr><td><code>…/sqli/report.json</code></td><td>2026-08-26 15:45</td></tr>
+<tr><td><code>…/xss/report.json</code></td><td>2026-08-26 16:10</td></tr>
+<tr><td><code>…/bruteforce/report.json</code></td><td>2026-08-31 14:03</td></tr>
+<tr><td><code>p4/ids_prefilter.p4</code> (corrigido)</td><td>2026-09-01 20:44</td></tr>
+</tbody></table></div>
+<p>O <code>main.tex</code> L943-947 enumera o que foi revalidado sob o domínio imposto — 100% global, 98,942%, 324,52, 91,01% — e <strong>omite a preservação de alertas</strong> dessa lista. A Tabela 7 apresenta "P4 cand. 150/528/2.391, no-match 0, Preservação 100%" sem ressalva.</p>
+<p>O argumento de que os 16 frames reclassificados permanecem candidatos é provavelmente correto — mas hoje é <strong>argumento apresentado como medição</strong>. O próprio <code>PARSER_DOMAIN_RECONCILIATION.md</code> §5 e §7.2 registra o item como aberto.</p>
+</article>
+
+<article class="f crit" data-sev="crit" id="c5">
+<h3><span class="id">C5</span> A configuração strong-discriminator nunca rodou no data plane</h3>
+<div class="tags"><span class="tag t-crit">Crítico</span><span class="tag t-conf">Confirmado</span><span class="tag t-file">operational_policy_simulation.json</span></div>
+<ul>
+<li><code>operational_policy_simulation.json</code> traz <code>"simulation_only": true</code></li>
+<li><code>ipv4_packet_domain_guard_test.json</code> traz <code>"entries_used": 331</code></li>
+<li><code>xss_install.log</code> e <code>bruteforce_install.log</code> registram 331 escritas e 331 leituras</li>
+</ul>
+<p>Nenhum artefato mostra as 322 entradas instaladas no BMv2. Ainda assim a Tabela 5 posiciona <em>Strong candidate</em> e <em>Strong no-match</em> como colunas 6 e 7, ao lado de <em>Eligible</em> e <em>Global candidate</em>, que <strong>são</strong> validadas no data plane, sem distinção visual ou textual. O mesmo vale para a Tabela 6 e para o resultado 2.289/2.289. A expressão "frozen operational ablation" sugere, mas não afirma.</p>
+</article>
+
+<article class="f crit" data-sev="crit" id="c6">
+<h3><span class="id">C6</span> Nenhum estágio do pipeline consegue falhar</h3>
+<div class="tags"><span class="tag t-crit">Crítico</span><span class="tag t-conf">Confirmado por medição</span><span class="tag t-file">compiler/*.py</span></div>
+<pre><code>compiler/validate_backend.py             sys.exit=0  raise SystemExit=0
+compiler/validate_semantic_manifest.py   sys.exit=0  raise SystemExit=0
+compiler/generate_p4_entries.py          sys.exit=0  raise SystemExit=0
+compiler/expand_p4_entries.py            sys.exit=0  raise SystemExit=0
+compiler/normalize_p4_entries.py         sys.exit=0  raise SystemExit=0
+compiler/lower_p4_entries.py             sys.exit=0  raise SystemExit=0
+compiler/generate_p4runtime_install.py   sys.exit=0  raise SystemExit=0
+compiler/generate_semantic_manifest.py   sys.exit=0  raise SystemExit=0</code></pre>
+<p><code>validate_backend.py</code> tem 1.451 linhas, acumula erros reais, imprime <code>VALIDATION ERRORS</code>, marca <code>backend_status: INVALID</code> — e sai com código 0. <code>build_profile.py:198-208</code> só checa <code>returncode</code>, que é sempre 0.</p>
+<p><strong>Cenário.</strong> Uma entrada que falhe em <code>normalize_p4_entries</code> é capturada, registrada em <code>failures</code> e <strong>removida</strong> de <code>p4runtime_entries.json</code>. O build termina "com sucesso", o plano sai com 330 entradas, a instalação reporta <code>VALID</code>, e a regra continua em <code>snort_candidate.rules</code> como candidata — sem predicado instalado. A correspondência artefato-a-artefato que sustenta <code>r ⇒ p_r</code> quebra silenciosamente.</p>
+<p>Hoje <code>failed_entries = 0</code>, então nada congelado está contaminado. É defeito de gate — mas é o gate que permitiria todos os outros passarem despercebidos.</p>
+</article>
+
+<h2 id="altos">5 · Achados altos</h2>
+
+<article class="f alto" data-sev="alto">
+<h3><span class="id">H1</span> A diversidade de alertas é de uma regra, e o manuscrito não diz</h3>
+<div class="tags"><span class="tag t-alto">Alto</span><span class="tag t-conf">Confirmado</span><span class="tag t-file">bruteforce/report.json</span></div>
+<pre><code>"full_sid_alert_counts": {"254": 2289, "399": 2, "402": 97, "650": 2, "1394": 1}</code></pre>
+<p>Os 2.289 eventos "strong-eligible" e o resultado 2.289/2.289 são <strong>exatamente e apenas o SID 254</strong> — 95,7% dos alertas da janela held-out. As mensagens: 254 = <code>PROTOCOL-DNS SPOOF query response</code>; 399/402 = ICMP unreachable; 650/1394 = <code>INDICATOR-SHELLCODE</code>. <strong>Nenhum é regra de ataque web ou de força bruta</strong>, apesar de a janela ser rotulada brute force.</p>
+<p>O manuscrito cita os cinco SIDs (L1074) mas nunca a distribuição, e a seção Threats não contém o item de baixa diversidade — embora ele esteja no handoff §13. A frase "100% não representa cobertura geral das 4.003 regras candidatas" existe em <code>sqli/report.json:limitations[0]</code> e não no artigo.</p>
+</article>
+
+<article class="f alto" data-sev="alto">
+<h3><span class="id">H2</span> O denominador de 3.611 exclui 406 regras sempre aplicáveis</h3>
+<div class="tags"><span class="tag t-alto">Alto</span><span class="tag t-conf">Confirmado por grep</span><span class="tag t-file">main.tex</span></div>
+<p>A auditoria interna já calculou a versão conservadora: com E(x) = |C(x)| + 392 + 14 sobre 4.017, as reduções caem para <strong>85,43% (SQLi), 86,40% (XSS), 81,81% (Brute Force)</strong>. Nenhum desses números aparece no manuscrito — <code>85.43</code>, <code>86.40</code> e <code>81.81</code> têm zero ocorrências, enquanto <code>91.01</code> tem dez.</p>
+<p>Como 3.611 + 392 + 14 = 4.017, o revisor faz a conta sozinho e a diferença 91,01% → 81,81% passa a parecer escondida. Reportar as duas linhas custa uma frase.</p>
+</article>
+
+<article class="f alto" data-sev="alto">
+<h3><span class="id">H3</span> <code>validate_backend.py</code> é tautológico e não valida nada instalado</h3>
+<div class="tags"><span class="tag t-alto">Alto</span><span class="tag t-conf">Confirmado</span><span class="tag t-file">compiler/validate_backend.py:8,100-116,319-482</span></div>
+<pre><code>INPUT_FILE  = "../output/p4runtime_entries.json"
+OUTPUT_FILE = "../output/backend_validation.json"
+
+referências a p4_install_entries    ->  0
+referências a p4runtime_install_plan ->  0
+referências a p4info                 ->  0</code></pre>
+<p>O validador lê o <em>insumo</em> do lowering e nunca a saída. <code>normalized_match_key</code> é a mesma função de <code>lower_p4_entries.match_key</code> — os 327 matches únicos são o mesmo cálculo feito duas vezes — e <code>analyze_tcp_flags</code> reimplementa a classificação de <code>lower_tcp_flags</code> sem nunca comparar com o value/mask emitido.</p>
+<p><strong>Cenário.</strong> Inverter o ramo <code>!</code> em <code>lower_p4_entries.py:536-543</code> inverteria a semântica de <code>flags:!S</code>. <code>backend_validation.json</code> continuaria <code>VALID_WITH_FLAG_EXPANSION</code> com 327 e 331. <strong>Nenhum validador do repositório falharia.</strong></p>
+</article>
+
+<article class="f alto" data-sev="alto">
+<h3><span class="id">H4</span> A proveniência dos artefatos não está ancorada</h3>
+<div class="tags"><span class="tag t-alto">Alto</span><span class="tag t-conf">Confirmado por hash</span><span class="tag t-file">build_profile.py:451-519</span></div>
+<p><code>snapshot_profile</code> sobrescreve <code>output/</code> na raiz a cada build e só depois copia para <code>output/profiles/&lt;perfil&gt;/artifacts/</code>. Hoje a raiz é idêntica ao snapshot <code>cicids2017</code> e diferente de <code>controlled</code>, porque <code>cicids2017</code> foi construído por último.</p>
+<p>Mas <code>tests/analyze_prefilter_selectivity.py:20</code> e <code>tests/evaluate_heldout_bruteforce.py:34</code> leem a <strong>raiz</strong>. Reconstruir <code>controlled</code> — operação de rotina, não erro — faria esses scripts consumirem silenciosamente entradas com <code>HOME_NET 10.0.0.0/24</code> rotuladas como resultado CIC-IDS2017. Sem erro, sem aviso.</p>
+</article>
+
+<article class="f alto" data-sev="alto">
+<h3><span class="id">H5</span> Zero citações para o dataset, o IDS e a linguagem</h3>
+<div class="tags"><span class="tag t-alto">Alto</span><span class="tag t-conf">Confirmado por grep</span><span class="tag t-file">paper/IDS_P4/references.bib</span></div>
+<p>"CICIDS2017" aparece 8 vezes no <code>main.tex</code> e <strong>0 vezes com <code>\cite</code></strong>. As 10 entradas do <code>.bib</code> são todas de trabalho relacionado (<code>lewis2019p4id</code>, <code>tavares2021p4onids</code>, <code>hagen2025rna</code>, <code>brum2025rethinking</code>, <code>lewis2023fourmidable</code>, <code>fida2026pdpids</code>, três surveys, <code>senoski2025p4nips</code>). Não há referência para Snort 3, para a especificação P4, para o v1model/BMv2 nem para o P4Runtime. Em revisão de conferência de redes isso é rejeição quase certa.</p>
+</article>
+
+<article class="f alto" data-sev="alto">
+<h3><span class="id">H6</span> O critério da política strong-discriminator não existe</h3>
+<div class="tags"><span class="tag t-alto">Alto</span><span class="tag t-conf">Confirmado</span><span class="tag t-file">residual_selectivity_audit.json</span></div>
+<pre><code>"removed_entries": 9,
+"removed_entry_ids": ["p4-106","p4-138","p4-20","p4-24","p4-286","p4-3","p4-40","p4-5","p4-80"]</code></pre>
+<p>O <code>main.tex</code> L992 diz apenas "removed the identified broad entry set" e a análise causal nomeia <strong>três</strong> entradas. Não há em lugar algum — manuscrito, artefato ou código — a definição do que torna uma entrada "broad". Um terceiro não consegue reproduzir a partição 3.611/392.</p>
+</article>
+
+<article class="f alto" data-sev="alto">
+<h3><span class="id">H7</span> O núcleo do compilador não tem teste, e não existe runner</h3>
+<div class="tags"><span class="tag t-alto">Alto</span><span class="tag t-conf">Confirmado por medição</span><span class="tag t-file">tests/ · compiler/</span></div>
+<div class="tw"><table>
+<thead><tr><th>Módulo</th><th>Linhas</th><th>Testes que o importam</th></tr></thead>
+<tbody>
+<tr><td><code>compiler/validate_backend.py</code></td><td class="num">1.451</td><td class="num">0</td></tr>
+<tr><td><code>compiler/generate_p4runtime_install.py</code></td><td class="num">1.277</td><td class="num">0</td></tr>
+<tr><td><code>compiler/expand_p4_entries.py</code></td><td class="num">1.275</td><td class="num">0</td></tr>
+<tr><td><code>compiler/lower_p4_entries.py</code></td><td class="num">1.260</td><td class="num">0</td></tr>
+<tr><td><code>compiler/normalize_p4_entries.py</code></td><td class="num">1.043</td><td class="num">0</td></tr>
+<tr><td><code>compiler/build_profile.py</code></td><td class="num">1.090</td><td class="num">0</td></tr>
+<tr><td><code>compiler/select_profile.py</code></td><td class="num">921</td><td class="num">0</td></tr>
+</tbody></table></div>
+<p>~7.300 linhas sem cobertura. Não existe <code>pytest.ini</code>, <code>conftest.py</code>, <code>pyproject.toml</code>, <code>setup.cfg</code>, <code>requirements.txt</code>, <code>tox.ini</code>, <code>Makefile</code>, <code>README.md</code> nem <code>.github/</code>.</p>
+<div class="tw"><table>
+<thead><tr><th>Resultado</th><th>Arquivos</th></tr></thead>
+<tbody>
+<tr><td><span class="tag t-conf">Passam</span></td><td><code>test_buffer_context</code>, <code>test_nested_variable_resolution</code>, <code>test_option_normalizer</code>, <code>test_semantic_content_ir</code>, <code>test_semantic_ir</code>, <code>test_semantic_model</code>, <code>compiler/test_nested_variable_resolution</code>, <code>compiler/test_service_ir</code></td></tr>
+<tr><td><span class="tag t-crit">Falha</span></td><td><code>test_variable_resolver</code> → <code>FileNotFoundError</code></td></tr>
+<tr><td><span class="tag t-ref">Não executam</span></td><td><code>test_ipv4_packet_domain_guard</code>, <code>test_tcp_flag_lowering</code>, <code>test_alert_preservation_bmv2</code> → <code>ModuleNotFoundError: grpc</code></td></tr>
+</tbody></table></div>
+<p>Três arquivos com nome <code>test_*</code> não contêm <strong>nenhum</strong> <code>assert</code> nem <code>sys.exit</code>. O <code>test_semantic_model.py</code> chega a imprimir "N test(s) failed." e ainda assim sai com código 0 — e importa <code>from classifier import classify_rule</code>, ou seja, testa o classificador <strong>legado</strong>, não o que gera o manifesto. As duas suítes de guarda mais citadas importam <code>grpc</code> no topo, então nem os casos offline rodam sem gRPC.</p>
+</article>
+
+<article class="f alto" data-sev="alto">
+<h3><span class="id">H8</span> Nenhum manifesto de dependências</h3>
+<div class="tags"><span class="tag t-alto">Alto</span><span class="tag t-conf">Confirmado</span></div>
+<p><code>scapy</code> em ~14 arquivos, <code>grpc</code> em 5, <code>google.protobuf</code> em 5, <code>p4.v1</code>/<code>p4.config.v1</code> em 5. Nada declara isso. O <code>.venv-p4runtime/</code> do checkout contém apenas <code>pip</code> e <code>setuptools</code> — o único artefato de ambiente do repositório não reproduz o que os experimentos precisam.</p>
+</article>
+
+<article class="f alto" data-sev="alto">
+<h3><span class="id">H9</span> Subsistema de classificação órfão ao lado dos artefatos oficiais</h3>
+<div class="tags"><span class="tag t-alto">Alto</span><span class="tag t-conf">Confirmado</span><span class="tag t-file">compiler/classifier.py · compatibility.py</span></div>
+<p><code>classifier.py</code>, <code>compatibility.py</code>, <code>run_classifier.py</code>, <code>generate_manifest.py</code> e <code>generate_real_manifest.py</code> não são importados por nada do pipeline oficial. Produzem <code>manifest.json</code> e <code>community_manifest.json</code> (6,8 MB), que ficam ao lado de <code>semantic_manifest.json</code> sem indicação de que só o último é real. <code>run_classifier.py</code> roda sobre <code>rules/test.rules</code>, arquivo de brinquedo de 178 bytes.</p>
+<p>Agrava: o caminho legado tem defeito próprio de orientação — marca a direção como <code>DELEGATED</code> e preserva src/dst em forward, de modo que <code>alert udp any 19 &lt;&gt; any 7</code> (sid 271) perde o sentido <code>7→19</code>. Reexecutar o script errado produz números que não batem com os congelados.</p>
+</article>
+
+<article class="f alto" data-sev="alto">
+<h3><span class="id">H10</span> A matriz de suporte da linguagem não existe</h3>
+<div class="tags"><span class="tag t-alto">Alto</span><span class="tag t-conf">Confirmado por leitura direta</span><span class="tag t-file">docs/snort3_support_matrix.md</span></div>
+<p>45 linhas, 1.440 bytes, termina no meio da Seção 1 em <code>action protocol src_ip src_port direction dst_ip dst_port</code>, com bloco de código sem fechar e sem newline final. Nunca chega a uma tabela de opções — não há uma linha sobre <code>content</code>, <code>flow</code>, <code>pcre</code>, <code>service</code>, <code>flags</code> ou buffers HTTP. Commitado assim desde <code>ce45f97</code>, e ainda citado como referência ativa em <code>CODEX_HANDOFF.md:24-25</code> e <code>docs/semantic_model.md:8</code>.</p>
+<p>A linha 39 que sobreviveu atribui a causa errada: afirma que parser e IR não suportam regras de serviço, quando <code>parser.py:238-305</code> tem <code>parse_service_rule</code> dedicada e <code>build_semantic_ir.py:704-746</code> gera IR completo. O ponto de falha real é a classificação de seletividade.</p>
+</article>
+
+<article class="f alto" data-sev="alto">
+<h3><span class="id">H11</span> Uma entrada anula a seletividade de todas as outras</h3>
+<div class="tags"><span class="tag t-alto">Alto</span><span class="tag t-conf">Confirmado</span><span class="tag t-file">semantic_classifier.py:56-72</span></div>
+<pre><code>{"table":"ids_prefilter","action":{"name":"send_to_ids"},"match":{"protocol":6},
+ "provenance":{"source_rule_ids":["1382","32937","54793","56585"],"source_rule_count":4},
+ "install_entry_id":"p4-106"}</code></pre>
+<p>Uma entrada que casa <strong>todo pacote TCP</strong>, gerada por 4 regras, subsome 246 das 331 (74,32%). A causa é <code>protocol_is_selective</code> aceitar <code>tcp</code> isolado como predicado seletivo. O contraste interno é revelador: <code>direction_is_selective</code> (<code>:115-128</code>) corretamente devolve <code>False</code> por reconhecer que direção é estrutural e não reduz o conjunto de pacotes quando endereços e portas são wildcards. O mesmo raciocínio se aplica a protocolo isolado.</p>
+<p>Enquanto <code>p4-106</code> estiver instalada, <code>P4_NO_MATCH</code> é inatingível para TCP. Tratar protocolo isolado como não-seletivo move 4 regras para <code>UNSUPPORTED</code> — fallback Snort, mesma carga, zero perda semântica — e devolve seletividade às outras 327.</p>
+</article>
+
+<article class="f alto" data-sev="alto">
+<h3><span class="id">H12</span> Ranges de porta descartados apesar de a chave ser ternária</h3>
+<div class="tags"><span class="tag t-alto">Alto</span><span class="tag t-conf">Confirmado, números reconciliados</span><span class="tag t-file">target_capability.py:424-428,468-472</span></div>
+<div class="tw"><table>
+<thead><tr><th>Unidade</th><th>Contagem</th><th>Detalhe</th></tr></thead>
+<tbody>
+<tr><td>Decisões com <code>FALLBACK</code></td><td class="num">78</td><td>62 <code>port_range_not_supported</code> + 14 <code>port_list_contains_range</code> + 2 <code>negated_port_not_supported</code></td></tr>
+<tr><td>Regras distintas afetadas</td><td class="num">75</td><td>3 regras (sids 40840-40842) perdem <em>ambas</em> as portas</td></tr>
+<tr><td>Regras que ficam só com (protocol, IP)</td><td class="num">72</td><td>49 com <code>{protocol, dst_ip}</code> + 23 com <code>{protocol, src_ip}</code></td></tr>
+</tbody></table></div>
+<p><strong>Cenário.</strong> Sid 110: <code>alert tcp $EXTERNAL_NET any -&gt; $HOME_NET 12345:12346</code> — duas portas. Vira <code>p4-3 = {protocol:6, dst_ip:192.168.10.0/24}</code>, entrada compartilhada por 99 SIDs. Um pacote TCP para <code>192.168.10.5:443</code> passa a ser candidato para a sid 110.</p>
+<p>Nada disso exige aproximação: a chave é <strong>ternary</strong>, então <code>12345:12346</code> são duas entradas e <code>1024:65535</code> são seis prefixos. Representar os 62 ranges custa 387 entradas ternárias, levando a tabela a ~700 de 8.192. O descarte é seguro (<code>r ⇒ p_r</code> preservado) — é perda de precisão, não de correção. Mas é o mecanismo que produz as entradas subsumidoras.</p>
+</article>
+
+<h2 id="menores">6 · Achados médios e baixos</h2>
+<div class="tw" data-sev="medio"><table>
+<thead><tr><th>ID</th><th>Achado</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td><code>M1</code></td><td>237 predicados de cabeçalho representáveis em P4 (<code>itype</code> 124, <code>icode</code> 79, <code>icmp_id</code> 15, <code>ip_proto</code> 4, <code>ttl</code>, <code>fragbits</code>, <code>seq</code>, <code>ack</code>) ficam <code>DELEGATED</code>. Sids 221 e 222 diferem só em <code>itype</code> (8 vs 0) e colapsam na mesma <code>p4-20</code>, que agrega 112 regras. O header ICMP já é parseado em <code>ids_prefilter.p4:89-94</code> e descartado</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>M2</code></td><td><code>ip_proto</code> delegado derruba 3 das 14 <code>UNSUPPORTED</code> (sids 2462/2463/2464) — limitação de implementação, não intrínseca: é o byte Protocol do IPv4</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>M3</code></td><td>Expansão cartesiana sem teto em <code>expand_p4_entries.py:498-593</code> e nenhuma checagem de capacidade 8.192 antes da instalação. Uma regra com listas de 20 portas nos dois lados e <code>&lt;&gt;</code> gera 800 entradas. Máximo hoje: 9/regra</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>M4</code></td><td>Modificador de flags só reconhecido no início ou no fim. <code>flags:F+S</code> — válido no Snort, que trata <code>+</code>/<code>*</code>/<code>!</code> caractere a caractere — é descartada silenciosamente</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>M5</code></td><td><code>flags</code> com <code>*</code> rotulado <code>PRESERVED</code>, mas <code>semantic_model.md:91,117-118</code> define esse caso como <code>EXPANDED</code>. A expansão real ocorre depois; o rótulo inconsistente alimenta o manifesto</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>M6</code></td><td>Pipeline de replay/seletividade/held-out documentado apenas em prosa (handoff §9-11). Sem Makefile, README ou orquestrador</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>M7</code></td><td>Zero dispersão, variância, IC ou declaração de execução única. Um replay por trace. A tentativa SQLi descartada por <code>EMSGSIZE</code> (35.278 frames, 354 de fallback) nunca é mencionada</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>M8</code></td><td>Nenhuma declaração de reprodutibilidade: sem Snort++ 3.12.2.0, sem sha256 do ruleset, sem endpoint P4Runtime, sem availability statement</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>M9</code></td><td>A suíte de guarda de 11 casos não cobre nenhuma classe que domina o fallback real: ARP (1.660 no XSS), IPv6 (820), LLDP, VLAN, GRE, <code>truncated_udp</code>, <code>truncated_icmp</code>. ~99,9% do fallback nunca teve confirmação controlada data-plane-vs-offline</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>M10</code></td><td>Todo o <code>compiler/</code> usa caminhos relativos ao <em>cwd</em> (40+ constantes <code>"../…"</code>), contra 29 arquivos que ancoram em <code>Path(__file__)</code>. <code>variable_resolver.py:5</code> procura <code>../config/snort_variables.json</code>; da raiz isso resolve para fora do projeto. O pipeline só funciona com <code>cwd=compiler/</code>, e nada declara isso</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>M11</code></td><td>Direção <code>&lt;-</code> gera predicado com orientação invertida — <strong>rebaixado</strong>, ver seção 8</td><td><span class="tag t-plaus">Rebaix.</span></td></tr>
+<tr><td><code>M12</code></td><td><strong>Aspa desbalanceada produz <code>EXACT</code> espúrio que a validação aprova.</strong> <code>split_options</code> não valida balanceamento e <code>parse_option</code> faz <code>.strip('"')</code> cego. Reproduzido: <code>msg:"quote " here"</code> faz o <code>msg</code> engolir <code>content</code> e <code>sid</code> — 1 opção em vez de 3, <code>sid = None</code>, classificação <strong><code>EXACT</code></strong> com <code>delegated=0</code> e <code>fallback=0</code>. <code>validate_semantic_manifest.py:202-236</code> valida <code>EXACT</code> só checando <code>candidate</code>/<code>delegated</code>/<code>fallback</code>, então <strong>aprova sem erro</strong>. <code>EXACT</code> é a única classe que autoriza o data plane a decidir sozinho. Alcance: <strong>0 de 4.017 regras</strong> — latente</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>M13</code></td><td><strong>Regras que falham no parse somem sem gate.</strong> <code>parser.py:388-394</code> captura <code>ValueError</code> e descarta; <code>generate_semantic_manifest.py:226-242</code> conta em <code>failures</code> e continua; <code>validate_semantic_manifest.py</code> nunca lê <code>summary.failures</code>. Reproduzido: <code>-&gt; any [80, 443]</code> (espaço após a vírgula) levanta <code>ValueError</code>, porque o regex usa <code>\S+</code> para a porta. A regra não entra no manifesto, não vira <code>UNSUPPORTED</code> e não aparece em nenhuma partição — sem sinal no código de saída. Alcance: <strong>0 regras</strong> e <code>summary.failures = 0</code> — latente. <em>Não confirmado:</em> se o Snort 3 tolera essa forma</td><td><span class="tag t-conf">Conf.</span></td></tr>
+</tbody></table></div>
+
+<div class="tw" data-sev="baixo"><table>
+<thead><tr><th>ID</th><th>Achado</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td><code>B1</code></td><td><code>flags:AS,12</code> / <code>12FS</code> / <code>12AP</code> / <code>12FSU</code> (4 regras) vão para <code>FALLBACK</code> sendo exatamente representáveis; <code>TCP_FLAG_MAP</code> já define <code>C=0x80</code> e <code>E=0x40</code></td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>B2</code></td><td><code>EXACT</code> não é código morto: uma regra tradicional só-de-cabeçalho com apenas <code>METADATA</code> é classificada <code>EXACT</code>. <code>EXACT = 0</code> é resultado empírico honesto</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>B3</code></td><td>As 14 <code>UNSUPPORTED</code> = 10 regras <code>SERVICE</code> (100% das existentes) + 3 <code>ip_proto</code> + 1 sid 498. Regras <code>SERVICE</code> nunca podem ser <code>NECESSARY</code> nem <code>EXACT</code> porque <code>is_selective_predicate</code> só reconhece campos <code>HEADER</code></td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>B4</code></td><td><code>SUPPORTED_OPTIONS</code>/<code>UNSUPPORTED_OPTIONS</code> em <code>parser.py:6-16</code> são dead code com nomes enganosos</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>B5</code></td><td>Os ramos <code>!</code> e <code>ignore_mask</code> de <code>lower_tcp_flags</code> nunca são executados, mas <code>SEMANTIC_SOUNDNESS_AUDIT.md</code> §2 e §4 os cita como cobertos por teste</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>B6</code></td><td><code>flags:SA,A</code> é insatisfazível no Snort, mas o compilador emite <code>value 0x02 / mask 0xEF</code>, que casa SYN puro. Relaxação segura, divergência não documentada</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>B7</code></td><td>Campos com máscara zero são apagados na codificação; <code>src_ip 0.0.0.0/0</code> e ausência de <code>src_ip</code> colidem na mesma chave. Com <code>CONTINUE_ON_ERROR</code>, o <code>ALREADY_EXISTS</code> faz o <code>Write</code> inteiro falhar</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>B8</code></td><td>929 <code>print()</code> em <code>compiler/*.py</code>, zero uso de <code>logging</code></td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>B9</code></td><td>40 <code>except Exception</code>, mais de 20 nos <code>analyze_*</code> órfãos</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>B10</code></td><td>RQ2 pergunta por um "practical P4 target"; só BMv2 foi avaliado</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>B11</code></td><td>Os replays de preservação usaram PCAPs só com pacotes de alerta e parâmetros diferentes por trace. A Tabela 7 não os distingue dos replays completos</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>B12</code></td><td><code>\label{sec:domain-validation}</code> nunca é referenciado</td><td><span class="tag t-conf">Conf.</span></td></tr>
+<tr><td><code>B13</code></td><td><code>\documentclass{article}</code>, 29 páginas, 8 tabelas e 1 figura conceitual, zero gráficos de dados, sem template de conferência, <code>\date{August 2026}</code></td><td><span class="tag t-plaus">Plaus.</span></td></tr>
+<tr><td><code>B14</code></td><td>Tabela 5 mistura contagens e percentuais sem rótulo de unidade e não tem coluna para <code>PACKET_DOMAIN_FALLBACK</code></td><td><span class="tag t-plaus">Plaus.</span></td></tr>
+<tr><td><code>B15</code></td><td>Colisão de <code>95,04%</code> entre duas métricas distintas (95,0412% e 95,0350%) exibidas na mesma seção</td><td><span class="tag t-plaus">Plaus.</span></td></tr>
+<tr><td><code>B16</code></td><td>Prioridade ternária constante = 1 nas 331 entradas. Inofensivo hoje, mas impede contador por entrada e o desempate fica por ordem de handle do BMv2</td><td><span class="tag t-plaus">Plaus.</span></td></tr>
+<tr><td><code>B17</code></td><td><code>assess_flags</code> devolve <code>PRESERVED</code> para qualquer string sem dígito, inclusive <code>flags:ZZ</code>. A falha aparece três estágios depois — mas é capturada e registrada em <code>failures</code>, não silenciosa</td><td><span class="tag t-plaus">Plaus.</span></td></tr>
+<tr><td><code>B18</code></td><td>Resolução de variáveis single-pass não enxerga dentro de <code>!$VAR</code>. Com o <code>snort.lua</code> padrão a restrição de origem é perdida. O perfil ativo usa <code>any</code>, sem impacto congelado</td><td><span class="tag t-plaus">Plaus.</span></td></tr>
+<tr><td><code>B19</code></td><td>Lógica de porta duplicada em cinco lugares com critérios divergentes</td><td><span class="tag t-plaus">Plaus.</span></td></tr>
+<tr><td><code>B20</code></td><td>Caminhos absolutos <code>/home/arthur/datasets/…</code> e <code>veth1</code>/<code>127.0.0.1:9559</code> hardcoded; lista <code>EXPECTED</code> congelada em <code>test_alert_preservation_bmv2.py</code></td><td><span class="tag t-plaus">Plaus.</span></td></tr>
+<tr><td><code>B21</code></td><td>O no-match do strong-discriminator não é bypass realizável — as 406 regras de fallback seguem aplicáveis — e RQ3 apresenta 98,942%/1,058% sem repetir a ressalva</td><td><span class="tag t-plaus">Plaus.</span></td></tr>
+</tbody></table></div>
+
+<h2 id="refutados">7 · Achados refutados</h2>
+<p>Listados porque a transparência sobre o que <strong>não</strong> é problema tem valor próprio.</p>
+
+<article class="f" data-sev="all">
+<h3><span class="id">R1</span> "Duas versões de Python sobre o mesmo código" — refutado</h3>
+<div class="tags"><span class="tag t-ref">Refutado</span></div>
+<p>A premissa factual estava errada. O achado afirmava que os <code>.pyc</code> cpython-310 estavam todos dentro do venv. Há <strong>27 <code>.pyc</code> cpython-310 fora do venv</strong>: 14 em <code>compiler/__pycache__/</code> e 13 em <code>tests/__pycache__/</code>, cobrindo módulos reais do compilador e scripts de replay. Existe bytecode 3.10 justamente para o código do pipeline, o que contradiz a conclusão de que "o venv nunca foi usado".</p>
+</article>
+
+<article class="f" data-sev="all">
+<h3><span class="id">R2</span> "Não há hash dos recortes de PCAP" — refutado</h3>
+<div class="tags"><span class="tag t-ref">Refutado</span></div>
+<p>Factualmente falso. <code>output/datasets/cicids2017_thursday_metadata.json</code> documenta cada uma das três janelas com sha256 individual (linhas 57, 83 e 109), além de <code>file_size_bytes</code>, <code>packets</code>, <code>capture_start</code>/<code>capture_end</code> em microssegundos, breakdown de protocolos e <code>snort_structural_read = VALID</code>. O hash é propagado para <code>report.json</code> como <code>pcap_sha256</code>.</p>
+</article>
+
+<article class="f" data-sev="all">
+<h3><span class="id">R3</span> "Contradição sobre atomicidade entre handoff e código" — refutado</h3>
+<div class="tags"><span class="tag t-ref">Refutado</span></div>
+<p>Não há contradição: as duas afirmações falam de mensagens P4Runtime diferentes.</p>
+<ul>
+<li><code>install_p4runtime.py:265-268</code>, em <code>set_pipeline()</code>: <code>request.action = SetForwardingPipelineConfigRequest.VERIFY_AND_COMMIT</code> — commit da <strong>configuração de pipeline</strong></li>
+<li><code>install_p4runtime.py:420-423</code>, em <code>write_entries()</code>: <code>request.atomicity = WriteRequest.CONTINUE_ON_ERROR</code> — atomicidade da <strong>escrita das entradas</strong></li>
+</ul>
+<p>O handoff §9 diz "instalar o pipeline… usa <code>VERIFY_AND_COMMIT</code>", e o sujeito é o pipeline. O handoff está correto.</p>
+<p><strong>Permanece válido</strong> o ponto substantivo: existe um único <code>WriteRequest</code> no repositório, com <code>CONTINUE_ON_ERROR</code>, e o ramo <code>COUNT_MISMATCH</code> (<code>:764-787</code>) apenas imprime e termina com exit 0 — uma instalação parcial não interrompe a fase de medição.</p>
+</article>
+
+<h2 id="correcao">8 · Correção a um achado desta própria análise</h2>
+<article class="f medio" data-sev="medio">
+<h3><span class="id">M11</span> A direção <code>&lt;-</code> não é uma quebra de <code>r ⇒ p_r</code></h3>
+<div class="tags"><span class="tag t-medio">Médio</span><span class="tag t-plaus">Rebaixado de alto</span></div>
+<p>A primeira onda reportou isto como quebra real do conservadorismo. A verificação adversarial rebaixou o achado.</p>
+<p>O <strong>mecanismo</strong> está confirmado linha a linha e foi reproduzido por execução: <code>parser.py:171</code> aceita <code>&lt;-</code>; <code>target_capability.py:503-506</code> rebaixa a direção para <code>FALLBACK</code>; <code>p4_backend.py:94-136</code> só consome predicados <code>preserved</code>/<code>expanded</code>, então <code>direction</code> chega como <code>None</code>; <code>expand_p4_entries.py:448,480-490</code> emite apenas a orientação forward. A regra resultante é <code>NECESSARY</code> com <code>prefilter_candidate = True</code>.</p>
+<p>Mas a <strong>consequência declarada é falsa</strong>. O Snort 3 rejeita <code>&lt;-</code> no parse (<code>parse_rule.cc</code>, <code>parse_rule_dir</code>, <code>ParseError: illegal direction specifier</code>) — apenas <code>-&gt;</code> e <code>&lt;&gt;</code> são válidos. A regra nunca carrega. Não existe pacote que dispare no Snort e escape do P4; a implicação vale vacuamente. O ruleset tem zero ocorrências de <code>&lt;-</code>.</p>
+<p>O que sobra é real, mas menor: um caminho de código anunciado (<code>parser.py:171</code> enumera <code>&lt;-</code>, e <code>semantic_model.md:123</code> o lista entre os construtos reconhecidos) cujo tratamento é insonoro, sem nenhum teste. A observação estrutural continua válida: <strong>direção é um predicado estrutural do qual <code>src_ip</code>, <code>src_port</code>, <code>dst_ip</code> e <code>dst_port</code> dependem</strong> — rebaixá-la isoladamente não relaxa o predicado, reinterpreta-o. Se outro construto de direção entrar no parser, a armadilha se repete.</p>
+</article>
+
+<h2 id="recom">9 · Recomendações priorizadas</h2>
+
+<h3>Antes de submeter</h3>
+<ol>
+<li><strong>Resolver a ablação de agrupamento (C1).</strong> Reimplementar a métrica ou remover as duas subseções e a conclusão <code>GROUPING_LIMITED_BY_OVERLAP</code>. É o único achado que remove conteúdo do artigo.</li>
+<li><strong>Recompilar o PDF (C3)</strong> e conferir a tabela de semântica em landscape e o ambiente <code>cases</code> da subseção <em>Enforced Packet Domain</em>.</li>
+<li><strong>Declarar a proveniência pré-correção da Tabela 7 (C4)</strong>, ou re-executar os três replays de preservação.</li>
+<li><strong>Separar o que é offline do que é data plane (C5).</strong> Uma frase resolve; a ausência dela é o tipo de coisa que um revisor chama de enganosa.</li>
+<li><strong>Reportar a redução conservadora (H2)</strong> ao lado da atual. 81,81% honesto vale mais que 91,01% contestável.</li>
+<li><strong>Adicionar a diversidade de alertas às Threats (H1).</strong> A frase já existe em <code>sqli/report.json:limitations[0]</code>.</li>
+<li><strong>Citar CICIDS2017, Snort 3, P4 e BMv2 (H5).</strong></li>
+<li><strong>Publicar o critério de "broad" ou os nove IDs (H6).</strong></li>
+<li><strong>Adicionar declaração de reprodutibilidade (M8).</strong></li>
+</ol>
+
+<h3>Antes de qualquer nova rodada de experimentos</h3>
+<ol start="10">
+<li><strong>Corrigir o snapshot do perfil (C2).</strong> Enquanto o <code>ids_prefilter.json</code> do snapshot for a cópia pré-correção, qualquer restauração pela via autoritativa reintroduz o bug.</li>
+<li><strong>Fazer os validadores falharem (C6).</strong> <code>sys.exit(1)</code> quando <code>backend_status == "INVALID"</code> ou quando houver <code>failures</code>. É a correção de maior retorno por linha do projeto inteiro.</li>
+<li><strong>Ancorar os scripts de análise no snapshot do perfil (H4)</strong>, não em <code>output/</code> na raiz.</li>
+<li><strong>Fazer <code>validate_backend.py</code> ler os artefatos instalados (H3)</strong> e comparar o value/mask emitido com o esperado.</li>
+</ol>
+
+<h3>Melhorias de resultado</h3>
+<ol start="14">
+<li><strong>Implementar ranges de porta como decomposição ternária (H12).</strong> Custo medido: 387 entradas, tabela a ~700/8.192. Devolve precisão a 75 regras e provavelmente <em>melhora</em> as métricas do artigo.</li>
+<li><strong>Reclassificar protocolo isolado como não-seletivo (H11).</strong> Remove <code>p4-106</code>, que sozinha subsome 74,32% das entradas.</li>
+<li><strong>Expor <code>ip_proto</code>, <code>itype</code> e <code>icode</code> na chave da tabela (M1, M2).</strong> O header ICMP já é parseado. Converte 3 regras de <code>UNSUPPORTED</code> para <code>NECESSARY</code> e desfaz o colapso das 112 regras em <code>p4-20</code>.</li>
+</ol>
+
+<h3>Higiene</h3>
+<ol start="17">
+<li>Adicionar <code>requirements.txt</code> e um runner de testes (H7, H8).</li>
+<li>Ancorar os caminhos do <code>compiler/</code> em <code>Path(__file__)</code> (M10).</li>
+<li>Completar ou remover <code>docs/snort3_support_matrix.md</code> (H10).</li>
+<li>Mover o subsistema legado para <code>legacy/</code> ou removê-lo (H9).</li>
+<li>Estender a suíte de guarda para ARP, IPv6, VLAN, LLDP, GRE e truncamento de UDP/ICMP (M9).</li>
+</ol>
+
+<h2 id="apendice">10 · Apêndice — evidência das medições diretas</h2>
+<p>Comandos executados na raiz do repositório, com <code>git status</code> limpo antes e depois e sem alteração em nenhum dos 236 arquivos de <code>output/</code>, <code>config/</code>, <code>p4/</code>, <code>docs/</code>, <code>paper/</code> e <code>rules/</code>.</p>
+<pre><code># C6 — gates de saída
+grep -c 'sys\.exit|raise SystemExit' nos 8 scripts do pipeline  ->  0 em todos
+
+# H3 — o que validate_backend.py lê
+compiler/validate_backend.py:8  INPUT_FILE = "../output/p4runtime_entries.json"
+referências a p4_install_entries / p4runtime_install_plan / p4info  ->  0 / 0 / 0
+
+# C2 / H4 — hashes
+output/ids_prefilter.json                               f5167adc69e8ae05  69.830 B
+output/profiles/cicids2017/artifacts/ids_prefilter.json 41b6215bb5fb3931  62.927 B
+output/historical/..._pre_correction/ids_prefilter.json 41b6215bb5fb3931  62.927 B
+
+# H5 — citações
+"CICIDS2017" no main.tex: 8 ocorrências, 0 com \cite
+references.bib: 10 entradas, todas de trabalho relacionado
+
+# H2 — redução conservadora
+"85.43" / "86.40" / "81.81" no main.tex  ->  0 / 0 / 0
+"91.01"                                  ->  10
+
+# H1 — diversidade de alertas
+full_sid_alert_counts = {"254": 2289, "399": 2, "402": 97, "650": 2, "1394": 1}
+
+# H11 — a entrada p4-106
+{"match": {"protocol": 6}, "provenance": {"source_rule_ids": ["1382","32937","54793","56585"],
+ "source_rule_count": 4}, "install_entry_id": "p4-106"}
+
+# M12 — aspa ímpar produz EXACT (processo efêmero, sem escrita no repositório)
+regra:     alert tcp any any -> any 80 ( msg:"quote " here"; content:"/x"; sid:9101; )
+opções:    [{"name": "msg", "value": "quote \" here\"; content:\"/x\"; sid:9101;"}]  -> 1 opção
+sid:       None
+resultado: classification=EXACT  exact_semantics=True  delegated=0  fallback=0  preserved=6
+controle:  aspas balanceadas -> 3 opções, sid=9102, NECESSARY, delegated=1
+aspas pares mal posicionadas -> parseia correto (o gatilho é número ÍMPAR)
+alcance no ruleset real: 0 de 4.017 regras
+
+# M13 — parse failure silenciosa
+alert tcp any any -> any [80, 443] (...)  -> ValueError: Could not parse rule
+alert tcp any any -> any [80,443]  (...)  -> OK
+alcance no ruleset real: 0 regras com espaço após vírgula em lista de cabeçalho</code></pre>
+
+<footer>
+<p>Relatório produzido por análise estática e de artefatos, com verificação adversarial. Nenhum arquivo do projeto foi modificado.</p>
+<p>Todos os achados examinados receberam verificação. Os dois que haviam ficado pendentes — M12 (aspa desbalanceada produzindo <code>EXACT</code> espúrio) e M13 (regras que falham no parse somem sem gate) — foram fechados por reprodução direta em processo efêmero.</p>
+</footer>
+</main>
+</div>
+
+<button class="themetoggle" id="tt" aria-label="Alternar tema">tema</button>
+<script>
+(function(){
+  var btns=document.querySelectorAll('button.fb');
+  btns.forEach(function(b){
+    b.addEventListener('click',function(){
+      var sev=b.dataset.sev;
+      btns.forEach(function(x){x.setAttribute('aria-pressed',String(x===b))});
+      document.querySelectorAll('article.f, .tw[data-sev]').forEach(function(el){
+        var s=el.dataset.sev;
+        el.classList.toggle('hidden', !(sev==='all'||s===sev||s==='all'));
+      });
+      document.querySelectorAll('h2').forEach(function(h){
+        var id=h.id;
+        if(id==='criticos'||id==='altos'||id==='menores'||id==='refutados'||id==='correcao'){
+          var n=h.nextElementSibling,vis=false;
+          while(n&&n.tagName!=='H2'){
+            if((n.matches('article.f')||n.matches('.tw[data-sev]'))&&!n.classList.contains('hidden'))vis=true;
+            n=n.nextElementSibling;
+          }
+          h.classList.toggle('hidden',!vis);
+        }
+      });
+    });
+  });
+  var tt=document.getElementById('tt');
+  tt.addEventListener('click',function(){
+    var cur=document.documentElement.getAttribute('data-theme');
+    if(!cur){cur=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+    document.documentElement.setAttribute('data-theme',cur==='dark'?'light':'dark');
+  });
+})();
+</script>
+</body>
+</html>
