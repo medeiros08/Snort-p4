@@ -208,6 +208,188 @@ def read_counters(
 # ============================================================
 
 
+TABLE_ID_ESPERADO = 43167662
+
+
+PERFIL_EXIGIDO = "controlled"
+
+
+def chaves_do_plano(caminho):
+    """Conjunto de chaves de casamento de um plano de instalacao."""
+
+    import json
+
+    plano = json.loads(
+        caminho.read_text(encoding="utf-8")
+    )
+
+    chaves = set()
+
+    for entrada in plano.get("entries", []):
+
+        campos = []
+
+        for campo in entrada.get("match", []):
+
+            ternary = campo.get(
+                "ternary",
+                {},
+            )
+
+            # Comparado como inteiro, nao como string hex: o P4Runtime
+            # devolve os bytes canonicos, sem zeros a esquerda, entao o
+            # switch responde "15" onde o plano registra "0015".
+            campos.append(
+                (
+                    campo.get("field_id"),
+                    int(ternary.get("value_hex") or "0", 16),
+                    int(ternary.get("mask_hex") or "0", 16),
+                )
+            )
+
+        chaves.add(
+            tuple(sorted(campos))
+        )
+
+    return chaves
+
+
+def chaves_instaladas(stub, table_id):
+    """Le do switch as chaves de casamento realmente instaladas."""
+
+    request = (
+        p4runtime_pb2
+        .ReadRequest()
+    )
+
+    request.device_id = DEVICE_ID
+
+    entity = request.entities.add()
+    entity.table_entry.table_id = table_id
+
+    chaves = set()
+
+    for response in stub.Read(request):
+
+        for result in response.entities:
+
+            if not result.HasField("table_entry"):
+                continue
+
+            campos = []
+
+            for campo in result.table_entry.match:
+
+                campos.append(
+                    (
+                        campo.field_id,
+                        int.from_bytes(
+                            campo.ternary.value, "big"
+                        ),
+                        int.from_bytes(
+                            campo.ternary.mask, "big"
+                        ),
+                    )
+                )
+
+            chaves.add(
+                tuple(sorted(campos))
+            )
+
+    return chaves
+
+
+def verifica_perfil(stub, table_id):
+    """Aborta cedo se a tabela instalada nao for a do perfil exigido.
+
+    Sem esta checagem, um perfil trocado se manifesta como contador que nao
+    incrementa — numero que acusa o compilador por um erro de configuracao.
+    """
+
+    perfis = PROJECT_ROOT / "output" / "profiles"
+
+    esperado = (
+        perfis
+        / PERFIL_EXIGIDO
+        / "artifacts"
+        / "p4runtime_install_plan.json"
+    )
+
+    if not esperado.exists():
+        return
+
+    instaladas = chaves_instaladas(
+        stub, table_id
+    )
+
+    if not instaladas:
+
+        print()
+        print(
+            "ERROR: nenhuma entrada instalada "
+            "na tabela do switch."
+        )
+        print(
+            "  Instale antes com:"
+        )
+        print(
+            "    python3 compiler/"
+            "install_p4runtime.py --plan "
+            f"output/profiles/{PERFIL_EXIGIDO}"
+            "/artifacts/"
+            "p4runtime_install_plan.json"
+        )
+        sys.exit(1)
+
+    if instaladas == chaves_do_plano(esperado):
+        return
+
+    # Tabela diferente da esperada. Identifica qual perfil esta la, para que a
+    # mensagem diga o que houve em vez de so acusar divergencia.
+    encontrado = "desconhecido"
+
+    if perfis.is_dir():
+
+        for diretorio in sorted(perfis.iterdir()):
+
+            plano = (
+                diretorio
+                / "artifacts"
+                / "p4runtime_install_plan.json"
+            )
+
+            if plano.exists() and instaladas == chaves_do_plano(plano):
+                encontrado = diretorio.name
+                break
+
+    print()
+    print(
+        "ERROR: a tabela instalada no switch "
+        "nao e a do perfil exigido por este "
+        "teste."
+    )
+    print(
+        f"  exigido   : {PERFIL_EXIGIDO} "
+        "(HOME_NET 10.0.0.0/24, que e a rede "
+        "dos pacotes do pcap)"
+    )
+    print(
+        f"  instalado : {encontrado}"
+    )
+    print()
+    print(
+        "  Instale o perfil correto e rode "
+        "de novo:"
+    )
+    print(
+        "    python3 compiler/"
+        "install_p4runtime.py --plan "
+        f"output/profiles/{PERFIL_EXIGIDO}"
+        "/artifacts/p4runtime_install_plan.json"
+    )
+    sys.exit(1)
+
+
 def main():
 
     print()
@@ -285,6 +467,11 @@ def main():
 
     counter_id = find_counter_id(
         p4info
+    )
+
+    verifica_perfil(
+        stub,
+        TABLE_ID_ESPERADO,
     )
 
     print(
