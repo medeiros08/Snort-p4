@@ -10,8 +10,9 @@ Este runner executa cada teste em subprocesso e separa tres desfechos:
     PASSA     exit 0
     FALHA     exit != 0 por motivo proprio
     AMBIENTE  exit != 0 por condicao externa ao codigo: dependencia ausente
-              (grpc, scapy, p4, protobuf), alvo BMv2 fora do ar, ou falta de
-              privilegio para abrir socket raw
+              (grpc, scapy, p4, protobuf), alvo BMv2 fora do ar, falta de
+              privilegio para abrir socket raw, ou tabela instalada de um
+              perfil que o teste nao aceita
 
 Cada uma dessas condicoes ja apareceu como uma mensagem que nao nomeia a
 propria causa — um PermissionError cru, um "connection refused". O runner as
@@ -61,6 +62,14 @@ SINAIS_DE_ALVO_AUSENTE = (
     "failed to connect to all addresses",
 )
 
+# Tabela instalada no switch incompativel com o que o teste exige. Os testes
+# de plano de dados dependem de perfis diferentes e mutuamente exclusivos, e
+# nao existe estado do switch em que todos rodem de uma vez. Quem nao pode
+# rodar nao esta reprovando: nao esta rodando.
+SINAIS_DE_PERFIL = (
+    "PERFIL_INCOMPATIVEL",
+)
+
 TIMEOUT_SEGUNDOS = 300
 
 
@@ -83,6 +92,10 @@ def motivo_de_ambiente(saida):
             alvo = modulo.split(".")[0]
             if f"No module named '{alvo}'" in saida:
                 return "modulo", f"falta {alvo}"
+
+    for sinal in SINAIS_DE_PERFIL:
+        if sinal in saida:
+            return "perfil", "perfil instalado incompativel"
 
     for sinal in SINAIS_DE_ALVO_AUSENTE:
         if sinal in saida:
@@ -201,6 +214,14 @@ def main():
             print("    O alvo BMv2 nao esta no ar. Suba e instale as entradas:")
             print("      sudo bash ./scripts/setup_bmv2.sh up")
             print("      python3 compiler/install_p4runtime.py")
+
+        if "perfil" in chaves:
+            print()
+            print("    A tabela instalada no switch nao serve a esses")
+            print("    testes. Eles dependem de perfis diferentes, e nao ha")
+            print("    estado do switch em que todos rodem de uma vez — rode")
+            print("    um perfil por vez. A saida de cada teste diz qual")
+            print("    perfil ele exige e qual esta instalado.")
 
         if "root" in chaves:
             print()
