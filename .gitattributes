@@ -8,6 +8,12 @@
 
 * text=auto eol=lf
 
+# Scripts de shell PRECISAM de LF mesmo num clone Windows: um  no
+# fim da linha do shebang faz o kernel procurar o interpretador
+# "bash", e o erro que aparece e um "comando nao encontrado"
+# que nao explica nada. eol=lf aqui e explicito de proposito.
+*.sh    text eol=lf
+
 # Dados cujos bytes sao evidencia experimental: git nunca converte.
 *.rules -text
 *.json  -text
