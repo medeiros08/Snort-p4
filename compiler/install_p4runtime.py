@@ -1,3 +1,4 @@
+import argparse
 import json
 import queue
 import sys
@@ -556,7 +557,74 @@ def print_grpc_error(
 # ============================================================
 
 
+def rotulo_do_plano():
+    """Caminho do plano relativo a raiz, para identificar o perfil.
+
+    O nome do arquivo e o mesmo em todos os perfis; o que distingue e o
+    diretorio. Imprimir so o nome nao diria nada.
+    """
+
+    try:
+        return str(
+            INSTALL_PLAN_FILE.resolve().relative_to(
+                PROJECT_ROOT
+            )
+        )
+    except ValueError:
+        return str(INSTALL_PLAN_FILE)
+
+
+def analisa_argumentos():
+    """Le a linha de comando.
+
+    O padrao continua sendo o plano na raiz de output/, para nao mudar o
+    comportamento de quem ja chamava o script sem argumento.
+    """
+
+    analisador = argparse.ArgumentParser(
+        description=(
+            "Instala as entradas da tabela "
+            "de prefiltro no alvo BMv2 via "
+            "P4Runtime."
+        )
+    )
+
+    analisador.add_argument(
+        "--plan",
+        type=Path,
+        default=INSTALL_PLAN_FILE,
+        help=(
+            "plano de instalacao a usar. "
+            "Padrao: output/"
+            "p4runtime_install_plan.json. "
+            "Para um perfil especifico: "
+            "output/profiles/<perfil>/"
+            "artifacts/"
+            "p4runtime_install_plan.json"
+        ),
+    )
+
+    analisador.add_argument(
+        "--address",
+        default=GRPC_ADDRESS,
+        help=(
+            "endereco do servidor P4Runtime "
+            f"(padrao: {GRPC_ADDRESS})"
+        ),
+    )
+
+    return analisador.parse_args()
+
+
 def main():
+
+    global INSTALL_PLAN_FILE
+    global GRPC_ADDRESS
+
+    argumentos = analisa_argumentos()
+
+    INSTALL_PLAN_FILE = argumentos.plan
+    GRPC_ADDRESS = argumentos.address
 
     print()
     print(
@@ -618,6 +686,11 @@ def main():
         ][
             "id"
         ]
+    )
+
+    print(
+        f"Plan                   : "
+        f"{rotulo_do_plano()}"
     )
 
     print(
