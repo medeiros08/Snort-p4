@@ -9,8 +9,14 @@ Este runner executa cada teste em subprocesso e separa tres desfechos:
 
     PASSA     exit 0
     FALHA     exit != 0 por motivo proprio
-    AMBIENTE  exit != 0 por dependencia ausente (grpc, scapy, p4, protobuf)
-              ou por artefato/pcap que nao acompanha o repositorio
+    AMBIENTE  exit != 0 por condicao externa ao codigo: dependencia ausente
+              (grpc, scapy, p4, protobuf), alvo BMv2 fora do ar, ou falta de
+              privilegio para abrir socket raw
+
+Cada uma dessas condicoes ja apareceu como uma mensagem que nao nomeia a
+propria causa — um PermissionError cru, um "connection refused". O runner as
+reconhece e diz o que fazer, porque o diagnostico nao deveria ser exercicio de
+quem roda a suite.
 
 So FALHA reprova a suite. AMBIENTE e reportado e contado, nunca escondido:
 um teste que nao roda nao e um teste que passa.
@@ -39,6 +45,22 @@ MODULOS_DE_AMBIENTE = (
     "pytest",
 )
 
+# Falta de privilegio para abrir socket AF_PACKET/SOCK_RAW, que exige
+# CAP_NET_RAW. Casa com EPERM (errno 1) de proposito: negacao de escrita em
+# arquivo devolve EACCES (errno 13), e essa SIM e defeito a investigar.
+SINAIS_DE_PRIVILEGIO = (
+    "[Errno 1] Operation not permitted",
+)
+
+# Alvo BMv2 fora do ar. Nao e defeito do codigo: e o switch que nao esta
+# rodando. Reconhecido de forma estreita — se o switch estiver no ar e o teste
+# falhar por assercao, continua sendo FALHA, como deve ser.
+SINAIS_DE_ALVO_AUSENTE = (
+    "P4Runtime server is not reachable",
+    "P4Runtime is not reachable",
+    "failed to connect to all addresses",
+)
+
 TIMEOUT_SEGUNDOS = 300
 
 
@@ -48,13 +70,28 @@ def arquivos_de_teste():
     return arquivos
 
 
-def e_falta_de_ambiente(saida):
-    if "ModuleNotFoundError" not in saida and "ImportError" not in saida:
-        return None
-    for modulo in MODULOS_DE_AMBIENTE:
-        alvo = modulo.split(".")[0]
-        if f"No module named '{alvo}'" in saida:
-            return alvo
+def motivo_de_ambiente(saida):
+    """Classifica uma saida de erro como limitacao de ambiente.
+
+    Devolve (chave, detalhe) ou None. A chave agrupa a instrucao mostrada no
+    resumo, para que a mensagem diga o que fazer em vez de deixar o
+    diagnostico por conta de quem roda.
+    """
+
+    if "ModuleNotFoundError" in saida or "ImportError" in saida:
+        for modulo in MODULOS_DE_AMBIENTE:
+            alvo = modulo.split(".")[0]
+            if f"No module named '{alvo}'" in saida:
+                return "modulo", f"falta {alvo}"
+
+    for sinal in SINAIS_DE_ALVO_AUSENTE:
+        if sinal in saida:
+            return "bmv2", "BMv2 fora do ar"
+
+    for sinal in SINAIS_DE_PRIVILEGIO:
+        if sinal in saida:
+            return "root", "precisa de root"
+
     return None
 
 
@@ -78,23 +115,24 @@ def executa(caminho, verboso):
             env=env,
         )
     except subprocess.TimeoutExpired:
-        return "FALHA", f"tempo esgotado ({TIMEOUT_SEGUNDOS}s)", ""
+        return "FALHA", f"tempo esgotado ({TIMEOUT_SEGUNDOS}s)", "", None
 
     saida = (resultado.stdout or "") + (resultado.stderr or "")
 
     if resultado.returncode == 0:
-        return "PASSA", "", saida
+        return "PASSA", "", saida, None
 
-    faltante = e_falta_de_ambiente(saida)
-    if faltante:
-        return "AMBIENTE", f"falta {faltante}", saida
+    motivo = motivo_de_ambiente(saida)
+    if motivo:
+        chave, detalhe = motivo
+        return "AMBIENTE", detalhe, saida, chave
 
     ultima = ""
     for linha in reversed(saida.strip().splitlines()):
         if linha.strip():
             ultima = linha.strip()[:70]
             break
-    return "FALHA", f"exit {resultado.returncode}: {ultima}", saida
+    return "FALHA", f"exit {resultado.returncode}: {ultima}", saida, None
 
 
 def main():
@@ -123,14 +161,14 @@ def main():
         rotulo = str(caminho.relative_to(PROJECT_ROOT))
         print(f"  {rotulo:<{largura}}  ", end="", flush=True)
 
-        desfecho, detalhe, saida = executa(caminho, argumentos.verboso)
+        desfecho, detalhe, saida, chave = executa(caminho, argumentos.verboso)
         contagem[desfecho] += 1
 
         if desfecho == "PASSA":
             print("PASSA")
         elif desfecho == "AMBIENTE":
             print(f"AMBIENTE  ({detalhe})")
-            ambiente.append((rotulo, detalhe))
+            ambiente.append((rotulo, detalhe, chave))
         else:
             print(f"FALHA     ({detalhe})")
             falhas.append((rotulo, detalhe, saida))
@@ -145,13 +183,31 @@ def main():
 
     if ambiente:
         print()
-        print("  Nao executados (dependencia ausente):")
-        for rotulo, detalhe in ambiente:
+        print("  Nao executados (limitacao de ambiente):")
+        for rotulo, detalhe, _ in ambiente:
             print(f"    {rotulo} — {detalhe}")
-        print()
-        print("    Para habilitar: pip install -e .[experiments,p4runtime]")
-        print("    Os bindings p4.v1/p4.config.v1 nao estao no PyPI; vem de")
-        print("    p4lang/PI ou p4runtime-shell.")
+
+        chaves = {chave for _, _, chave in ambiente}
+
+        if "modulo" in chaves:
+            print()
+            print("    Dependencia ausente:")
+            print("      pip install -e .[experiments,p4runtime]")
+            print("      Os bindings p4.v1/p4.config.v1 nao estao no PyPI;")
+            print("      vem de p4lang/PI ou p4runtime-shell.")
+
+        if "bmv2" in chaves:
+            print()
+            print("    O alvo BMv2 nao esta no ar. Suba e instale as entradas:")
+            print("      sudo bash ./scripts/setup_bmv2.sh up")
+            print("      python3 compiler/install_p4runtime.py")
+
+        if "root" in chaves:
+            print()
+            print("    Esses testes injetam quadros nas veth por socket")
+            print("    AF_PACKET, que exige CAP_NET_RAW. Rode a suite com:")
+            print("      sudo -E python3 tests/run_tests.py")
+            print("    O -E preserva LD_LIBRARY_PATH, de que o Snort precisa.")
 
     if falhas and argumentos.verboso:
         for rotulo, _, saida in falhas:
