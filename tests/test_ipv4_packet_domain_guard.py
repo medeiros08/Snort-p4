@@ -23,6 +23,8 @@ from scapy.all import Ether, ICMP, IP, Raw, TCP
 from p4.v1 import p4runtime_pb2, p4runtime_pb2_grpc
 from p4.config.v1 import p4info_pb2
 
+import perfil_instalado
+
 from analyze_prefilter_selectivity import (
     compile_entry,
     compiled_entry_matches_packet,
@@ -44,6 +46,9 @@ INTERFACE = "veth1"
 GRPC_ADDRESS = "127.0.0.1:9559"
 DEVICE_ID = 0
 COUNTER_NAME = "MyIngress.prefilter_counter"
+
+TABLE_ID_ESPERADO = 43167662
+
 
 
 def load_entries():
@@ -184,6 +189,12 @@ def main():
     except grpc.FutureTimeoutError as error:
         raise SystemExit("ERROR: BMv2 P4Runtime is not reachable") from error
     stub = p4runtime_pb2_grpc.P4RuntimeStub(channel)
+
+    # Este teste calcula a classificacao esperada a partir das entradas de
+    # output/. Se o switch tiver outra tabela instalada, o esperado e o
+    # observado vem de mundos diferentes e a divergencia nao diz nada.
+    perfil_instalado.exige_plano_da_raiz(stub, DEVICE_ID, TABLE_ID_ESPERADO)
+
     counter_id = find_counter_id(load_p4info())
 
     results = []
