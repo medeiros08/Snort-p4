@@ -671,6 +671,19 @@ in both the baseline and the proposed pipeline. The software-based
 environment is selected to enable reproducible validation of the
 compilation process before considering hardware-specific optimizations.
 
+The frozen results were produced with Snort~3 version 3.12.2.0, the P4
+compiler \texttt{p4c} version 1.2.4.2 (build SHA \texttt{624c6be80}) invoked
+through its \texttt{p4c-bm2-ss} backend, and BMv2
+\texttt{simple\_switch\_grpc} version 1.15.0 (build \texttt{68f4a978}), on
+Ubuntu 22.04 LTS with Python 3.10. The P4Runtime endpoint is
+\texttt{127.0.0.1:9559} with device identifier 0. The data-plane interfaces
+are \texttt{veth} pairs configured with an MTU of 65535, because the replay
+path writes frames larger than the default MTU, and with IPv6 disabled on
+each interface, so that router solicitation and multicast traffic generated
+by the host stack is not counted by the data-plane counters. The script
+\path{scripts/setup_bmv2.sh} in the artifact repository reproduces this
+configuration.
+
 Two execution paths are considered:
 
 \begin{enumerate}
@@ -1484,9 +1497,10 @@ from the committed sources.
 
 The CICIDS2017 traces are not redistributed here; they are obtained from the
 Canadian Institute for Cybersecurity. The BMv2 target, Snort~3, and the P4
-compiler are third-party software and are not redistributed. The Snort version
-used to produce the frozen alert artifacts was Snort++ 3.12.2.0, as recorded in
-the committed build logs.
+compiler are third-party software and are not redistributed; the exact
+versions used to produce the frozen artifacts are stated in
+Section~\ref{sec:methodology}, and \path{scripts/setup_bmv2.sh} reproduces the
+data-plane configuration they ran under.
 
 \appendix
 \section{Experimental Snort Variable Profile}

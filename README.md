@@ -81,6 +81,18 @@ Fora do Python: Snort 3 (validado com 3.12.2.0), `p4c-bm2-ss` e
     python compiler/validate_semantic_manifest.py
     python compiler/validate_backend.py
 
+    # subir o alvo BMv2 (só no rig Linux; cria veth, precisa de root)
+    ./scripts/setup_bmv2.sh status        # inspeciona, não altera nada
+    sudo ./scripts/setup_bmv2.sh up
+    python compiler/install_p4runtime.py
+    sudo ./scripts/setup_bmv2.sh down
+
+`setup_bmv2.sh` cuida só da rede e do processo do switch — não compila o P4
+(quem faz isso é `build_profile.py`) nem instala entradas na tabela. As veth
+saem com MTU 65535, porque o replay escreve quadros maiores que 1500 e o
+envio falharia com `EMSGSIZE`, e com IPv6 desligado, para que router
+solicitation e multicast do kernel não entrem no switch e não sejam contados.
+
 `build_profile.py` verifica o toolchain **antes** de escrever qualquer
 coisa. Numa máquina sem Snort e sem p4c ele aborta com código 1 sem tocar em
 nenhum arquivo.
