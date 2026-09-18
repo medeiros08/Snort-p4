@@ -22,3 +22,10 @@ paper/**/*.blg
 # pequenos e sao evidencia experimental, ficam versionados.
 *.pcap
 output/experiments/**/bmv2*.log
+
+# Corpus de documentacao normativa de Snort 3 e P4, baixado por
+# scripts/fetch_reference_docs.sh. Sao 56 MB de arvore de terceiros com
+# licenca propria, regeneraveis por um comando; o que fica versionado e o
+# MANIFEST, que fixa o commit de onde cada citacao saiu.
+docs/vendor/*
+!docs/vendor/MANIFEST.md
