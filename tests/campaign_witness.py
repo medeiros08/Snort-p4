@@ -197,6 +197,16 @@ def _primeiro_inteiro(valor) -> int | None:
     return None
 
 
+def _eh_curinga(valor) -> bool:
+    """Diz se o campo de endereco ficou sem restricao na regra."""
+
+    if valor is None:
+        return True
+    if isinstance(valor, str):
+        return valor.strip().lower() in ("", "any")
+    return False
+
+
 def _endereco_de(valor, padrao: str, deslocamento: int = 10) -> str | None:
     """Escolhe um host concreto a partir de CIDR, IP literal ou lista.
 
@@ -237,6 +247,74 @@ def _endereco_de(valor, padrao: str, deslocamento: int = 10) -> str | None:
         return None
 
 
+CAMPOS_ICMP = ("itype", "icode", "icmp_id", "icmp_seq")
+
+# Echo request com id e seq 1: o que usar quando a regra nao diz nada.
+ICMP_PADRAO = {"tipo": 8, "codigo": 0, "ident": 1, "seq": 1}
+
+
+def _valor_icmp(texto) -> int | None:
+    """Resolve o valor de uma opcao numerica de ICMP.
+
+    No ruleset avaliado so aparecem duas formas: digito exato e `>N`, esta
+    ultima so em icode (`>0`, `>1`, `>2`, `>3`, `>15`). Para `>N` o menor
+    valor que satisfaz e N+1, e e ele que a testemunha carrega. Qualquer outra
+    forma devolve None, e o caso fica com o padrao — declarado, nao adivinhado.
+    """
+
+    if texto is None:
+        return None
+    texto = str(texto).strip()
+    if texto.isdigit():
+        valor = int(texto)
+    elif texto.startswith(">") and texto[1:].strip().isdigit():
+        valor = int(texto[1:].strip()) + 1
+    else:
+        return None
+    return valor if 0 <= valor <= 65535 else None
+
+
+def campos_icmp(regra: dict) -> dict:
+    """Le itype, icode, icmp_id e icmp_seq da regra.
+
+    Sem isto a testemunha ICMP era sempre echo request com id e seq 1, e toda
+    regra que exige outro tipo ou outro codigo passava vacua: 40 dos 54 casos
+    ICMP da campanha de 1000. ICMP e UDP sao justamente a fatia falsificavel
+    da campanha, porque para TCP a entrada p4-106 garante candidate por
+    construcao — melhorar ICMP melhora o que a campanha e capaz de refutar.
+    """
+
+    campos = dict(ICMP_PADRAO)
+
+    vistos = {}
+    for lista in (
+        "selective_predicates",
+        "preserved",
+        "expanded",
+        "delegated",
+        "fallback",
+        "unassessed",
+        "detection_predicates",
+    ):
+        for predicado in regra.get(lista) or []:
+            nome = predicado.get("field")
+            if nome in CAMPOS_ICMP and nome not in vistos:
+                valor = _valor_icmp(predicado.get("value"))
+                if valor is not None:
+                    vistos[nome] = valor
+
+    if "itype" in vistos:
+        campos["tipo"] = vistos["itype"] & 0xFF
+    if "icode" in vistos:
+        campos["codigo"] = vistos["icode"] & 0xFF
+    if "icmp_id" in vistos:
+        campos["ident"] = vistos["icmp_id"] & 0xFFFF
+    if "icmp_seq" in vistos:
+        campos["seq"] = vistos["icmp_seq"] & 0xFFFF
+
+    return campos
+
+
 def resolver_header(regra: dict) -> dict | None:
     """Monta protocolo, IPs e portas que satisfazem o header da regra."""
 
@@ -254,6 +332,13 @@ def resolver_header(regra: dict) -> dict | None:
     # dst primeiro, e o default de src vem do lado oposto: 2887 regras
     # apontam dst para $HOME_NET e nao declaram src, entao um default interno
     # colidiria com o dst e descartaria a regra por "header nao resolvivel".
+    # Campo livre e campo que a regra nao restringe: pode variar por caso sem
+    # deixar de satisfazer a regra. E o que permite dar 5-tupla propria a cada
+    # caso, e disso depende a independencia das medicoes.
+    src_ip_livre = _eh_curinga(campos.get("src_ip"))
+    dst_ip_livre = _eh_curinga(campos.get("dst_ip"))
+    dst_port_livre = _primeiro_inteiro(campos.get("dst_port")) is None
+
     dst_ip = _endereco_de(campos.get("dst_ip"), "203.0.113.10")
     if not dst_ip:
         return None
@@ -299,6 +384,9 @@ def resolver_header(regra: dict) -> dict | None:
         "src_port": src_port,
         "dst_port": dst_port,
         "src_port_livre": src_port_livre,
+        "dst_port_livre": dst_port_livre and protocolo != "icmp",
+        "src_ip_livre": src_ip_livre,
+        "dst_ip_livre": dst_ip_livre,
     }
 
 
@@ -352,7 +440,7 @@ def _percent_encode(dados: bytes) -> str:
     return "".join(saida)
 
 
-def montar_payload(regra: dict) -> tuple[bytes, dict] | None:
+def montar_payload(regra: dict, direcao: str = "to_server") -> tuple[bytes, dict] | None:
     """Monta o payload que satisfaz os `content` da regra.
 
     Devolve (payload, detalhe) ou None quando algum content nao e
@@ -439,6 +527,28 @@ def montar_payload(regra: dict) -> tuple[bytes, dict] | None:
 
     if not usa_http:
         payload = bytes(buffers.get("corpo", bytearray()))
+    elif direcao == "to_client":
+        # Regra to_client inspeciona a RESPOSTA do servidor. Mandar um
+        # `GET ... HTTP/1.1` saindo do servidor nao e resposta, e o
+        # http_inspect nao preenche buffer nenhum — era o que deixava os
+        # quatro casos tcp/http/to_client vacuos. Os contents vao nos
+        # cabecalhos da resposta: casamento de content e por substring, entao
+        # prefixar com um nome de cabecalho proprio nao impede o match.
+        linhas = [b"HTTP/1.1 200 OK"]
+        linhas.append(b"Server: campanha")
+
+        cabecalho_extra = bytes(buffers.get("http_header", bytearray()))
+        if cabecalho_extra:
+            if b"\r" in cabecalho_extra or b"\n" in cabecalho_extra:
+                return None
+            linhas.append(b"X-Campanha: " + cabecalho_extra)
+
+        corpo = bytes(
+            buffers.get("corpo", buffers.get("http_client_body", bytearray()))
+        )
+        linhas.append(b"Content-Length: %d" % len(corpo or b"ok"))
+        linhas.append(b"Connection: close")
+        payload = b"\r\n".join(linhas) + b"\r\n\r\n" + (corpo or b"ok")
     else:
         metodo = bytes(buffers.get("http_method", bytearray())) or b"GET"
         uri_bytes = bytes(
@@ -569,8 +679,18 @@ def _udp(
     return cabecalho[:6] + struct.pack("!H", soma) + payload
 
 
-def _icmp(payload: bytes) -> bytes:
-    cabecalho = struct.pack("!BBHHH", 8, 0, 0, 1, 1)
+def _icmp(payload: bytes, campos: dict | None = None) -> bytes:
+    """Monta o ICMP com tipo, codigo, id e sequencia que a regra exige."""
+
+    valores = campos or ICMP_PADRAO
+    cabecalho = struct.pack(
+        "!BBHHH",
+        valores.get("tipo", 8),
+        valores.get("codigo", 0),
+        0,
+        valores.get("ident", 1),
+        valores.get("seq", 1),
+    )
     soma = _soma_internet(cabecalho + payload)
     return cabecalho[:2] + struct.pack("!H", soma) + cabecalho[4:] + payload
 
@@ -676,6 +796,7 @@ def quadros_com_papel(
     com_handshake: bool,
     direcao: str = "to_server",
     http: bool = False,
+    icmp: dict | None = None,
 ) -> list[tuple[str, bytes]]:
     """Monta os quadros do caso, cada um com seu papel.
 
@@ -704,7 +825,30 @@ def quadros_com_papel(
     src_port, dst_port = header["src_port"], header["dst_port"]
 
     if protocolo == "udp":
-        return [
+        quadros: list[tuple[str, bytes]] = []
+
+        if direcao == "to_client":
+            # UDP nao tem handshake, e o Snort decide quem e o cliente pelo
+            # PRIMEIRO pacote do fluxo. Sem escorva, quem manda a testemunha e
+            # tratado como cliente e `flow:to_client` nunca casa — era o que
+            # deixava vacuos os quatro casos udp/cru/to_client, incluindo a
+            # resposta de DNS do sid 253.
+            quadros.append(
+                (
+                    "aquecimento",
+                    _ether(
+                        _ipv4(
+                            dst_ip,
+                            src_ip,
+                            17,
+                            _udp(dst_ip, src_ip, dst_port, src_port, b"campanha-escorva"),
+                            1,
+                        )
+                    ),
+                )
+            )
+
+        quadros.append(
             (
                 "testemunha",
                 _ether(
@@ -713,15 +857,19 @@ def quadros_com_papel(
                         dst_ip,
                         17,
                         _udp(src_ip, dst_ip, src_port, dst_port, payload or b"X"),
-                        1,
+                        len(quadros) + 1,
                     )
                 ),
             )
-        ]
+        )
+        return quadros
 
     if protocolo == "icmp":
         return [
-            ("testemunha", _ether(_ipv4(src_ip, dst_ip, 1, _icmp(payload or b"X"), 1)))
+            (
+                "testemunha",
+                _ether(_ipv4(src_ip, dst_ip, 1, _icmp(payload or b"X", icmp), 1)),
+            )
         ]
 
     # Em to_client quem abre e o lado oposto ao que envia a testemunha.
@@ -763,10 +911,16 @@ def quadros_do_caso(
     com_handshake: bool,
     direcao: str = "to_server",
     http: bool = False,
+    icmp: dict | None = None,
 ) -> list[bytes]:
     """So os quadros, sem papel. Mantido para uso direto e para o autoteste."""
 
-    return [quadro for _papel, quadro in quadros_com_papel(header, payload, com_handshake, direcao, http)]
+    return [
+        quadro
+        for _papel, quadro in quadros_com_papel(
+            header, payload, com_handshake, direcao, http, icmp
+        )
+    ]
 
 
 def escrever_pcap(caminho: Path, quadros: list[bytes]) -> None:
@@ -840,24 +994,12 @@ def sintetizar_caso(regra: dict) -> dict:
             "motivos_de_recusa": motivos,
         }
 
-    montado = montar_payload(regra)
-    if montado is None:
-        return {
-            "rule_id": regra.get("rule_id"),
-            "utilizavel": False,
-            "motivos_de_recusa": ["content nao representavel"],
-        }
-
-    payload, detalhe = montado
-
-    # Direcao do flow decide quem abre a conexao. Uma regra
-    # `flow:to_client,established` descreve pacote do servidor para o cliente:
-    # se o handshake partir do lado que envia a testemunha, o Snort classifica
-    # o pacote como to_server, a regra nao dispara e o caso sai vacuo — por
-    # defeito do gerador, nao do compilador.
-    # Deduplicado preservando a ordem: o mesmo predicado de flow aparece em
-    # mais de uma lista da IR, e sem isso o registro do caso sai com o estado
-    # repetido num artefato que depois e citado como evidencia.
+    # Direcao do flow decide quem abre a conexao e, no HTTP, se a testemunha
+    # e request ou resposta — por isso e resolvida antes de montar o payload.
+    # Uma regra `flow:to_client,established` descreve pacote do servidor para
+    # o cliente: se o handshake partir do lado que envia a testemunha, o Snort
+    # classifica o pacote como to_server, a regra nao dispara e o caso sai
+    # vacuo por defeito do gerador, nao do compilador.
     estados_de_flow = []
     for lista in ("preserved", "delegated", "detection_predicates"):
         for predicado in regra.get(lista) or []:
@@ -869,10 +1011,17 @@ def sintetizar_caso(regra: dict) -> dict:
     texto_flow = ",".join(estados_de_flow)
 
     precisa_handshake = bool(estados_de_flow) and "stateless" not in texto_flow
-    if "to_client" in texto_flow:
-        direcao = "to_client"
-    else:
-        direcao = "to_server"
+    direcao = "to_client" if "to_client" in texto_flow else "to_server"
+
+    montado = montar_payload(regra, direcao)
+    if montado is None:
+        return {
+            "rule_id": regra.get("rule_id"),
+            "utilizavel": False,
+            "motivos_de_recusa": ["content nao representavel"],
+        }
+
+    payload, detalhe = montado
 
     return {
         "rule_id": regra.get("rule_id"),
@@ -883,6 +1032,7 @@ def sintetizar_caso(regra: dict) -> dict:
         "com_handshake": bool(precisa_handshake) and header["protocolo"] == "tcp",
         "direcao": direcao,
         "flow": texto_flow or None,
+        "icmp": campos_icmp(regra) if header["protocolo"] == "icmp" else None,
         "detalhe_payload": detalhe,
         "classificacao": regra.get("classification"),
         "prefilter_candidate": regra.get("prefilter_candidate"),
@@ -936,6 +1086,7 @@ def autoteste(limite: int | None) -> int:
             caso["com_handshake"],
             caso.get("direcao", "to_server"),
             bool(caso["detalhe_payload"].get("http")),
+            caso.get("icmp"),
         )
 
         # O ultimo quadro e o que carrega a testemunha.
