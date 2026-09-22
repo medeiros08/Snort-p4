@@ -1,0 +1,22 @@
+{
+  "amostra_de_controles_fracos": [],
+  "amostra_de_defeitos": [],
+  "campanha": "e2e_1000_v2",
+  "casos": 1000,
+  "controles_negativos_fracos": 0,
+  "entradas_instaladas": 331,
+  "gerado_em": "2026-09-22T18:52:57+00:00",
+  "no_match_por_estrato": {},
+  "por_papel": {
+    "aquecimento/P4_CANDIDATE": 643,
+    "flush/P4_CANDIDATE": 635,
+    "handshake/P4_CANDIDATE": 2670,
+    "negativo_header/P4_NO_MATCH": 101,
+    "negativo_payload/P4_CANDIDATE": 1000,
+    "resposta_servidor/P4_CANDIDATE": 635,
+    "testemunha/P4_CANDIDATE": 1000
+  },
+  "quadros": 6684,
+  "quadros_fora_do_dominio": 0,
+  "testemunhas_previstas_no_match": 0
+}

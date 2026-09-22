@@ -101,6 +101,17 @@ def _escrever_pcap(caminho: Path, itens: list[tuple[int, int, bytes]]) -> str:
     return digest.hexdigest()
 
 
+def _endereco_por_indice(indice: int) -> str:
+    """Endereco distinto por caso, fora da HOME_NET avaliada.
+
+    Faixa 100.64.0.0/10 (CGNAT): nao colide com 192.168.10.0/24, cabe em
+    qualquer `any` de regra e da 65 mil enderecos, folga de sobra para mil
+    casos.
+    """
+
+    return f"100.64.{(indice // 256) % 256}.{indice % 256}"
+
+
 def _payload_negativo(caso: dict) -> bytes:
     """Payload que nao contem nenhum content da regra.
 
@@ -193,7 +204,9 @@ def _negativo_de_header(caso: dict, header: dict, entradas: list):
 
     ultimo_detalhe = None
     for variante in variantes:
-        quadro = quadros_do_caso(variante, payload, False, caso["direcao"], False)[-1]
+        quadro = quadros_do_caso(
+            variante, payload, False, caso["direcao"], False, caso.get("icmp")
+        )[-1]
         categoria, detalhe = predizer(entradas, quadro)
         if categoria == "P4_NO_MATCH":
             return quadro, variante, None
@@ -210,17 +223,32 @@ def montar(
     payload = bytes.fromhex(caso["payload_hex"])
     http = bool(caso["detalhe_payload"].get("http"))
 
-    # 5-tupla propria por caso quando a regra deixa a porta de origem livre.
-    # Casos que compartilham a 5-tupla sao juntados numa sessao so pelo Snort,
-    # e a partir do segundo o handshake vira retransmissao.
+    # 5-tupla propria por caso, usando o primeiro campo que a regra deixa
+    # livre. Isso nao e cosmetico: casos que compartilham a tupla caem na
+    # mesma sessao do Snort e passam a interferir um no outro. Medido — a
+    # regra 27086, que casa conteudo cru em `$HTTP_PORTS -> any`, parou de
+    # alertar quando outro caso da mesma tupla trocou o payload por uma
+    # resposta HTTP, porque o http_inspect passou a reassemblar aquele stream.
+    # Interferencia entre casos destroi a independencia da medicao, que e a
+    # premissa de contar veredito por caso.
     header = dict(caso["header"])
     if header.get("src_port_livre"):
         header["src_port"] = 20000 + (indice % 40000)
+    elif header.get("src_ip_livre"):
+        header["src_ip"] = _endereco_por_indice(indice)
+    elif header.get("dst_ip_livre"):
+        header["dst_ip"] = _endereco_por_indice(indice)
+    elif header.get("dst_port_livre"):
+        header["dst_port"] = 20000 + (indice % 40000)
+    else:
+        header["tupla_compartilhada"] = True
 
-    com_papel = quadros_com_papel(header, payload, caso["com_handshake"], caso["direcao"], http)
+    com_papel = quadros_com_papel(
+        header, payload, caso["com_handshake"], caso["direcao"], http, caso.get("icmp")
+    )
 
     negativo_payload = quadros_do_caso(
-        header, _payload_negativo(caso), False, caso["direcao"], False
+        header, _payload_negativo(caso), False, caso["direcao"], False, caso.get("icmp")
     )[-1]
     com_papel = com_papel + [("negativo_payload", negativo_payload)]
 
@@ -261,6 +289,7 @@ def montar(
         "direcao": caso["direcao"],
         "flow": caso["flow"],
         "com_handshake": caso["com_handshake"],
+        "icmp": caso.get("icmp"),
         "payload_bytes": caso["payload_bytes"],
         "estrato": _estrato(caso),
         "quadros": registros_quadro,
@@ -353,6 +382,9 @@ def main() -> int:
 
     estratos = Counter(r["estrato"] for r in registros)
 
+    tuplas_compartilhadas = sum(
+        1 for r in registros if r["header"].get("tupla_compartilhada")
+    )
     negativo_impossivel = sum(
         1
         for r in registros
@@ -389,6 +421,7 @@ def main() -> int:
         "quadros_fora_do_dominio_p4": len(fora_do_dominio),
         "porta_negativa": PORTA_NEGATIVA,
         "entradas_instaladas": len(entradas),
+        "casos_com_tupla_compartilhada": tuplas_compartilhadas,
         "negativo_header_impossivel": negativo_impossivel,
         "negativo_header_coberto_por": dict(cobertura_do_impossivel),
         "testemunhas_previstas_fora_de_candidate": testemunhas_no_match,
@@ -407,6 +440,7 @@ def main() -> int:
     print(f"sha256 do pcap       {sha_pcap[:16]}...")
     print(f"casos.jsonl          {caminho_casos.relative_to(PROJECT_ROOT)}")
     print(f"proveniencia         {caminho_prov.relative_to(PROJECT_ROOT)}")
+    print(f"tupla compartilhada  {tuplas_compartilhadas} caso(s)")
     print(f"negativo impossivel  {negativo_impossivel} caso(s)")
     print(f"testemunha fora de candidate  {testemunhas_no_match} caso(s)")
     print("\nestratos:")

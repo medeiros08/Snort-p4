@@ -1,0 +1,40 @@
+{
+  "campanha": "e2e_1000_v2",
+  "casos": 1000,
+  "divergencia_de_atribuicao": 0,
+  "efetivos": 0,
+  "gerado_em": "2026-09-22T18:53:08+00:00",
+  "negativo_header": {
+    "categorias": {
+      "NAO_OBSERVADO": 101
+    },
+    "taxa_no_match_dominio_suportado": null
+  },
+  "negativo_payload": {
+    "categorias": {
+      "NAO_OBSERVADO": 1000
+    },
+    "nota": "candidate sem alerta e o excesso conservador do prefilter",
+    "taxa_candidato_dominio_suportado": null
+  },
+  "parametros": {
+    "bmv2_executado": false,
+    "device_id": 0,
+    "endereco": "127.0.0.1:9559",
+    "interface": "veth1",
+    "intervalo": 0.1,
+    "snort_executado": true
+  },
+  "quadros": 6684,
+  "testemunha": {
+    "categorias": {
+      "NAO_OBSERVADO": 1000
+    },
+    "taxa_candidato_dominio_suportado": null
+  },
+  "vacuos": 77,
+  "vereditos": {
+    "INDETERMINADO": 923,
+    "VACUO": 77
+  }
+}

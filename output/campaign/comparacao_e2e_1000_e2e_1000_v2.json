@@ -1,0 +1,137 @@
+{
+  "amostra_identica": true,
+  "antes": {
+    "campanha": "e2e_1000",
+    "casos": 1000,
+    "plano_de_dados_medido": true,
+    "quadros": 6680,
+    "vacuos": 127,
+    "vereditos": {
+      "CONFIRMADO": 873,
+      "VACUO": 127
+    }
+  },
+  "depois": {
+    "campanha": "e2e_1000_v2",
+    "casos": 1000,
+    "plano_de_dados_medido": false,
+    "quadros": 6684,
+    "vacuos": 77,
+    "vereditos": {
+      "INDETERMINADO": 923,
+      "VACUO": 77
+    }
+  },
+  "falsificaveis": {
+    "antes": 48,
+    "depois": 91,
+    "nota": "nao-TCP com o Snort alertando; para TCP p4-106 garante candidate por construcao"
+  },
+  "ganhos": {
+    "sids": [
+      "1440",
+      "1855",
+      "1856",
+      "195",
+      "1984",
+      "2041",
+      "225",
+      "227",
+      "229",
+      "238",
+      "2458",
+      "253",
+      "26948",
+      "365",
+      "38621",
+      "387",
+      "388",
+      "390",
+      "39164",
+      "392",
+      "394",
+      "396",
+      "398",
+      "400",
+      "402",
+      "404",
+      "405",
+      "410",
+      "412",
+      "420",
+      "421",
+      "426",
+      "427",
+      "428",
+      "429",
+      "432",
+      "433",
+      "436",
+      "437",
+      "438",
+      "439",
+      "440",
+      "445",
+      "44591",
+      "446",
+      "448",
+      "457",
+      "460",
+      "463",
+      "56606"
+    ],
+    "total": 50
+  },
+  "gerado_em": "2026-09-22T18:55:20+00:00",
+  "regressoes": {
+    "sids": [],
+    "total": 0
+  },
+  "ressalva": "comparacao de vereditos so e valida quando plano_de_dados_medido e verdadeiro nas duas versoes; caso contrario compare apenas vacuidade",
+  "sids_so_antes": [],
+  "sids_so_depois": [],
+  "vacuidade_por_estrato": [
+    {
+      "casos": 54,
+      "estrato": "icmp/cru/to_server",
+      "vacuos_antes": 40,
+      "vacuos_depois": 1
+    },
+    {
+      "casos": 48,
+      "estrato": "tcp/cru/to_client",
+      "vacuos_antes": 8,
+      "vacuos_depois": 4
+    },
+    {
+      "casos": 216,
+      "estrato": "tcp/cru/to_server",
+      "vacuos_antes": 32,
+      "vacuos_depois": 32
+    },
+    {
+      "casos": 4,
+      "estrato": "tcp/http/to_client",
+      "vacuos_antes": 4,
+      "vacuos_depois": 1
+    },
+    {
+      "casos": 631,
+      "estrato": "tcp/http/to_server",
+      "vacuos_antes": 30,
+      "vacuos_depois": 30
+    },
+    {
+      "casos": 4,
+      "estrato": "udp/cru/to_client",
+      "vacuos_antes": 4,
+      "vacuos_depois": 0
+    },
+    {
+      "casos": 43,
+      "estrato": "udp/cru/to_server",
+      "vacuos_antes": 9,
+      "vacuos_depois": 9
+    }
+  ]
+}
