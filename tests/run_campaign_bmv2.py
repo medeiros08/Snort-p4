@@ -176,7 +176,9 @@ def ambiente_do_snort(raiz: Path) -> dict:
     return ambiente
 
 
-def rodar_snort(pcap: Path, destino: Path, raiz: Path | None = None) -> Path:
+def rodar_snort(
+    pcap: Path, destino: Path, raiz: Path | None = None, sufixo: str = ""
+) -> Path:
     """Roda o Snort sobre o pcap da campanha com o ruleset completo.
 
     Ruleset completo, e nao a particao de candidatos: o oraculo tem de ser o
@@ -199,7 +201,7 @@ def rodar_snort(pcap: Path, destino: Path, raiz: Path | None = None) -> Path:
                 "aponte a instalacao com --raiz-snort /caminho/snort3-install",
             )
 
-    alertas = destino / "snort_alertas.jsonl"
+    alertas = destino / f"snort_alertas{sufixo}.jsonl"
     comando = [
         str(binario),
         "-q",
@@ -396,6 +398,7 @@ def classificar_quadros(
     intervalo: float,
     endereco: str,
     device_id: int,
+    plano: Path | None = None,
 ) -> list[str]:
     """Envia cada quadro e devolve a categoria observada, na ordem do pcap.
 
@@ -408,16 +411,32 @@ def classificar_quadros(
     contador_id = achar_contador(p4info)
     tabela_id = achar_tabela(p4info)
 
-    # A campanha calculou as expectativas a partir do plano da raiz; tabela
-    # instalada de outro perfil produziria contador parado, que parece defeito.
+    # A tabela instalada tem de ser a do plano contra o qual as expectativas
+    # foram calculadas; outra tabela produziria contador parado ou categoria
+    # trocada, que parece defeito do compilador e nao e.
     try:
-        from perfil_instalado import exige_plano_da_raiz  # noqa: PLC0415
+        if plano is None:
+            from perfil_instalado import exige_plano_da_raiz  # noqa: PLC0415
 
-        exige_plano_da_raiz(stub, device_id, tabela_id)
+            exige_plano_da_raiz(stub, device_id, tabela_id)
+        else:
+            from perfil_instalado import (  # noqa: PLC0415
+                MARCADOR,
+                chaves_do_plano,
+                chaves_instaladas,
+            )
+
+            instaladas = chaves_instaladas(stub, device_id, tabela_id)
+            esperadas = chaves_do_plano(plano)
+            if instaladas != esperadas:
+                aborta_por_ambiente(
+                    f"{MARCADOR}: tabela instalada tem {len(instaladas)} entradas "
+                    f"e o plano {plano.name} declara {len(esperadas)}",
+                    f"python compiler/install_p4runtime.py --plan {plano}",
+                )
+            print(f"  tabela confere com {plano.name}: {len(instaladas)} entradas")
     except ImportError:
         print("  aviso: perfil_instalado.py ausente, perfil nao verificado")
-    except SystemExit:
-        raise
 
     bruto = abrir_socket(interface)
     anterior = ler_contadores(stub, p4runtime_pb2, grpc, contador_id, device_id)
@@ -463,22 +482,69 @@ def marca_do_caso(segundos: int) -> str:
     return time.strftime("%m/%d-%H:%M:%S", time.localtime(segundos))
 
 
+# Quadros que so existem para montar a sessao. Eles nao casam o header da
+# regra — o ACK de flush, por exemplo, vai no sentido oposto —, entao o
+# prefilter nao tem motivo para marca-los por causa desta regra.
+PAPEIS_DE_ANDAIME = frozenset({"handshake", "aquecimento", "resposta_servidor", "flush"})
+
+
 def veredito_do_caso(
-    caso: dict,
     categorias: dict[str, str],
     alertou: bool,
+    alertados: list[tuple[str, str]],
+    em_fallback_operacional: bool = False,
 ) -> str:
+    """Veredito sobre a testemunha e sobre os quadros em que o Snort alertou.
+
+    `alertados` traz (papel, categoria P4) de cada quadro em que o Snort
+    emitiu alerta deste sid. Tres situacoes diferentes, que nao podem ser
+    colapsadas:
+
+        VIOLACAO               um quadro que CASA o header da regra (a
+                               testemunha, ou um negativo que alertou) saiu
+                               P4_NO_MATCH. O prefilter recusou o pacote que a
+                               regra descreve: defeito de rebaixamento
+
+        DEPENDENCIA_DE_ESTADO  a testemunha e candidate, mas o alerta caiu num
+                               quadro de andaime — em HTTP, o ACK de flush que
+                               vai do servidor ao cliente — e esse quadro saiu
+                               P4_NO_MATCH. O compilador cobriu o pacote da
+                               regra; o que falta e o prefilter, que decide
+                               pacote a pacote, entregar o pacote do sentido
+                               oposto de que a deteccao de stream depende.
+                               Sob o plano completo isto nunca aparecia porque
+                               p4-138 cobria todo pacote saindo da HOME_NET;
+                               e a lacuna de execucao stateful tornada medida
+
+        CONFIRMADO             todos candidate
+
+    Regra em fallback operacional e inspecionada pelo Snort sem filtro: o
+    prefilter nao responde por ela.
+    """
+
     if not alertou:
         return "VACUO"
+    if em_fallback_operacional:
+        return "FALLBACK_OPERACIONAL"
 
-    observado = categorias.get("testemunha", "SEM_INCREMENTO")
-    if observado == "P4_CANDIDATE":
-        return "CONFIRMADO"
-    if observado == "PACKET_DOMAIN_FALLBACK":
-        return "CONSERVADOR"
-    if observado == "P4_NO_MATCH":
+    da_regra = [categorias.get("testemunha", "SEM_INCREMENTO")] + [
+        categoria for papel, categoria in alertados if papel not in PAPEIS_DE_ANDAIME
+    ]
+    de_andaime = [categoria for papel, categoria in alertados if papel in PAPEIS_DE_ANDAIME]
+
+    if any(c == "P4_NO_MATCH" for c in da_regra):
         return "VIOLACAO"
-    return "INDETERMINADO"
+    # Categoria fora das tres que o contador conhece: SEM_INCREMENTO, AMBIGUO
+    # ou NAO_OBSERVADO. Nao da para julgar, e P4_NO_MATCH NAO entra aqui: ele e
+    # categoria valida, e em quadro de andaime decide DEPENDENCIA_DE_ESTADO.
+    validas = ("P4_CANDIDATE", "P4_NO_MATCH", "PACKET_DOMAIN_FALLBACK")
+    if any(c not in validas for c in da_regra + de_andaime):
+        return "INDETERMINADO"
+    if any(c == "P4_NO_MATCH" for c in de_andaime):
+        return "DEPENDENCIA_DE_ESTADO"
+    if any(c == "PACKET_DOMAIN_FALLBACK" for c in da_regra + de_andaime):
+        return "CONSERVADOR"
+    return "CONFIRMADO"
 
 
 def main() -> int:
@@ -497,6 +563,24 @@ def main() -> int:
         default=None,
         help="diretorio da instalacao do Snort (padrao: ~/snort3-install do "
         "usuario que chamou, mesmo sob sudo)",
+    )
+    parser.add_argument(
+        "--plano",
+        default=None,
+        help="p4runtime_install_plan alternativo contra o qual a tabela instalada "
+        "e verificada (padrao: o da raiz)",
+    )
+    parser.add_argument(
+        "--particao",
+        default=None,
+        help="particao.json de politica operacional; regras em fallback viram "
+        "FALLBACK_OPERACIONAL em vez de CONFIRMADO ou VIOLACAO",
+    )
+    parser.add_argument(
+        "--sufixo",
+        default="",
+        help="sufixo dos arquivos de saida, para nao sobrescrever outra rodada "
+        "sobre o mesmo pcap",
     )
     parser.add_argument("--pular-snort", action="store_true")
     parser.add_argument("--pular-bmv2", action="store_true")
@@ -521,6 +605,14 @@ def main() -> int:
     ]
     quadros = ler_pcap(caminho_pcap)
 
+    plano = (PROJECT_ROOT / argumentos.plano).resolve() if argumentos.plano else None
+    fallback_operacional: set[str] = set()
+    if argumentos.particao:
+        particao = json.loads(
+            (PROJECT_ROOT / argumentos.particao).resolve().read_text(encoding="utf-8")
+        )
+        fallback_operacional = set(particao["sids_fallback_operacional"])
+
     esperados = sum(len(caso["quadros"]) for caso in casos)
     if esperados != len(quadros):
         print(
@@ -543,6 +635,7 @@ def main() -> int:
             caminho_pcap,
             destino,
             Path(argumentos.raiz_snort) if argumentos.raiz_snort else None,
+            argumentos.sufixo,
         )
         por_pacote, por_marca = indexar_alertas(alertas)
         print(
@@ -562,6 +655,7 @@ def main() -> int:
             argumentos.intervalo,
             argumentos.endereco,
             argumentos.device_id,
+            plano,
         )
     else:
         print("\n[2/3] BMv2 pulado por opcao")
@@ -609,7 +703,23 @@ def main() -> int:
             divergencia_de_atribuicao += 1
 
         alertou = alertou_por_pacote or alertou_por_marca
-        veredito = veredito_do_caso(caso, papeis, alertou)
+
+        # Quadros em que o Snort alertou este sid, e a categoria P4 de cada.
+        alertados = [
+            numero
+            for numero in (range(min(numeros), max(numeros) + 1) if numeros else [])
+            if sid in por_pacote.get(numero, set())
+        ]
+        papel_por_numero = {q["pkt_num"]: q["papel"] for q in caso["quadros"]}
+        categorias_alertadas = [categorias[numero - 1] for numero in alertados]
+        papeis_alertados = [papel_por_numero[numero] for numero in alertados]
+
+        veredito = veredito_do_caso(
+            papeis,
+            alertou,
+            list(zip(papeis_alertados, categorias_alertadas)),
+            sid in fallback_operacional,
+        )
         contagem[veredito] += 1
 
         resultados.append(
@@ -620,6 +730,10 @@ def main() -> int:
                 "veredito": veredito,
                 "snort_alertou": alertou,
                 "pkt_num_testemunha": indice_testemunha,
+                "pkt_num_alertados": alertados,
+                "p4_nos_alertados": categorias_alertadas,
+                "papeis_alertados": papeis_alertados,
+                "fallback_operacional": sid in fallback_operacional,
                 "atribuicao": {
                     "por_pkt_num": alertou_por_pacote,
                     "por_timestamp": alertou_por_marca,
@@ -629,7 +743,7 @@ def main() -> int:
             }
         )
 
-    caminho_resultado = destino / "resultado.jsonl"
+    caminho_resultado = destino / f"resultado{argumentos.sufixo}.jsonl"
     with open(caminho_resultado, "w", encoding="utf-8", newline="\n") as saida:
         for registro in resultados:
             saida.write(json.dumps(registro, ensure_ascii=False, sort_keys=True) + "\n")
@@ -663,6 +777,10 @@ def main() -> int:
         "quadros": len(quadros),
         "vereditos": dict(contagem),
         "efetivos": contagem["CONFIRMADO"] + contagem["CONSERVADOR"] + contagem["VIOLACAO"],
+        "fallback_operacional": contagem["FALLBACK_OPERACIONAL"],
+        "dependencia_de_estado": contagem["DEPENDENCIA_DE_ESTADO"],
+        "plano": str(plano.relative_to(PROJECT_ROOT)).replace("\\", "/") if plano else None,
+        "particao": argumentos.particao,
         "vacuos": contagem["VACUO"],
         "divergencia_de_atribuicao": divergencia_de_atribuicao,
         "testemunha": {
@@ -688,7 +806,7 @@ def main() -> int:
         },
     }
 
-    caminho_relatorio = destino / "relatorio.json"
+    caminho_relatorio = destino / f"relatorio{argumentos.sufixo}.json"
     caminho_relatorio.write_text(
         json.dumps(relatorio, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
@@ -696,7 +814,15 @@ def main() -> int:
     )
 
     print()
-    for veredito in ("CONFIRMADO", "CONSERVADOR", "VIOLACAO", "VACUO", "INDETERMINADO"):
+    for veredito in (
+        "CONFIRMADO",
+        "CONSERVADOR",
+        "VIOLACAO",
+        "DEPENDENCIA_DE_ESTADO",
+        "FALLBACK_OPERACIONAL",
+        "VACUO",
+        "INDETERMINADO",
+    ):
         if contagem[veredito]:
             print(f"  {contagem[veredito]:5d}  {veredito}")
 

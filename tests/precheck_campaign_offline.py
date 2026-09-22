@@ -68,13 +68,40 @@ ENTRADAS = PROJECT_ROOT / "output" / "p4_install_entries.json"
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--casos", default="output/campaign/e2e_1000")
+    parser.add_argument(
+        "--entradas",
+        default=None,
+        help="p4_install_entries alternativo (padrao: o da raiz)",
+    )
+    parser.add_argument(
+        "--particao",
+        default=None,
+        help="particao.json de uma politica operacional; regra em fallback "
+        "operacional nao conta como defeito quando a testemunha da no-match",
+    )
+    parser.add_argument(
+        "--sufixo",
+        default="",
+        help="sufixo dos arquivos de saida, para nao sobrescrever o pre-cheque do plano da raiz",
+    )
     argumentos = parser.parse_args()
 
     destino = (PROJECT_ROOT / argumentos.casos).resolve()
     caminho_casos = destino / "casos.jsonl"
     caminho_pcap = destino / "campanha.pcap"
 
-    for exigido in (caminho_casos, caminho_pcap, ENTRADAS):
+    caminho_entradas = (
+        (PROJECT_ROOT / argumentos.entradas).resolve() if argumentos.entradas else ENTRADAS
+    )
+
+    fallback_operacional: set[str] = set()
+    if argumentos.particao:
+        particao = json.loads(
+            (PROJECT_ROOT / argumentos.particao).resolve().read_text(encoding="utf-8")
+        )
+        fallback_operacional = set(particao["sids_fallback_operacional"])
+
+    for exigido in (caminho_casos, caminho_pcap, caminho_entradas):
         if not exigido.exists():
             print(f"artefato ausente: {exigido}", file=sys.stderr)
             return 1
@@ -86,7 +113,7 @@ def main() -> int:
     ]
     quadros = ler_pcap(caminho_pcap)
 
-    entradas_compiladas = carregar_entradas()
+    entradas_compiladas = carregar_entradas(caminho_entradas)
 
     esperados = sum(len(caso["quadros"]) for caso in casos)
     if esperados != len(quadros):
@@ -100,10 +127,13 @@ def main() -> int:
     print(f"casos                {len(casos)}")
     print(f"quadros              {len(quadros)}")
     print(f"entradas instaladas  {len(entradas_compiladas)}")
+    if fallback_operacional:
+        print(f"regras em fallback   {len(fallback_operacional)} (politica operacional)")
 
     posicao = 0
     por_papel: Counter = Counter()
     defeitos_do_gerador = []
+    previstos_fallback: list[str] = []
     controles_fracos = []
     fora_do_dominio = []
     por_estrato_no_match = Counter()
@@ -121,7 +151,15 @@ def main() -> int:
             if categoria == "PACKET_DOMAIN_FALLBACK":
                 fora_do_dominio.append((caso["sid"], papel, detalhe))
 
-            if papel == "testemunha" and categoria == "P4_NO_MATCH":
+            if (
+                papel == "testemunha"
+                and categoria == "P4_NO_MATCH"
+                and str(caso["sid"]) in fallback_operacional
+            ):
+                # Regra que a politica tirou do prefilter: o Snort a inspeciona
+                # sem filtro, e no-match aqui e o comportamento projetado.
+                previstos_fallback.append(caso["sid"])
+            elif papel == "testemunha" and categoria == "P4_NO_MATCH":
                 defeitos_do_gerador.append(
                     {
                         "sid": caso["sid"],
@@ -166,7 +204,10 @@ def main() -> int:
         "quadros": len(quadros),
         "entradas_instaladas": len(entradas_compiladas),
         "por_papel": {f"{p}/{c}": q for (p, c), q in sorted(por_papel.items())},
+        "entradas": str(caminho_entradas.relative_to(PROJECT_ROOT)).replace("\\", "/"),
+        "particao": argumentos.particao,
         "testemunhas_previstas_no_match": len(defeitos_do_gerador),
+        "testemunhas_no_match_em_fallback_operacional": len(previstos_fallback),
         "controles_negativos_fracos": len(controles_fracos),
         "quadros_fora_do_dominio": len(fora_do_dominio),
         "no_match_por_estrato": dict(por_estrato_no_match),
@@ -174,14 +215,14 @@ def main() -> int:
         "amostra_de_controles_fracos": controles_fracos[:20],
     }
 
-    caminho_relatorio = destino / "precheque.json"
+    caminho_relatorio = destino / f"precheque{argumentos.sufixo}.json"
     caminho_relatorio.write_text(
         json.dumps(relatorio, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
         newline="\n",
     )
 
-    caminho_predicoes = destino / "precheque_predicoes.jsonl"
+    caminho_predicoes = destino / f"precheque_predicoes{argumentos.sufixo}.jsonl"
     with open(caminho_predicoes, "w", encoding="utf-8", newline="\n") as saida:
         for registro in predicoes:
             saida.write(json.dumps(registro, ensure_ascii=False, sort_keys=True) + "\n")
@@ -200,8 +241,11 @@ def main() -> int:
 
     if defeitos_do_gerador:
         print(
-            f"\nFALHA: {len(defeitos_do_gerador)} testemunha(s) predita(s) "
-            "P4_NO_MATCH — defeito do gerador, nao do compilador.",
+            f"\nFALHA: {len(defeitos_do_gerador)} testemunha(s) de regra NO "
+            "PREFILTER predita(s) P4_NO_MATCH. Sob o plano da raiz isso e defeito "
+            "do gerador; sob uma politica que remove entradas largas, pode ser a "
+            "entrada da propria regra que nao cobre a testemunha — investigar "
+            "antes de ir ao rig.",
             file=sys.stderr,
         )
         for defeito in defeitos_do_gerador[:8]:

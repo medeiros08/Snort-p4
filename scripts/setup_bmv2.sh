@@ -60,8 +60,12 @@ exige_root() {
   fi
 }
 
+# /proc/<pid> e nao `kill -0`: o switch sobe sob sudo e pertence a root, e
+# `kill -0` de um usuario comum num processo de root falha com EPERM. A acao
+# status, que roda sem root, concluia "parado" com o switch no ar e o
+# P4Runtime respondendo. /proc/<pid> existe independente do dono.
 switch_vivo() {
-  [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null
+  [[ -f "$PID_FILE" ]] && [[ -d "/proc/$(cat "$PID_FILE")" ]]
 }
 
 # ------------------------------------------------------------------- criar

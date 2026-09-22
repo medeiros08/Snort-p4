@@ -1,0 +1,30 @@
+{
+  "amostra_de_controles_fracos": [],
+  "amostra_de_defeitos": [],
+  "campanha": "e2e_1000_v2",
+  "casos": 1000,
+  "controles_negativos_fracos": 0,
+  "entradas": "output/campaign/plano_strong_discriminator/p4_install_entries.json",
+  "entradas_instaladas": 322,
+  "gerado_em": "2026-09-22T19:35:00+00:00",
+  "no_match_por_estrato": {},
+  "particao": "output/campaign/plano_strong_discriminator/particao.json",
+  "por_papel": {
+    "aquecimento/P4_CANDIDATE": 643,
+    "flush/P4_CANDIDATE": 633,
+    "flush/P4_NO_MATCH": 2,
+    "handshake/P4_CANDIDATE": 2603,
+    "handshake/P4_NO_MATCH": 67,
+    "negativo_header/P4_NO_MATCH": 101,
+    "negativo_payload/P4_CANDIDATE": 940,
+    "negativo_payload/P4_NO_MATCH": 60,
+    "resposta_servidor/P4_CANDIDATE": 633,
+    "resposta_servidor/P4_NO_MATCH": 2,
+    "testemunha/P4_CANDIDATE": 940,
+    "testemunha/P4_NO_MATCH": 60
+  },
+  "quadros": 6684,
+  "quadros_fora_do_dominio": 0,
+  "testemunhas_no_match_em_fallback_operacional": 60,
+  "testemunhas_previstas_no_match": 0
+}
