@@ -1,0 +1,40 @@
+{
+  "campanha": "piloto",
+  "casos": 50,
+  "divergencia_de_atribuicao": 0,
+  "efetivos": 41,
+  "gerado_em": "2026-09-22T18:05:37+00:00",
+  "negativo_header": {
+    "categorias": {
+      "P4_NO_MATCH": 4
+    },
+    "taxa_no_match_dominio_suportado": 1.0
+  },
+  "negativo_payload": {
+    "categorias": {
+      "P4_CANDIDATE": 50
+    },
+    "nota": "candidate sem alerta e o excesso conservador do prefilter",
+    "taxa_candidato_dominio_suportado": 1.0
+  },
+  "parametros": {
+    "bmv2_executado": true,
+    "device_id": 0,
+    "endereco": "127.0.0.1:9559",
+    "interface": "veth1",
+    "intervalo": 0.1,
+    "snort_executado": true
+  },
+  "quadros": 339,
+  "testemunha": {
+    "categorias": {
+      "P4_CANDIDATE": 50
+    },
+    "taxa_candidato_dominio_suportado": 1.0
+  },
+  "vacuos": 9,
+  "vereditos": {
+    "CONFIRMADO": 41,
+    "VACUO": 9
+  }
+}

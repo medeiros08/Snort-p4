@@ -1,0 +1,19 @@
+{
+  "amostra_de_controles_fracos": [],
+  "amostra_de_defeitos": [],
+  "campanha": "piloto",
+  "casos": 50,
+  "controles_negativos_fracos": 0,
+  "entradas_instaladas": 331,
+  "gerado_em": "2026-09-18T20:24:12+00:00",
+  "no_match_por_estrato": {},
+  "por_papel": {
+    "handshake/P4_CANDIDATE": 135,
+    "negativo_header/P4_NO_MATCH": 4,
+    "negativo_payload/P4_CANDIDATE": 50,
+    "testemunha/P4_CANDIDATE": 50
+  },
+  "quadros": 239,
+  "quadros_fora_do_dominio": 0,
+  "testemunhas_previstas_no_match": 0
+}
