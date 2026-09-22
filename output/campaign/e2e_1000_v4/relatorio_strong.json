@@ -1,0 +1,48 @@
+{
+  "campanha": "e2e_1000_v4",
+  "casos": 1000,
+  "dependencia_de_estado": 2,
+  "divergencia_de_atribuicao": 0,
+  "efetivos": 851,
+  "fallback_operacional": 107,
+  "gerado_em": "2026-09-22T20:50:22+00:00",
+  "negativo_header": {
+    "categorias": {
+      "P4_NO_MATCH": 101
+    },
+    "taxa_no_match_dominio_suportado": 1.0
+  },
+  "negativo_payload": {
+    "categorias": {
+      "P4_CANDIDATE": 934,
+      "P4_NO_MATCH": 66
+    },
+    "nota": "candidate sem alerta e o excesso conservador do prefilter",
+    "taxa_candidato_dominio_suportado": 0.934
+  },
+  "parametros": {
+    "bmv2_executado": true,
+    "device_id": 0,
+    "endereco": "127.0.0.1:9559",
+    "interface": "veth1",
+    "intervalo": 0.1,
+    "snort_executado": true
+  },
+  "particao": "output/campaign/plano_strong_discriminator/particao.json",
+  "plano": "output/campaign/plano_strong_discriminator/p4runtime_install_plan.json",
+  "quadros": 6684,
+  "testemunha": {
+    "categorias": {
+      "P4_CANDIDATE": 934,
+      "P4_NO_MATCH": 66
+    },
+    "taxa_candidato_dominio_suportado": 0.934
+  },
+  "vacuos": 40,
+  "vereditos": {
+    "CONFIRMADO": 851,
+    "DEPENDENCIA_DE_ESTADO": 2,
+    "FALLBACK_OPERACIONAL": 107,
+    "VACUO": 40
+  }
+}

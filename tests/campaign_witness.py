@@ -622,12 +622,49 @@ def _modificadores(predicado: dict) -> dict:
     return saida
 
 
-def _colocar(buffer: bytearray, dados: bytes, offset: int | None) -> None:
-    """Escreve `dados` no buffer, enchendo ate `offset` quando exigido."""
+class _Buffer:
+    """Buffer de um content, com cursor e mapa do que e enchimento.
 
-    if offset is not None and offset > len(buffer):
-        buffer.extend(ENCHIMENTO * (offset - len(buffer)))
-    buffer.extend(dados)
+    Antes o gerador so anexava no fim. Regra que declara um content com
+    `offset` absoluto DEPOIS de outro mais adiante — as RPC 1953-1955 poem
+    `|00 00 00 00|` em offset 8 depois de `|00 04 93 F3|` em offset 16 — tinha
+    o padrao colado no fim, e o Snort nao alertava. Agora a posicao e calculada
+    como o Snort a le: `offset` e absoluto no buffer, `distance` e relativo ao
+    fim do content anterior da regra (o cursor), e escrever para tras vale
+    enquanto so cobrir enchimento.
+    """
+
+    def __init__(self):
+        self.dados = bytearray()
+        self.enchimento: list[bool] = []
+        self.cursor = 0
+        self.conflitos = 0
+
+    def colocar(self, dados: bytes, posicao: int | None) -> None:
+        if posicao is None:
+            posicao = len(self.dados)
+        if posicao > len(self.dados):
+            falta = posicao - len(self.dados)
+            self.dados.extend(ENCHIMENTO * falta)
+            self.enchimento.extend([True] * falta)
+
+        sobreposto = range(posicao, min(posicao + len(dados), len(self.dados)))
+        if any(
+            not self.enchimento[i] and self.dados[i] != dados[i - posicao] for i in sobreposto
+        ):
+            # Choque com bytes de outro content: fica o comportamento antigo,
+            # anexar no fim, e o conflito fica registrado no detalhe.
+            self.conflitos += 1
+            posicao = len(self.dados)
+
+        for i, byte in enumerate(dados, start=posicao):
+            if i < len(self.dados):
+                self.dados[i] = byte
+                self.enchimento[i] = False
+            else:
+                self.dados.append(byte)
+                self.enchimento.append(False)
+        self.cursor = posicao + len(dados)
 
 
 def _percent_encode(dados: bytes) -> str:
@@ -686,7 +723,7 @@ def montar_payload(regra: dict, direcao: str = "to_server") -> tuple[bytes, dict
 
     contents = sorted(contents.values(), key=lambda p: p.get("source_index") or 0)
 
-    buffers: dict[str, bytearray] = {}
+    montagem: dict[str, _Buffer] = {}
     negados: list[bytes] = []
     detalhe: dict[str, list] = {}
 
@@ -716,16 +753,21 @@ def montar_payload(regra: dict, direcao: str = "to_server") -> tuple[bytes, dict
 
         # `offset` e absoluto no buffer; `distance` e relativo ao fim do
         # match anterior. Colocar o mais cedo possivel satisfaz `depth` e
-        # `within` automaticamente, que sao limites superiores.
+        # `within` automaticamente, que sao limites superiores. Sem escrita
+        # para tras, cursor == fim do buffer e a posicao e a mesma de antes.
         offset = mods.get("offset")
         distance = mods.get("distance")
-        destino = buffers.setdefault(chave, bytearray())
+        destino = montagem.setdefault(chave, _Buffer())
 
-        if isinstance(distance, int) and distance > 0:
-            destino.extend(ENCHIMENTO * distance)
-            _colocar(destino, dados, None)
+        if isinstance(distance, int) and distance >= 0:
+            destino.colocar(dados, destino.cursor + distance)
+        elif isinstance(offset, int) and offset < len(destino.dados):
+            destino.colocar(dados, offset)
         else:
-            _colocar(destino, dados, offset if isinstance(offset, int) else None)
+            destino.colocar(
+                dados,
+                max(offset, len(destino.dados)) if isinstance(offset, int) else None,
+            )
 
         detalhe.setdefault(chave, []).append(
             {
@@ -734,6 +776,9 @@ def montar_payload(regra: dict, direcao: str = "to_server") -> tuple[bytes, dict
                 "modificadores": mods,
             }
         )
+
+    buffers = {chave: destino.dados for chave, destino in montagem.items()}
+    conflitos = sum(destino.conflitos for destino in montagem.values())
 
     if not buffers:
         # Regra sem content: o header e a testemunha inteira. Vale como caso,
@@ -816,6 +861,7 @@ def montar_payload(regra: dict, direcao: str = "to_server") -> tuple[bytes, dict
         "buffers": {k: v for k, v in detalhe.items()},
         "negados": len(negados),
         "http": usa_http,
+        "conflitos_de_posicao": conflitos,
     }
 
 

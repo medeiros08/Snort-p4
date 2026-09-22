@@ -89,9 +89,13 @@ def split_content_value(value):
     if separator is None:
         return value, []
 
+    # Sem strip: o separador e a virgula colada na aspa de fechamento, e o
+    # parser ja tirou o espaco de fora das aspas (parse_option). Todo espaco
+    # que sobra aqui esta DENTRO das aspas e e conteudo: `content:" /HTTP/1."`
+    # casa o espaco. O strip antigo cortava 121 contents de 110 regras.
     pattern = value[
         :separator
-    ].strip()
+    ]
 
     suffix = value[
         separator + 1:
@@ -209,8 +213,8 @@ def remove_final_quote(pattern):
         !"abc
     """
 
-    pattern = pattern.strip()
-
+    # Sem strip, pelo mesmo motivo de split_content_value: espaco antes da
+    # aspa de fechamento e conteudo (`content:"USERHOST "`).
     if pattern.endswith('"'):
         return pattern[:-1]
 
