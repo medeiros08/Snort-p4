@@ -1,0 +1,37 @@
+{
+  "casos": 50,
+  "entradas_instaladas": 331,
+  "estratos": {
+    "icmp/cru/to_server": 3,
+    "tcp/cru/to_client": 2,
+    "tcp/cru/to_server": 11,
+    "tcp/http/to_client": 1,
+    "tcp/http/to_server": 32,
+    "udp/cru/to_client": 1
+  },
+  "gerado_em": "2026-09-18T20:54:31+00:00",
+  "gerador": "tests/generate_campaign_cases.py",
+  "manifesto_semantico": {
+    "caminho": "output/semantic_manifest.json",
+    "regras": 4017,
+    "ruleset": "../rules/snort3-community.rules",
+    "sha256": "499ae907460d2c6f70c395570e481bfdaacce20d7f8b3e259a371b62ec117447"
+  },
+  "negativo_header_coberto_por": {
+    "p4-106": 46
+  },
+  "negativo_header_impossivel": 46,
+  "pcap_sha256": "41bc03da5afc5edc81d0a337a163969d624e954adf223bcb6b638d9dd4693ae8",
+  "porta_negativa": 63001,
+  "quadros": 339,
+  "quadros_fora_do_dominio_p4": 0,
+  "recusas": {
+    "classificacao UNSUPPORTED": 14,
+    "content nao representavel": 193,
+    "header nao resolvivel": 44,
+    "opcao nao sintetizavel": 1654
+  },
+  "regras_utilizaveis": 2142,
+  "semente": 20260918,
+  "testemunhas_previstas_fora_de_candidate": 0
+}
