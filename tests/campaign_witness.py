@@ -315,6 +315,201 @@ def campos_icmp(regra: dict) -> dict:
     return campos
 
 
+# ============================================================
+# Campos de cabecalho TCP e IP
+# ============================================================
+
+# Letras de `flags`, como em src/ips_options/ips_flags.cc:186-230 do Snort
+# 3.12.2.0 instalado no rig. `1` e `2` sao os antigos bits reservados, hoje
+# CWR e ECE.
+BITS_DE_FLAG = {
+    "F": 0x01,
+    "S": 0x02,
+    "R": 0x04,
+    "P": 0x08,
+    "A": 0x10,
+    "U": 0x20,
+    "E": 0x40,
+    "2": 0x40,
+    "C": 0x80,
+    "1": 0x80,
+}
+
+
+def _ler_flags(texto: str) -> tuple[str, int, int] | None:
+    """Devolve (modo, bits testados, mascara) de `flags:<teste>[,<mascara>]`.
+
+    O modificador pode aparecer em qualquer posicao e o ultimo vence; `0`
+    zera o que veio antes. E o laco de flags_parse_test, nao uma leitura
+    livre da sintaxe.
+    """
+
+    teste, _, mascara = str(texto).strip().partition(",")
+    modo, bits = "normal", 0
+    for letra in teste.strip().upper():
+        if letra == "0":
+            bits = 0
+        elif letra in BITS_DE_FLAG:
+            bits |= BITS_DE_FLAG[letra]
+        elif letra in "!*+":
+            modo = {"!": "not", "*": "any", "+": "all"}[letra]
+        else:
+            return None
+
+    bits_mascara = 0
+    for letra in mascara.strip().upper():
+        if letra not in BITS_DE_FLAG:
+            return None
+        bits_mascara |= BITS_DE_FLAG[letra]
+
+    return modo, bits, bits_mascara
+
+
+def flags_satisfazem(texto: str, flags_do_pacote: int) -> bool:
+    """Avalia `flags` contra um pacote como TcpFlagOption::eval (ips_flags.cc:124-152)."""
+
+    lido = _ler_flags(texto)
+    if lido is None:
+        return False
+    modo, bits, mascara = lido
+    observados = flags_do_pacote & (0xFF ^ mascara)
+    if modo == "normal":
+        return observados == bits
+    if modo == "all":
+        return observados & bits == bits
+    if modo == "not":
+        return observados & bits == 0
+    return observados & bits != 0
+
+
+def _flags_da_testemunha(texto: str) -> int | None:
+    """Flags que a testemunha carrega para satisfazer `flags:<texto>`.
+
+    PSH+ACK e o que toda testemunha TCP ja usava; se ele satisfaz a regra,
+    fica, e o caso nao muda. Senao: nos modos normal, `+` e `*`, os proprios
+    bits testados satisfazem; em `!`, PSH+ACK sem os bits proibidos.
+    """
+
+    if flags_satisfazem(texto, PSH_ACK):
+        return PSH_ACK
+    lido = _ler_flags(texto)
+    if lido is None:
+        return None
+    modo, bits, _mascara = lido
+    candidato = PSH_ACK & ~bits if modo == "not" else bits
+    return candidato if flags_satisfazem(texto, candidato) else None
+
+
+def _menor_valor_do_intervalo(texto, maximo: int) -> int | None:
+    """Menor valor que satisfaz uma opcao de intervalo (seq, ack, id, ttl).
+
+    As quatro usam RangeCheck. No ruleset avaliado so aparecem digito exato e
+    `>N`; as demais formas simples sao aceitas, e qualquer outra devolve None.
+    """
+
+    texto = str(texto).strip().replace(" ", "")
+    achado = re.fullmatch(r"(<=|>=|<|>|=)?(\d+)", texto)
+    if achado:
+        operador, valor = achado.group(1) or "=", int(achado.group(2))
+        valor = {"=": valor, ">": valor + 1, ">=": valor, "<": 0, "<=": 0}[operador]
+    else:
+        achado = re.fullmatch(r"(\d+)(<>|<=>)(\d+)", texto)
+        if not achado:
+            return None
+        valor = int(achado.group(1)) + (1 if achado.group(2) == "<>" else 0)
+    return valor if 0 <= valor <= maximo else None
+
+
+def campos_de_cabecalho(regra: dict) -> tuple[dict, list[str]]:
+    """Le flags, seq, ack, id e ttl da regra.
+
+    Devolve (campos, recusados). Sem isto a testemunha TCP era sempre PSH+ACK
+    com seq 1000 e TTL 64, e toda regra que testa o cabecalho — varredura com
+    SYN+FIN, pacote com seq fixo de ferramenta de ataque, traceroute com TTL
+    1 — passava vacua por defeito do gerador. Sao as regras em que `flags` e
+    PRESERVED, isto e, as que o prefilter casa pelo bit: vacuidade ali
+    escondia justamente a parte do rebaixamento que testa flags.
+    """
+
+    campos: dict = {}
+    recusados: list[str] = []
+    for lista in (
+        "preserved",
+        "expanded",
+        "delegated",
+        "fallback",
+        "unassessed",
+        "detection_predicates",
+    ):
+        for predicado in regra.get(lista) or []:
+            opcao = predicado.get("source_option")
+            valor = predicado.get("value")
+            if opcao == "flags" and "flags" not in campos:
+                bits = _flags_da_testemunha(valor)
+                if bits is None:
+                    recusados.append(f"flags:{valor}")
+                else:
+                    campos["flags"] = bits
+            elif opcao in ("seq", "ack", "id", "ttl"):
+                chave = "ip_id" if opcao == "id" else opcao
+                if chave in campos:
+                    continue
+                maximo = {"seq": 0xFFFFFFFF, "ack": 0xFFFFFFFF, "ip_id": 0xFFFF, "ttl": 0xFF}[chave]
+                resolvido = _menor_valor_do_intervalo(valor, maximo)
+                if resolvido is None:
+                    recusados.append(f"{opcao}:{valor}")
+                else:
+                    campos[chave] = resolvido
+    return campos, sorted(set(recusados))
+
+
+PORTAS_DE_TENTATIVA = (45678, 20000, 80, 1024, 60000)
+
+
+def _porta_da_regra(texto) -> int | None:
+    """Uma porta que satisfaz a sintaxe de porta do header do Snort.
+
+    `N`, `N:M`, `N:`, `:M`, `!spec` e listas `[a,b:c,...]`. Devolve None para
+    `any`, variavel nao resolvida ou forma desconhecida.
+    """
+
+    texto = str(texto).strip().replace(" ", "")
+    if not texto or texto.lower() == "any" or "$" in texto:
+        return None
+
+    def intervalos(spec: str) -> list[tuple[int, int]] | None:
+        spec = spec.strip("[]")
+        saida = []
+        for parte in spec.split(","):
+            if not parte or parte.startswith("!"):
+                continue
+            achado = re.fullmatch(r"(\d*):(\d*)|(\d+)", parte)
+            if not achado:
+                return None
+            if achado.group(3):
+                baixo = alto = int(achado.group(3))
+            else:
+                baixo = int(achado.group(1) or 1)
+                alto = int(achado.group(2) or 65535)
+            saida.append((baixo, alto))
+        return saida
+
+    if texto.startswith("!"):
+        proibidos = intervalos(texto[1:])
+        if proibidos is None:
+            return None
+        for porta in PORTAS_DE_TENTATIVA:
+            if not any(baixo <= porta <= alto for baixo, alto in proibidos):
+                return porta
+        return None
+
+    permitidos = intervalos(texto)
+    if not permitidos:
+        return None
+    porta = permitidos[0][0]
+    return porta if 0 < porta < 65536 else None
+
+
 def resolver_header(regra: dict) -> dict | None:
     """Monta protocolo, IPs e portas que satisfazem o header da regra."""
 
@@ -322,6 +517,23 @@ def resolver_header(regra: dict) -> dict | None:
     for predicado in regra.get("selective_predicates") or []:
         if predicado.get("kind") == "HEADER":
             campos[predicado.get("field")] = predicado.get("value")
+
+    # Porta que o compilador mandou para fallback (faixa `135:139`, negacao)
+    # nao aparece em selective_predicates: o prefilter nao a testa. O Snort
+    # testa. Ler so os predicados seletivos fazia a testemunha tratar a porta
+    # como livre e sair com a 80, e a regra passava vacua por defeito do
+    # gerador. 13 dos 77 vacuos da v2 tinham porta assim; com a porta certa,
+    # 6 voltaram a alertar (1257 tambem precisou de flags). A porta que a
+    # testemunha usa vem entao da regra resolvida, que e o que o oraculo
+    # avalia.
+    resolvida = regra.get("resolved_rule") or {}
+    portas_da_regra = {}
+    for lado, campo in (("source", "src_port"), ("destination", "dst_port")):
+        if campo in campos:
+            continue
+        texto = (resolvida.get(lado) or {}).get("port")
+        if texto is not None and str(texto).strip().lower() != "any":
+            portas_da_regra[campo] = _porta_da_regra(texto)
 
     protocolo = campos.get("protocol")
     if isinstance(protocolo, str):
@@ -337,7 +549,9 @@ def resolver_header(regra: dict) -> dict | None:
     # caso, e disso depende a independencia das medicoes.
     src_ip_livre = _eh_curinga(campos.get("src_ip"))
     dst_ip_livre = _eh_curinga(campos.get("dst_ip"))
-    dst_port_livre = _primeiro_inteiro(campos.get("dst_port")) is None
+    dst_port_livre = (
+        _primeiro_inteiro(campos.get("dst_port")) is None and "dst_port" not in portas_da_regra
+    )
 
     dst_ip = _endereco_de(campos.get("dst_ip"), "203.0.113.10")
     if not dst_ip:
@@ -360,12 +574,18 @@ def resolver_header(regra: dict) -> dict | None:
 
     src_port = _primeiro_inteiro(campos.get("src_port"))
     dst_port = _primeiro_inteiro(campos.get("dst_port"))
+    # Porta de forma nao interpretavel fica com o padrao, como antes: recusar
+    # a regra mudaria o conjunto utilizavel e, com ele, a amostra inteira.
+    if portas_da_regra.get("src_port") is not None:
+        src_port = portas_da_regra["src_port"]
+    if portas_da_regra.get("dst_port") is not None:
+        dst_port = portas_da_regra["dst_port"]
 
     # Porta de origem livre pode ser trocada por caso. Isso importa: quando
     # varios casos compartilham a 5-tupla, o Snort junta tudo numa sessao so
     # e os handshakes seguintes viram retransmissao — medido com
     # total_sessions = 1 para quatro fluxos identicos.
-    src_port_livre = src_port is None
+    src_port_livre = src_port is None and "src_port" not in portas_da_regra
     if protocolo == "icmp":
         src_port = dst_port = 0
         src_port_livre = False
@@ -615,7 +835,9 @@ def _soma_internet(dados: bytes) -> int:
     return (~total) & 0xFFFF
 
 
-def _ipv4(src: str, dst: str, protocolo: int, corpo: bytes, ident: int) -> bytes:
+def _ipv4(
+    src: str, dst: str, protocolo: int, corpo: bytes, ident: int, ttl: int = 64
+) -> bytes:
     cabecalho = struct.pack(
         "!BBHHHBBH4s4s",
         0x45,
@@ -623,7 +845,7 @@ def _ipv4(src: str, dst: str, protocolo: int, corpo: bytes, ident: int) -> bytes
         20 + len(corpo),
         ident,
         0,
-        64,
+        ttl,
         protocolo,
         0,
         ipaddress.ip_address(src).packed,
@@ -743,46 +965,58 @@ class _Sessao:
         self.ident = 1
         self.quadros: list[tuple[str, bytes]] = []
 
-    def _emite(self, papel, origem, destino, porta_origem, porta_destino, seq, ack, flags, payload):
+    def _emite(
+        self, papel, origem, destino, porta_origem, porta_destino, seq, ack, flags, payload, campos
+    ):
         quadro = _ether(
             _ipv4(
                 origem,
                 destino,
                 6,
                 _tcp(origem, destino, porta_origem, porta_destino, seq, ack, flags, payload),
-                self.ident,
+                campos.get("ip_id", self.ident),
+                campos.get("ttl", 64),
             )
         )
         self.ident += 1
         self.quadros.append((papel, quadro))
 
-    def de_quem_abre(self, papel, flags, payload=b""):
+    # `campos` so chega preenchido na testemunha: sao os valores que a regra
+    # exige no cabecalho (seq, ack, id, ttl). O contador de seq segue o valor
+    # emitido, para que o quadro seguinte da sessao continue coerente com ele.
+    def de_quem_abre(self, papel, flags, payload=b"", campos=None):
+        campos = campos or {}
+        seq = campos.get("seq", self.seq_abre)
         self._emite(
             papel,
             self.abre_ip,
             self.aceita_ip,
             self.abre_porta,
             self.aceita_porta,
-            self.seq_abre,
-            self.seq_aceita,
+            seq,
+            campos.get("ack", self.seq_aceita),
             flags,
             payload,
+            campos,
         )
-        self.seq_abre += len(payload) + (1 if flags & SYN else 0)
+        self.seq_abre = seq + len(payload) + (1 if flags & SYN else 0)
 
-    def de_quem_aceita(self, papel, flags, payload=b""):
+    def de_quem_aceita(self, papel, flags, payload=b"", campos=None):
+        campos = campos or {}
+        seq = campos.get("seq", self.seq_aceita)
         self._emite(
             papel,
             self.aceita_ip,
             self.abre_ip,
             self.aceita_porta,
             self.abre_porta,
-            self.seq_aceita,
-            self.seq_abre,
+            seq,
+            campos.get("ack", self.seq_abre),
             flags,
             payload,
+            campos,
         )
-        self.seq_aceita += len(payload) + (1 if flags & SYN else 0)
+        self.seq_aceita = seq + len(payload) + (1 if flags & SYN else 0)
 
     def handshake(self):
         self.de_quem_abre("handshake", SYN)
@@ -797,6 +1031,7 @@ def quadros_com_papel(
     direcao: str = "to_server",
     http: bool = False,
     icmp: dict | None = None,
+    cabecalho: dict | None = None,
 ) -> list[tuple[str, bytes]]:
     """Monta os quadros do caso, cada um com seu papel.
 
@@ -818,8 +1053,15 @@ def quadros_com_papel(
 
     Para caso nao-HTTP basta handshake e o pacote com o payload: regra que
     inspeciona payload cru dispara no proprio pacote.
+
+    `cabecalho` traz o que a regra exige de flags, seq, ack, id e ttl
+    (campos_de_cabecalho). Vale so na testemunha: os quadros de andaime
+    existem para montar a sessao e seguem os valores dela.
     """
 
+    cabecalho = cabecalho or {}
+    ip_id = cabecalho.get("ip_id")
+    ttl = cabecalho.get("ttl", 64)
     protocolo = header["protocolo"]
     src_ip, dst_ip = header["src_ip"], header["dst_ip"]
     src_port, dst_port = header["src_port"], header["dst_port"]
@@ -857,7 +1099,8 @@ def quadros_com_papel(
                         dst_ip,
                         17,
                         _udp(src_ip, dst_ip, src_port, dst_port, payload or b"X"),
-                        len(quadros) + 1,
+                        len(quadros) + 1 if ip_id is None else ip_id,
+                        ttl,
                     )
                 ),
             )
@@ -868,7 +1111,16 @@ def quadros_com_papel(
         return [
             (
                 "testemunha",
-                _ether(_ipv4(src_ip, dst_ip, 1, _icmp(payload or b"X", icmp), 1)),
+                _ether(
+                    _ipv4(
+                        src_ip,
+                        dst_ip,
+                        1,
+                        _icmp(payload or b"X", icmp),
+                        1 if ip_id is None else ip_id,
+                        ttl,
+                    )
+                ),
             )
         ]
 
@@ -885,6 +1137,8 @@ def quadros_com_papel(
     if com_handshake:
         sessao.handshake()
 
+    flags = cabecalho.get("flags", PSH_ACK)
+
     if http:
         if direcao == "to_client":
             # Testemunha e resposta de servidor: o aquecimento vem do cliente,
@@ -892,15 +1146,15 @@ def quadros_com_papel(
             responde("aquecimento", PSH_ACK, PEDIDO_DE_AQUECIMENTO)
             envia_testemunha("resposta_servidor", PSH_ACK, RESPOSTA_DO_SERVIDOR)
             responde("aquecimento", PSH_ACK, PEDIDO_DE_AQUECIMENTO)
-            envia_testemunha("testemunha", PSH_ACK, payload or b"X")
+            envia_testemunha("testemunha", flags, payload or b"X", cabecalho)
             responde("flush", ACK)
         else:
             envia_testemunha("aquecimento", PSH_ACK, PEDIDO_DE_AQUECIMENTO)
             responde("resposta_servidor", PSH_ACK, RESPOSTA_DO_SERVIDOR)
-            envia_testemunha("testemunha", PSH_ACK, payload or b"X")
+            envia_testemunha("testemunha", flags, payload or b"X", cabecalho)
             responde("flush", ACK)
     else:
-        envia_testemunha("testemunha", PSH_ACK, payload or b"X")
+        envia_testemunha("testemunha", flags, payload or b"X", cabecalho)
 
     return sessao.quadros
 
@@ -912,13 +1166,14 @@ def quadros_do_caso(
     direcao: str = "to_server",
     http: bool = False,
     icmp: dict | None = None,
+    cabecalho: dict | None = None,
 ) -> list[bytes]:
     """So os quadros, sem papel. Mantido para uso direto e para o autoteste."""
 
     return [
         quadro
         for _papel, quadro in quadros_com_papel(
-            header, payload, com_handshake, direcao, http, icmp
+            header, payload, com_handshake, direcao, http, icmp, cabecalho
         )
     ]
 
@@ -1022,6 +1277,7 @@ def sintetizar_caso(regra: dict) -> dict:
         }
 
     payload, detalhe = montado
+    cabecalho, cabecalho_recusado = campos_de_cabecalho(regra)
 
     return {
         "rule_id": regra.get("rule_id"),
@@ -1033,6 +1289,8 @@ def sintetizar_caso(regra: dict) -> dict:
         "direcao": direcao,
         "flow": texto_flow or None,
         "icmp": campos_icmp(regra) if header["protocolo"] == "icmp" else None,
+        "cabecalho": cabecalho or None,
+        "cabecalho_nao_sintetizado": cabecalho_recusado or None,
         "detalhe_payload": detalhe,
         "classificacao": regra.get("classification"),
         "prefilter_candidate": regra.get("prefilter_candidate"),

@@ -205,7 +205,13 @@ def _negativo_de_header(caso: dict, header: dict, entradas: list):
     ultimo_detalhe = None
     for variante in variantes:
         quadro = quadros_do_caso(
-            variante, payload, False, caso["direcao"], False, caso.get("icmp")
+            variante,
+            payload,
+            False,
+            caso["direcao"],
+            False,
+            caso.get("icmp"),
+            caso.get("cabecalho"),
         )[-1]
         categoria, detalhe = predizer(entradas, quadro)
         if categoria == "P4_NO_MATCH":
@@ -243,12 +249,29 @@ def montar(
     else:
         header["tupla_compartilhada"] = True
 
+    # Os negativos levam os mesmos flags, seq, id e ttl da testemunha: cada
+    # um deve diferir dela numa coisa so (payload, ou 5-tupla), senao o que
+    # ele controla deixa de ser identificavel.
+    cabecalho = caso.get("cabecalho")
+
     com_papel = quadros_com_papel(
-        header, payload, caso["com_handshake"], caso["direcao"], http, caso.get("icmp")
+        header,
+        payload,
+        caso["com_handshake"],
+        caso["direcao"],
+        http,
+        caso.get("icmp"),
+        cabecalho,
     )
 
     negativo_payload = quadros_do_caso(
-        header, _payload_negativo(caso), False, caso["direcao"], False, caso.get("icmp")
+        header,
+        _payload_negativo(caso),
+        False,
+        caso["direcao"],
+        False,
+        caso.get("icmp"),
+        cabecalho,
     )[-1]
     com_papel = com_papel + [("negativo_payload", negativo_payload)]
 
@@ -290,6 +313,8 @@ def montar(
         "flow": caso["flow"],
         "com_handshake": caso["com_handshake"],
         "icmp": caso.get("icmp"),
+        "cabecalho": cabecalho,
+        "cabecalho_nao_sintetizado": caso.get("cabecalho_nao_sintetizado"),
         "payload_bytes": caso["payload_bytes"],
         "estrato": _estrato(caso),
         "quadros": registros_quadro,
