@@ -14,11 +14,11 @@
   "depois": {
     "campanha": "e2e_1000_v2",
     "casos": 1000,
-    "plano_de_dados_medido": false,
+    "plano_de_dados_medido": true,
     "quadros": 6684,
     "vacuos": 77,
     "vereditos": {
-      "INDETERMINADO": 923,
+      "CONFIRMADO": 923,
       "VACUO": 77
     }
   },
@@ -82,7 +82,7 @@
     ],
     "total": 50
   },
-  "gerado_em": "2026-09-22T18:55:20+00:00",
+  "gerado_em": "2026-09-22T19:28:11+00:00",
   "regressoes": {
     "sids": [],
     "total": 0

@@ -2,23 +2,23 @@
   "campanha": "e2e_1000_v2",
   "casos": 1000,
   "divergencia_de_atribuicao": 0,
-  "efetivos": 0,
-  "gerado_em": "2026-09-22T18:53:08+00:00",
+  "efetivos": 923,
+  "gerado_em": "2026-09-22T19:24:31+00:00",
   "negativo_header": {
     "categorias": {
-      "NAO_OBSERVADO": 101
+      "P4_NO_MATCH": 101
     },
-    "taxa_no_match_dominio_suportado": null
+    "taxa_no_match_dominio_suportado": 1.0
   },
   "negativo_payload": {
     "categorias": {
-      "NAO_OBSERVADO": 1000
+      "P4_CANDIDATE": 1000
     },
     "nota": "candidate sem alerta e o excesso conservador do prefilter",
-    "taxa_candidato_dominio_suportado": null
+    "taxa_candidato_dominio_suportado": 1.0
   },
   "parametros": {
-    "bmv2_executado": false,
+    "bmv2_executado": true,
     "device_id": 0,
     "endereco": "127.0.0.1:9559",
     "interface": "veth1",
@@ -28,13 +28,13 @@
   "quadros": 6684,
   "testemunha": {
     "categorias": {
-      "NAO_OBSERVADO": 1000
+      "P4_CANDIDATE": 1000
     },
-    "taxa_candidato_dominio_suportado": null
+    "taxa_candidato_dominio_suportado": 1.0
   },
   "vacuos": 77,
   "vereditos": {
-    "INDETERMINADO": 923,
+    "CONFIRMADO": 923,
     "VACUO": 77
   }
 }
