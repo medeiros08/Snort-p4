@@ -3495,7 +3495,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "FC",
+            "pattern": "FC ",
             "negated": false
           },
           "buffer": "default",
@@ -3602,7 +3602,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "FC",
+            "pattern": "FC ",
             "negated": false
           },
           "buffer": "default",
@@ -65707,7 +65707,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "--use-compress-program ",
+            "pattern": " --use-compress-program ",
             "negated": false
           },
           "buffer": "default",
@@ -65824,7 +65824,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "--use-compress-program ",
+            "pattern": " --use-compress-program ",
             "negated": false
           },
           "buffer": "default",
@@ -199687,7 +199687,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "/HTTP/1.",
+            "pattern": " /HTTP/1.",
             "negated": false
           },
           "buffer": "default",
@@ -199807,7 +199807,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "/HTTP/1.",
+            "pattern": " /HTTP/1.",
             "negated": false
           },
           "buffer": "default",
@@ -311348,7 +311348,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".htr",
+            "pattern": " .htr",
             "negated": false
           },
           "buffer": "http_uri",
@@ -311485,7 +311485,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".htr",
+            "pattern": " .htr",
             "negated": false
           },
           "buffer": "http_uri",
@@ -314942,7 +314942,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".pl",
+            "pattern": " .pl",
             "negated": false
           },
           "buffer": "http_uri",
@@ -315068,7 +315068,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".pl",
+            "pattern": " .pl",
             "negated": false
           },
           "buffer": "http_uri",
@@ -484462,7 +484462,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|04 82 01 00|",
+            "pattern": " |04 82 01 00|",
             "negated": false
           },
           "buffer": "default",
@@ -484591,7 +484591,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|04 82 01 00|",
+            "pattern": " |04 82 01 00|",
             "negated": false
           },
           "buffer": "default",
@@ -504390,7 +504390,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "PRIVMSG",
+            "pattern": "PRIVMSG ",
             "negated": false
           },
           "buffer": "default",
@@ -504508,7 +504508,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "PRIVMSG",
+            "pattern": "PRIVMSG ",
             "negated": false
           },
           "buffer": "default",
@@ -594893,7 +594893,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "././",
+            "pattern": " ././",
             "negated": false
           },
           "buffer": "default",
@@ -595024,7 +595024,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "././",
+            "pattern": " ././",
             "negated": false
           },
           "buffer": "default",
@@ -601349,7 +601349,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3A|.DCC SEND",
+            "pattern": " |3A|.DCC SEND",
             "negated": false
           },
           "buffer": "default",
@@ -601492,7 +601492,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3A|.DCC SEND",
+            "pattern": " |3A|.DCC SEND",
             "negated": false
           },
           "buffer": "default",
@@ -601867,7 +601867,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3A|.DCC CHAT chat",
+            "pattern": " |3A|.DCC CHAT chat",
             "negated": false
           },
           "buffer": "default",
@@ -602010,7 +602010,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3A|.DCC CHAT chat",
+            "pattern": " |3A|.DCC CHAT chat",
             "negated": false
           },
           "buffer": "default",
@@ -614238,7 +614238,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".pl",
+            "pattern": " .pl",
             "negated": false
           },
           "buffer": "http_uri",
@@ -614380,7 +614380,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".pl",
+            "pattern": " .pl",
             "negated": false
           },
           "buffer": "http_uri",
@@ -621055,7 +621055,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "union ",
+            "pattern": " union ",
             "negated": false
           },
           "buffer": "default",
@@ -621178,7 +621178,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "union ",
+            "pattern": " union ",
             "negated": false
           },
           "buffer": "default",
@@ -621556,7 +621556,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "where ",
+            "pattern": " where ",
             "negated": false
           },
           "buffer": "default",
@@ -621576,7 +621576,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "like '%'",
+            "pattern": " like '%'",
             "negated": false
           },
           "buffer": "default",
@@ -621679,7 +621679,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "where ",
+            "pattern": " where ",
             "negated": false
           },
           "buffer": "default",
@@ -621699,7 +621699,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "like '%'",
+            "pattern": " like '%'",
             "negated": false
           },
           "buffer": "default",
@@ -622077,7 +622077,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "where ",
+            "pattern": " where ",
             "negated": false
           },
           "buffer": "default",
@@ -622097,7 +622097,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "like |22|%|22|",
+            "pattern": " like |22|%|22|",
             "negated": false
           },
           "buffer": "default",
@@ -622200,7 +622200,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "where ",
+            "pattern": " where ",
             "negated": false
           },
           "buffer": "default",
@@ -622220,7 +622220,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "like |22|%|22|",
+            "pattern": " like |22|%|22|",
             "negated": false
           },
           "buffer": "default",
@@ -627821,7 +627821,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "to ",
+            "pattern": " to ",
             "negated": false
           },
           "buffer": "default",
@@ -627944,7 +627944,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "to ",
+            "pattern": " to ",
             "negated": false
           },
           "buffer": "default",
@@ -628342,7 +628342,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "identified by ",
+            "pattern": " identified by ",
             "negated": false
           },
           "buffer": "default",
@@ -628465,7 +628465,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "identified by ",
+            "pattern": " identified by ",
             "negated": false
           },
           "buffer": "default",
@@ -647019,7 +647019,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".htr",
+            "pattern": " .htr",
             "negated": false
           },
           "buffer": "http_uri",
@@ -647145,7 +647145,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".htr",
+            "pattern": " .htr",
             "negated": false
           },
           "buffer": "http_uri",
@@ -648773,7 +648773,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "JOIN",
+            "pattern": "JOIN ",
             "negated": false
           },
           "buffer": "default",
@@ -648902,7 +648902,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "JOIN",
+            "pattern": "JOIN ",
             "negated": false
           },
           "buffer": "default",
@@ -676779,7 +676779,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "USERHOST",
+            "pattern": "USERHOST ",
             "negated": false
           },
           "buffer": "default",
@@ -676886,7 +676886,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "USERHOST",
+            "pattern": "USERHOST ",
             "negated": false
           },
           "buffer": "default",
@@ -677231,7 +677231,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "302",
+            "pattern": " 302 ",
             "negated": false
           },
           "buffer": "default",
@@ -677377,7 +677377,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "302",
+            "pattern": " 302 ",
             "negated": false
           },
           "buffer": "default",
@@ -724541,7 +724541,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "gid=",
+            "pattern": " gid=",
             "negated": false
           },
           "buffer": "default",
@@ -724662,7 +724662,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "gid=",
+            "pattern": " gid=",
             "negated": false
           },
           "buffer": "default",
@@ -786700,7 +786700,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TWN ",
+            "pattern": " TWN ",
             "negated": false
           },
           "buffer": "default",
@@ -786831,7 +786831,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TWN ",
+            "pattern": " TWN ",
             "negated": false
           },
           "buffer": "default",
@@ -798196,7 +798196,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "error",
+            "pattern": "error ",
             "negated": false
           },
           "buffer": "default",
@@ -798330,7 +798330,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "error",
+            "pattern": "error ",
             "negated": false
           },
           "buffer": "default",
@@ -1065571,7 +1065571,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/",
+            "pattern": " HTTP/",
             "negated": false
           },
           "buffer": "default",
@@ -1065773,7 +1065773,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/",
+            "pattern": " HTTP/",
             "negated": false
           },
           "buffer": "default",
@@ -1316548,7 +1316548,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "",
+            "pattern": " ",
             "negated": false
           },
           "buffer": "default",
@@ -1316682,7 +1316682,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "",
+            "pattern": " ",
             "negated": false
           },
           "buffer": "default",
@@ -1317164,7 +1317164,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "",
+            "pattern": " ",
             "negated": false
           },
           "buffer": "default",
@@ -1317287,7 +1317287,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "",
+            "pattern": " ",
             "negated": false
           },
           "buffer": "default",
@@ -1317772,7 +1317772,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "",
+            "pattern": " ",
             "negated": false
           },
           "buffer": "default",
@@ -1317895,7 +1317895,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "",
+            "pattern": " ",
             "negated": false
           },
           "buffer": "default",
@@ -1318369,7 +1318369,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "",
+            "pattern": " ",
             "negated": false
           },
           "buffer": "default",
@@ -1318492,7 +1318492,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "",
+            "pattern": " ",
             "negated": false
           },
           "buffer": "default",
@@ -1452798,7 +1452798,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.0|0D 0A|Host:",
+            "pattern": " HTTP/1.0|0D 0A|Host:",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1452973,7 +1452973,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.0|0D 0A|Host:",
+            "pattern": " HTTP/1.0|0D 0A|Host:",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1498140,7 +1498140,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1498285,7 +1498285,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1498807,7 +1498807,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1498952,7 +1498952,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1507286,7 +1507286,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Cache-Control: no-cache|0D 0A|Connection|3A|",
+            "pattern": " HTTP/1.1|0D 0A|Cache-Control: no-cache|0D 0A|Connection|3A|",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1507487,7 +1507487,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Cache-Control: no-cache|0D 0A|Connection|3A|",
+            "pattern": " HTTP/1.1|0D 0A|Cache-Control: no-cache|0D 0A|Connection|3A|",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1517134,7 +1517134,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1517323,7 +1517323,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1524723,7 +1524723,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1524918,7 +1524918,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1530158,7 +1530158,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|0D 0A|Connection: close|0D 0A|Cache-Control: no-cache|0D 0A|Content-Length:",
+            "pattern": "|0D 0A|Connection: close|0D 0A|Cache-Control: no-cache|0D 0A|Content-Length: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1530334,7 +1530334,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|0D 0A|Connection: close|0D 0A|Cache-Control: no-cache|0D 0A|Content-Length:",
+            "pattern": "|0D 0A|Connection: close|0D 0A|Cache-Control: no-cache|0D 0A|Content-Length: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1536699,7 +1536699,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1536858,7 +1536858,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1561998,7 +1561998,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.",
+            "pattern": " HTTP/1.",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1562251,7 +1562251,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.",
+            "pattern": " HTTP/1.",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1567452,7 +1567452,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "height=",
+            "pattern": " height=",
             "negated": false
           },
           "buffer": "file_data",
@@ -1567502,7 +1567502,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "code=",
+            "pattern": " code=",
             "negated": false
           },
           "buffer": "file_data",
@@ -1567557,7 +1567557,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "archive=",
+            "pattern": " archive=",
             "negated": false
           },
           "buffer": "file_data",
@@ -1567727,7 +1567727,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "height=",
+            "pattern": " height=",
             "negated": false
           },
           "buffer": "file_data",
@@ -1567777,7 +1567777,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "code=",
+            "pattern": " code=",
             "negated": false
           },
           "buffer": "file_data",
@@ -1567832,7 +1567832,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "archive=",
+            "pattern": " archive=",
             "negated": false
           },
           "buffer": "file_data",
@@ -1572632,7 +1572632,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1572822,7 +1572822,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1582309,7 +1582309,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1",
+            "pattern": " Java/1",
             "negated": false
           },
           "buffer": "http_header",
@@ -1582490,7 +1582490,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1",
+            "pattern": " Java/1",
             "negated": false
           },
           "buffer": "http_header",
@@ -1587601,7 +1587601,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.0|0D 0A|Host:",
+            "pattern": " HTTP/1.0|0D 0A|Host:",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1587826,7 +1587826,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.0|0D 0A|Host:",
+            "pattern": " HTTP/1.0|0D 0A|Host:",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1588394,7 +1588394,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "U|3B| MSIE",
+            "pattern": "U|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1588644,7 +1588644,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "U|3B| MSIE",
+            "pattern": "U|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1591003,7 +1591003,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.",
+            "pattern": " HTTP/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1591231,7 +1591231,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.",
+            "pattern": " HTTP/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1592690,7 +1592690,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.0|0D 0A|Host:",
+            "pattern": "HTTP/1.0|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1592888,7 +1592888,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.0|0D 0A|Host:",
+            "pattern": "HTTP/1.0|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1598343,7 +1598343,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Accept-Language:",
+            "pattern": "Accept-Language: ",
             "negated": true
           },
           "buffer": "http_header",
@@ -1598535,7 +1598535,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Accept-Language:",
+            "pattern": "Accept-Language: ",
             "negated": true
           },
           "buffer": "http_header",
@@ -1613040,7 +1613040,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1613254,7 +1613254,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1617148,7 +1617148,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1617307,7 +1617307,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1617775,7 +1617775,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1617942,7 +1617942,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1627255,7 +1627255,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1627469,7 +1627469,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1641759,7 +1641759,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent: Mozilla/4.0 (compatible|3B| MSIE",
+            "pattern": "User-Agent: Mozilla/4.0 (compatible|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1642001,7 +1642001,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent: Mozilla/4.0 (compatible|3B| MSIE",
+            "pattern": "User-Agent: Mozilla/4.0 (compatible|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1647689,7 +1647689,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1647878,7 +1647878,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1649969,7 +1649969,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Accept-Encoding:",
+            "pattern": "Accept-Encoding: ",
             "negated": true
           },
           "buffer": "http_header",
@@ -1650164,7 +1650164,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Accept-Encoding:",
+            "pattern": "Accept-Encoding: ",
             "negated": true
           },
           "buffer": "http_header",
@@ -1650675,7 +1650675,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1650864,7 +1650864,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1651418,7 +1651418,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent:",
+            "pattern": "User-Agent: ",
             "negated": true
           },
           "buffer": "http_uri",
@@ -1651612,7 +1651612,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent:",
+            "pattern": "User-Agent: ",
             "negated": true
           },
           "buffer": "http_uri",
@@ -1656680,7 +1656680,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1656881,7 +1656881,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1659382,7 +1659382,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1659577,7 +1659577,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1660127,7 +1660127,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1660300,7 +1660300,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1661346,7 +1661346,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1661546,7 +1661546,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1663503,7 +1663503,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".exe HTTP/1.0|0D 0A|Host:",
+            "pattern": ".exe HTTP/1.0|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1663703,7 +1663703,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".exe HTTP/1.0|0D 0A|Host:",
+            "pattern": ".exe HTTP/1.0|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1670420,7 +1670420,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1670631,7 +1670631,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1671263,7 +1671263,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Accept-Encoding:",
+            "pattern": "Accept-Encoding: ",
             "negated": true
           },
           "buffer": "http_header",
@@ -1671481,7 +1671481,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Accept-Encoding:",
+            "pattern": "Accept-Encoding: ",
             "negated": true
           },
           "buffer": "http_header",
@@ -1686657,7 +1686657,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Connection: Keep-Alive|0D 0A|Accept: */*|0D 0A|User-Agent: Mozilla/",
+            "pattern": " HTTP/1.1|0D 0A|Connection: Keep-Alive|0D 0A|Accept: */*|0D 0A|User-Agent: Mozilla/",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1686813,7 +1686813,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Connection: Keep-Alive|0D 0A|Accept: */*|0D 0A|User-Agent: Mozilla/",
+            "pattern": " HTTP/1.1|0D 0A|Connection: Keep-Alive|0D 0A|Accept: */*|0D 0A|User-Agent: Mozilla/",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1689329,7 +1689329,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Referer|3A|",
+            "pattern": "Referer|3A| ",
             "negated": true
           },
           "buffer": "http_header",
@@ -1689513,7 +1689513,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Referer|3A|",
+            "pattern": "Referer|3A| ",
             "negated": true
           },
           "buffer": "http_header",
@@ -1694846,7 +1694846,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "MSIE",
+            "pattern": " MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1695060,7 +1695060,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "MSIE",
+            "pattern": " MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1703848,7 +1703848,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1704082,7 +1704082,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1723002,7 +1723002,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1723186,7 +1723186,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1723660,7 +1723660,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Accept: */*|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|User-Agent: Mozilla/5.0 (Windows NT 6.1|3B| WOW64|3B| rv:25.0) Gecko/20100101 Firefox/25.0|0D 0A|Host: ",
+            "pattern": " HTTP/1.1|0D 0A|Accept: */*|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|User-Agent: Mozilla/5.0 (Windows NT 6.1|3B| WOW64|3B| rv:25.0) Gecko/20100101 Firefox/25.0|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "default",
@@ -1723705,7 +1723705,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1",
+            "pattern": " HTTP/1.1",
             "negated": false
           },
           "buffer": "default",
@@ -1723833,7 +1723833,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Accept: */*|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|User-Agent: Mozilla/5.0 (Windows NT 6.1|3B| WOW64|3B| rv:25.0) Gecko/20100101 Firefox/25.0|0D 0A|Host: ",
+            "pattern": " HTTP/1.1|0D 0A|Accept: */*|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|User-Agent: Mozilla/5.0 (Windows NT 6.1|3B| WOW64|3B| rv:25.0) Gecko/20100101 Firefox/25.0|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "default",
@@ -1723878,7 +1723878,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1",
+            "pattern": " HTTP/1.1",
             "negated": false
           },
           "buffer": "default",
@@ -1730448,7 +1730448,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1730626,7 +1730626,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Java/1.",
+            "pattern": " Java/1.",
             "negated": false
           },
           "buffer": "http_header",
@@ -1738924,7 +1738924,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|",
+            "pattern": " HTTP/1.1|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1739094,7 +1739094,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|",
+            "pattern": " HTTP/1.1|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1763185,7 +1763185,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1763419,7 +1763419,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|3B| MSIE",
+            "pattern": "|3B| MSIE ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1774737,7 +1774737,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|User-Agent: Mozilla/",
+            "pattern": " HTTP/1.1|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|User-Agent: Mozilla/",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1774997,7 +1774997,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|User-Agent: Mozilla/",
+            "pattern": " HTTP/1.1|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|User-Agent: Mozilla/",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1781430,7 +1781430,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".php HTTP/1.0|0D 0A|Connection: keep-alive|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|Content-Length: 0|0D 0A|Host:",
+            "pattern": ".php HTTP/1.0|0D 0A|Connection: keep-alive|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|Content-Length: 0|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1781595,7 +1781595,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".php HTTP/1.0|0D 0A|Connection: keep-alive|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|Content-Length: 0|0D 0A|Host:",
+            "pattern": ".php HTTP/1.0|0D 0A|Connection: keep-alive|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|Content-Length: 0|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1789215,7 +1789215,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1",
+            "pattern": " HTTP/1.1",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1789434,7 +1789434,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1",
+            "pattern": " HTTP/1.1",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1791281,7 +1791281,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Host: sstatic1.histats.com|0D 0A 0D 0A|",
+            "pattern": " HTTP/1.1|0D 0A|Host: sstatic1.histats.com|0D 0A 0D 0A|",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1791443,7 +1791443,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Host: sstatic1.histats.com|0D 0A 0D 0A|",
+            "pattern": " HTTP/1.1|0D 0A|Host: sstatic1.histats.com|0D 0A 0D 0A|",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1794693,7 +1794693,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent: Mozilla/5.0 (compatible|3B| MSIE 9.0|3B| Windows NT 6.1|3B| Trident/5.0)|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|Host:",
+            "pattern": "User-Agent: Mozilla/5.0 (compatible|3B| MSIE 9.0|3B| Windows NT 6.1|3B| Trident/5.0)|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1794902,7 +1794902,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent: Mozilla/5.0 (compatible|3B| MSIE 9.0|3B| Windows NT 6.1|3B| Trident/5.0)|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|Host:",
+            "pattern": "User-Agent: Mozilla/5.0 (compatible|3B| MSIE 9.0|3B| Windows NT 6.1|3B| Trident/5.0)|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1797490,7 +1797490,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|User-Agent: Mozilla/5.0|0D 0A|",
+            "pattern": " HTTP/1.1|0D 0A|User-Agent: Mozilla/5.0|0D 0A|",
             "negated": false
           },
           "buffer": "default",
@@ -1797660,7 +1797660,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|User-Agent: Mozilla/5.0|0D 0A|",
+            "pattern": " HTTP/1.1|0D 0A|User-Agent: Mozilla/5.0|0D 0A|",
             "negated": false
           },
           "buffer": "default",
@@ -1801001,7 +1801001,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|0D 0A|aid:",
+            "pattern": "|0D 0A|aid: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1801160,7 +1801160,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "|0D 0A|aid:",
+            "pattern": "|0D 0A|aid: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1803710,7 +1803710,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.0|0D 0A|Accept: */*|0D 0A|Connection: close|0D 0A|Host:",
+            "pattern": " HTTP/1.0|0D 0A|Accept: */*|0D 0A|Connection: close|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1803880,7 +1803880,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.0|0D 0A|Accept: */*|0D 0A|Connection: close|0D 0A|Host:",
+            "pattern": " HTTP/1.0|0D 0A|Accept: */*|0D 0A|Connection: close|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1809541,7 +1809541,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent: Mozilla/5.0 (compatible|3B| MSIE 9.0|3B| Windows NT 6.1|3B| Trident/5.0)|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|Host:",
+            "pattern": "User-Agent: Mozilla/5.0 (compatible|3B| MSIE 9.0|3B| Windows NT 6.1|3B| Trident/5.0)|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1809739,7 +1809739,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent: Mozilla/5.0 (compatible|3B| MSIE 9.0|3B| Windows NT 6.1|3B| Trident/5.0)|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|Host:",
+            "pattern": "User-Agent: Mozilla/5.0 (compatible|3B| MSIE 9.0|3B| Windows NT 6.1|3B| Trident/5.0)|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1812569,7 +1812569,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".exe HTTP/1.1|0D 0A|Accept: */*|0D 0A|Accept-Encoding: gzip,deflate,sdch|0D 0A|Host:",
+            "pattern": ".exe HTTP/1.1|0D 0A|Accept: */*|0D 0A|Accept-Encoding: gzip,deflate,sdch|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1812792,7 +1812792,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".exe HTTP/1.1|0D 0A|Accept: */*|0D 0A|Accept-Encoding: gzip,deflate,sdch|0D 0A|Host:",
+            "pattern": ".exe HTTP/1.1|0D 0A|Accept: */*|0D 0A|Accept-Encoding: gzip,deflate,sdch|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1815586,7 +1815586,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.0|0D 0A|",
+            "pattern": " HTTP/1.0|0D 0A|",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1815853,7 +1815853,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.0|0D 0A|",
+            "pattern": " HTTP/1.0|0D 0A|",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1821810,7 +1821810,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.0|0D 0A|Accept: */*|0D 0A|Connection: close|0D 0A|Host:",
+            "pattern": " HTTP/1.0|0D 0A|Accept: */*|0D 0A|Connection: close|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1822005,7 +1822005,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.0|0D 0A|Accept: */*|0D 0A|Connection: close|0D 0A|Host:",
+            "pattern": " HTTP/1.0|0D 0A|Accept: */*|0D 0A|Connection: close|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1822533,7 +1822533,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Accept: text/html, */*|0D 0A|Accept-Encoding: identity|0D 0A|User-Agent:",
+            "pattern": "Accept: text/html, */*|0D 0A|Accept-Encoding: identity|0D 0A|User-Agent: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1822689,7 +1822689,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Accept: text/html, */*|0D 0A|Accept-Encoding: identity|0D 0A|User-Agent:",
+            "pattern": "Accept: text/html, */*|0D 0A|Accept-Encoding: identity|0D 0A|User-Agent: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1838532,7 +1838532,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "UA-CPU:",
+            "pattern": "UA-CPU: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1838757,7 +1838757,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "UA-CPU:",
+            "pattern": "UA-CPU: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1839353,7 +1839353,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "UA-CPU:",
+            "pattern": "UA-CPU: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1839567,7 +1839567,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "UA-CPU:",
+            "pattern": "UA-CPU: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1843118,7 +1843118,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|User-Agent: Mozilla/",
+            "pattern": " HTTP/1.1|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|User-Agent: Mozilla/",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1843353,7 +1843353,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|User-Agent: Mozilla/",
+            "pattern": " HTTP/1.1|0D 0A|Content-Type: application/x-www-form-urlencoded|0D 0A|User-Agent: Mozilla/",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1849258,7 +1849258,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "() {",
+            "pattern": " () {",
             "negated": false
           },
           "buffer": "default",
@@ -1849420,7 +1849420,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "() {",
+            "pattern": " () {",
             "negated": false
           },
           "buffer": "default",
@@ -1868043,7 +1868043,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1868188,7 +1868188,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1868730,7 +1868730,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1868886,7 +1868886,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1869447,7 +1869447,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1869592,7 +1869592,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1870134,7 +1870134,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1870279,7 +1870279,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1870821,7 +1870821,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1870966,7 +1870966,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1871508,7 +1871508,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1871653,7 +1871653,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1872195,7 +1872195,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1872340,7 +1872340,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "TagId:",
+            "pattern": "TagId: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1891560,7 +1891560,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent|3A 20|UAC/1.0.0 (Android",
+            "pattern": "User-Agent|3A 20|UAC/1.0.0 (Android ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1891741,7 +1891741,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent|3A 20|UAC/1.0.0 (Android",
+            "pattern": "User-Agent|3A 20|UAC/1.0.0 (Android ",
             "negated": false
           },
           "buffer": "http_header",
@@ -1920668,7 +1920668,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "EMF",
+            "pattern": " EMF",
             "negated": false
           },
           "buffer": "file_data",
@@ -1920807,7 +1920807,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "EMF",
+            "pattern": " EMF",
             "negated": false
           },
           "buffer": "file_data",
@@ -1924224,7 +1924224,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Loader|0D 0A|",
+            "pattern": " Loader|0D 0A|",
             "negated": false
           },
           "buffer": "http_header",
@@ -1924369,7 +1924369,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Loader|0D 0A|",
+            "pattern": " Loader|0D 0A|",
             "negated": false
           },
           "buffer": "http_header",
@@ -1924809,7 +1924809,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Pi/3.1415926|0D 0A|",
+            "pattern": " Pi/3.1415926|0D 0A|",
             "negated": false
           },
           "buffer": "http_header",
@@ -1924954,7 +1924954,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Pi/3.1415926|0D 0A|",
+            "pattern": " Pi/3.1415926|0D 0A|",
             "negated": false
           },
           "buffer": "http_header",
@@ -1925394,7 +1925394,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "in my heart of heart.|0D 0A|",
+            "pattern": " in my heart of heart.|0D 0A|",
             "negated": false
           },
           "buffer": "http_header",
@@ -1925539,7 +1925539,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "in my heart of heart.|0D 0A|",
+            "pattern": " in my heart of heart.|0D 0A|",
             "negated": false
           },
           "buffer": "http_header",
@@ -1966581,7 +1966581,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".php HTTP/1.1|0D 0A|Content-Type: text/html|0D 0A|Host:",
+            "pattern": ".php HTTP/1.1|0D 0A|Content-Type: text/html|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1966762,7 +1966762,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": ".php HTTP/1.1|0D 0A|Content-Type: text/html|0D 0A|Host:",
+            "pattern": ".php HTTP/1.1|0D 0A|Content-Type: text/html|0D 0A|Host: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -1967945,7 +1967945,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1 200 OK|0D 0A|Content-Length:",
+            "pattern": "HTTP/1.1 200 OK|0D 0A|Content-Length: ",
             "negated": false
           },
           "buffer": "default",
@@ -1968098,7 +1968098,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1 200 OK|0D 0A|Content-Length:",
+            "pattern": "HTTP/1.1 200 OK|0D 0A|Content-Length: ",
             "negated": false
           },
           "buffer": "default",
@@ -2022805,7 +2022805,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "requested URL / was not found",
+            "pattern": " requested URL / was not found ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -2023000,7 +2023000,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "requested URL / was not found",
+            "pattern": " requested URL / was not found ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -2029570,7 +2029570,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Location:",
+            "pattern": "Location: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -2029785,7 +2029785,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Location:",
+            "pattern": "Location: ",
             "negated": false
           },
           "buffer": "pkt_data",
@@ -2043834,7 +2043834,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent|3A|",
+            "pattern": "User-Agent|3A| ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2043990,7 +2043990,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent|3A|",
+            "pattern": "User-Agent|3A| ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2206019,7 +2206019,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Accept: */*|0D 0A|Content-Type: application/octet-stream|0D 0A|Connection: Close|0D 0A|User-Agent: Mozilla/",
+            "pattern": " HTTP/1.1|0D 0A|Accept: */*|0D 0A|Content-Type: application/octet-stream|0D 0A|Connection: Close|0D 0A|User-Agent: Mozilla/",
             "negated": false
           },
           "buffer": "default",
@@ -2206165,7 +2206165,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "HTTP/1.1|0D 0A|Accept: */*|0D 0A|Content-Type: application/octet-stream|0D 0A|Connection: Close|0D 0A|User-Agent: Mozilla/",
+            "pattern": " HTTP/1.1|0D 0A|Accept: */*|0D 0A|Content-Type: application/octet-stream|0D 0A|Connection: Close|0D 0A|User-Agent: Mozilla/",
             "negated": false
           },
           "buffer": "default",
@@ -2232295,7 +2232295,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Connection:",
+            "pattern": "Connection: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2232309,7 +2232309,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent:",
+            "pattern": "User-Agent: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2232323,7 +2232323,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Accept-Encoding:",
+            "pattern": "Accept-Encoding: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2232337,7 +2232337,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Accept-Language:",
+            "pattern": "Accept-Language: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2232351,7 +2232351,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Host:",
+            "pattern": "Host: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2232507,7 +2232507,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Connection:",
+            "pattern": "Connection: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2232521,7 +2232521,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent:",
+            "pattern": "User-Agent: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2232535,7 +2232535,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Accept-Encoding:",
+            "pattern": "Accept-Encoding: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2232549,7 +2232549,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Accept-Language:",
+            "pattern": "Accept-Language: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2232563,7 +2232563,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Host:",
+            "pattern": "Host: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2274426,7 +2274426,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Host:",
+            "pattern": "Host: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2274496,7 +2274496,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent: Microsoft Office",
+            "pattern": "User-Agent: Microsoft Office ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2274700,7 +2274700,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Host:",
+            "pattern": "Host: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2274770,7 +2274770,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent: Microsoft Office",
+            "pattern": "User-Agent: Microsoft Office ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2275369,7 +2275369,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Host:",
+            "pattern": "Host: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2275439,7 +2275439,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent: Microsoft Office",
+            "pattern": "User-Agent: Microsoft Office ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2275657,7 +2275657,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Host:",
+            "pattern": "Host: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2275727,7 +2275727,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "User-Agent: Microsoft Office",
+            "pattern": "User-Agent: Microsoft Office ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2304175,7 +2304175,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "UID:",
+            "pattern": "UID: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2304345,7 +2304345,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "UID:",
+            "pattern": "UID: ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2452688,7 +2452688,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Authorization: Basic",
+            "pattern": "Authorization: Basic ",
             "negated": false
           },
           "buffer": "http_header",
@@ -2452866,7 +2452866,7 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "Authorization: Basic",
+            "pattern": "Authorization: Basic ",
             "negated": false
           },
           "buffer": "http_header",

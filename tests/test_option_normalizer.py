@@ -129,9 +129,39 @@ def test_comma_inside_content():
     )
 
 
+def test_whitespace_inside_quotes_is_content():
+    # O parser ja tirou o espaco de fora das aspas; o que sobra e conteudo.
+    # A campanha e2e mostrou o efeito: com o espaco cortado, a testemunha de
+    # sid 1789 saiu `USERHOST` e o Snort, que exige `USERHOST `, nao alertou.
+    sem_modificador = normalize_content(
+        "USERHOST "
+    )
+    assert sem_modificador["pattern"] == "USERHOST "
+
+    inicial_com_modificador = normalize_content(
+        ' |3A|.DCC SEND",distance 0,fast_pattern,nocase'
+    )
+    assert (
+        inicial_com_modificador["pattern"]
+        == " |3A|.DCC SEND"
+    )
+
+    dos_dois_lados = normalize_content(
+        ' 302 '
+    )
+    assert dos_dois_lados["pattern"] == " 302 "
+
+    negado = normalize_content(
+        '!" abc ",depth 5'
+    )
+    assert negado["pattern"] == " abc "
+    assert negado["negated"] is True
+
+
 if __name__ == "__main__":
 
     test_simple_content()
+    test_whitespace_inside_quotes_is_content()
     test_content_with_nocase()
     test_depth_offset()
     test_relative_content()
