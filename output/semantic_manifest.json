@@ -702271,8 +702271,8 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "@|23|",
-            "negated": true
+            "pattern": "!@|23|",
+            "negated": false
           },
           "buffer": "default",
           "modifiers": [
@@ -702372,8 +702372,8 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "@|23|",
-            "negated": true
+            "pattern": "!@|23|",
+            "negated": false
           },
           "buffer": "default",
           "modifiers": [
@@ -1687245,8 +1687245,8 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "dl http://",
-            "negated": true
+            "pattern": "!dl http://",
+            "negated": false
           },
           "buffer": "default",
           "modifiers": [
@@ -1687376,8 +1687376,8 @@
           "field": null,
           "operator": "content",
           "value": {
-            "pattern": "dl http://",
-            "negated": true
+            "pattern": "!dl http://",
+            "negated": false
           },
           "buffer": "default",
           "modifiers": [

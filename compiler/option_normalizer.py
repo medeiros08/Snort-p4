@@ -261,13 +261,16 @@ def normalize_content(value):
 
     negated = False
 
-    if pattern.startswith('!"'):
+    # Negacao e `!` FORA das aspas: `content:!"abc"`. O parser so tira a aspa
+    # de abertura quando o valor comeca com ela, entao uma negacao real chega
+    # sempre como `!"abc`. Um `!` sem aspa em seguida estava DENTRO das aspas
+    # e e conteudo: `content:"!dl http://"` (sid 28982) procura o `!`. O ramo
+    # antigo que tratava qualquer `!` inicial como negacao invertia essas
+    # regras na IR (sids 1843 e 28982).
+    negacao = re.match(r'!\s*"', pattern)
+    if negacao:
         negated = True
-        pattern = pattern[2:]
-
-    elif pattern.startswith("!"):
-        negated = True
-        pattern = pattern[1:]
+        pattern = pattern[negacao.end():]
 
     # Some parser forms may still retain an opening quote.
     if pattern.startswith('"'):
