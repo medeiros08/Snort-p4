@@ -158,10 +158,40 @@ def test_whitespace_inside_quotes_is_content():
     assert negado["negated"] is True
 
 
+def test_bang_inside_quotes_is_content():
+    # `!` fora das aspas e negacao; dentro delas e conteudo. Na campanha e2e
+    # a regra 28982 (`content:"!dl http://"`) saiu com o content negado na
+    # IR, a testemunha nao o carregou e o Snort nao alertou.
+    literal = normalize_content(
+        '!dl http://",fast_pattern,nocase'
+    )
+    assert literal["pattern"] == "!dl http://"
+    assert literal["negated"] is False
+
+    literal_sem_modificador = normalize_content(
+        "!@|23|"
+    )
+    assert literal_sem_modificador["pattern"] == "!@|23|"
+    assert literal_sem_modificador["negated"] is False
+
+    negado = normalize_content(
+        '!"|00|",within 100'
+    )
+    assert negado["pattern"] == "|00|"
+    assert negado["negated"] is True
+
+    negado_sem_modificador = normalize_content(
+        '!"Accept'
+    )
+    assert negado_sem_modificador["pattern"] == "Accept"
+    assert negado_sem_modificador["negated"] is True
+
+
 if __name__ == "__main__":
 
     test_simple_content()
     test_whitespace_inside_quotes_is_content()
+    test_bang_inside_quotes_is_content()
     test_content_with_nocase()
     test_depth_offset()
     test_relative_content()

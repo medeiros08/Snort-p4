@@ -1,5 +1,11 @@
 # IR Content-Whitespace Supersession
 
+> **Addendum.** A second IR-fidelity defect was found and repaired after
+> this document: two `content` options whose pattern begins with `!` inside
+> the quotes were recorded as negated. See
+> `IR_CONTENT_NEGATION_SUPERSESSION.md`. The statement in §6 about the
+> manifest at `b931dd2` holds except for those two options.
+
 ## 1. Purpose and status
 
 The semantic IR (`semantic_manifest.json`) recorded the text of 121 `content`
