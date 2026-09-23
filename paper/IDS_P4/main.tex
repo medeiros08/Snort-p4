@@ -4,7 +4,7 @@
 \usepackage{amsmath}
 \usepackage[hyphens]{url}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning}
+\usetikzlibrary{arrows.meta,positioning,shapes.symbols}
 \usepackage{placeins}
 \usepackage{pdflscape}
 
@@ -408,7 +408,83 @@ The proposed pipeline consists of five main stages: (i) Snort rule
 parsing, (ii) construction of an intermediate representation,
 (iii) target capability analysis, (iv) semantic classification, and
 (v) generation of the corresponding data-plane configuration or IDS
-fallback.
+fallback. Figure~\ref{fig:pipeline-architecture} places these stages
+between their inputs and the BMv2 target.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  >=Latex,
+  font=\footnotesize,
+  stage/.style={draw, rounded corners, align=center, minimum width=38mm,
+    minimum height=6.5mm, inner sep=2.5pt},
+  artifact/.style={draw, shape=tape, tape bend top=none,
+    tape bend height=1.4mm, align=center, minimum width=27mm,
+    minimum height=6.5mm, inner sep=2.5pt},
+  input/.style={artifact},
+  output/.style={artifact, fill=black!12},
+  target/.style={draw, double, double distance=1pt, rounded corners,
+    align=center, minimum width=35mm, minimum height=6.5mm, inner sep=2.5pt},
+  flow/.style={->, line width=.45pt},
+  note/.style={font=\scriptsize, inner sep=1pt}
+]
+  % Compiler stages (center column)
+  \node[stage] (parse) {(i) Rule parsing};
+  \node[stage, below=3.5mm of parse] (ir)
+    {(ii) Variable resolution\\and IR construction};
+  \node[stage, below=3.5mm of ir] (cap)
+    {(iii) Target capability\\analysis};
+  \node[stage, below=3.5mm of cap] (cls) {(iv) Semantic classification\\
+    {\scriptsize EXACT, NECESSARY,}\\{\scriptsize or UNSUPPORTED}};
+  \node[stage, below=5mm of cls] (backend) {(v) P4 backend\\
+    {\scriptsize expansion, normalization,}\\
+    {\scriptsize lowering, deduplication}};
+
+  % Inputs and manifest (left column)
+  \node[input, left=7mm of parse] (rules) {Snort 3 ruleset};
+  \node[input, left=7mm of ir] (vars) {Snort variable\\profile};
+  \node[input, left=7mm of cap] (capprof) {Target capability\\profile};
+  \node[output, left=7mm of cls] (manifest) {Compilation\\manifest};
+
+  % Snort and data plane (right column)
+  \node[output, minimum width=35mm, right=12mm of backend] (plan)
+    {P4Runtime\\installation plan};
+  \node[target] (snort) at (plan |- cls)
+    {Snort 3\\{\scriptsize all rules; final detection}};
+  \node[target, below=5mm of plan] (bmv2) {BMv2 target\\
+    {\scriptsize marks and counts}\\
+    {\scriptsize\texttt{P4\_CANDIDATE}, \texttt{P4\_NO\_MATCH},}\\
+    {\scriptsize\texttt{PACKET\_DOMAIN\_FALLBACK}}};
+  \node[input, minimum width=38mm] (p4prog) at (backend |- bmv2)
+    {P4 program\\(\texttt{ids\_prefilter.p4})};
+  \node[input, minimum width=35mm, below=4mm of bmv2] (trace)
+    {Replayed packet trace};
+
+  \draw[flow] (rules) -- (parse);
+  \draw[flow] (parse) -- (ir);
+  \draw[flow] (ir) -- (cap);
+  \draw[flow] (cap) -- (cls);
+  \draw[flow] (cls) -- node[note, right] {NECESSARY, EXACT} (backend);
+  \draw[flow] (vars) -- (ir);
+  \draw[flow] (capprof) -- (cap);
+  \draw[flow] (cls) -- (manifest);
+  \draw[flow] (cls) -- node[note, above] {delegated} (snort);
+  \draw[flow] (backend) -- (plan);
+  \draw[flow] (plan) -- node[note, right] {P4Runtime} (bmv2);
+  \draw[flow] (p4prog) -- node[note, above] {\texttt{p4c}} (bmv2);
+  \draw[flow] (trace) -- (bmv2);
+\end{tikzpicture}
+\caption{Implemented compilation pipeline and its artifacts. Rounded boxes
+are the compiler stages (i)--(v); wavy-bottom shapes are inputs (white) and
+generated artifacts (gray); double-bordered boxes are execution targets. All
+rules, including UNSUPPORTED ones, remain in Snort~3, which performs final
+detection. The deployed P4 program marks candidate metadata and counts each
+packet in one of three categories; it is not integrated into a forwarding or
+bypass path in front of Snort, and packet traces are replayed into BMv2 for
+measurement.}
+\label{fig:pipeline-architecture}
+\end{figure}
+
 \subsection{Snort Rule Parsing and Intermediate Representation}
 The first stage receives Snort 3 rules and extracts the elements required
 for subsequent semantic analysis. Rather than translating the textual
