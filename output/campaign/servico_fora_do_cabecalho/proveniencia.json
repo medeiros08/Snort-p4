@@ -1,0 +1,37 @@
+{
+  "achado": "paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md",
+  "casos": 200,
+  "elegiveis": 1350,
+  "expectativa": {
+    "se_o_snort_avalia_a_porta": "VACUO em todos os casos, nos dois planos",
+    "se_o_snort_pula_a_porta": "global: CONFIRMADO (a testemunha e candidate por entrada de outra regra); strong: VIOLACAO nos casos que o Snort alertar. O runner sai com codigo 1 e o precheck acusa testemunha no-match no strong: e o resultado que confirma o achado, nao defeito do gerador"
+  },
+  "gerado_em": "2026-09-27T07:04:44+00:00",
+  "gerador": "tests/generate_offport_service_cases.py",
+  "manifesto_semantico": "output/semantic_manifest.json",
+  "pcap_sha256": "b150423d1ba6002df294d670e085ec237486f25591814a146bed710175392b30",
+  "portas_tentadas": [
+    18080,
+    28080,
+    38080,
+    8181,
+    9090,
+    8000
+  ],
+  "previsao_global_x_strong": {
+    "P4_CANDIDATE|P4_NO_MATCH": 200
+  },
+  "quadros": 1600,
+  "recusas": {
+    "nao_sintetizavel": 835,
+    "nao_tcp_to_server": 16,
+    "payload_nao_http": 98,
+    "porta_de_destino_livre": 15
+  },
+  "sem_porta_fora_do_cabecalho": [],
+  "semente": 20260927,
+  "uso_no_rig": [
+    "python tests/run_campaign_bmv2.py --casos output/campaign/servico_fora_do_cabecalho",
+    "python tests/run_campaign_bmv2.py --casos output/campaign/servico_fora_do_cabecalho --plano output/campaign/plano_strong_discriminator/p4runtime_install_plan.json --particao output/campaign/plano_strong_discriminator/particao.json --sufixo _strong"
+  ]
+}

@@ -173,11 +173,24 @@ changes.
    `service_based_header_not_evaluated`, keep address predicates, and
    regenerate. This changes the frozen artifacts and must go through a
    supersession document.
-2. **Data plane test (rig).** A campaign variant that places HTTP witnesses of
-   service-based rules on a port outside `HTTP_PORTS` (for example 8000),
-   which the wizard should still identify. Expected under the source above:
-   Snort alerts, the rule's own predicate is false, the global plan marks the
-   packet candidate through `p4-40`/`p4-106`, and the strong plan marks it
-   no-match.
+2. **Data plane test (rig).** Prepared: `tests/generate_offport_service_cases.py`
+   writes `output/campaign/servico_fora_do_cabecalho/` (200 HTTP rules with
+   `service:http`, seed 20260927, 1,600 frames, pcap sha256 `b150423d…`). Each
+   witness is the usual HTTP flow moved to destination port 18080, outside
+   `HTTP_PORTS`; the wizard should still identify HTTP from the warm-up
+   request and server response. For all 200, none of the rule's own entries
+   matches the witness; the global plan predicts candidate (through `p4-3` or
+   `p4-5`), and the strong plan predicts no-match with every rule still
+   prefiltered. On the rig:
+
+       python tests/run_campaign_bmv2.py --casos output/campaign/servico_fora_do_cabecalho
+       python tests/run_campaign_bmv2.py --casos output/campaign/servico_fora_do_cabecalho \
+           --plano output/campaign/plano_strong_discriminator/p4runtime_install_plan.json \
+           --particao output/campaign/plano_strong_discriminator/particao.json --sufixo _strong
+
+   If Snort skips the port, the global run reports CONFIRMED and the strong run
+   reports VIOLATION for the alerting cases (exit code 1 is the expected
+   outcome). If every case is VACUOUS in both runs, the source reading does not
+   hold on the rig and this finding must be revisited.
 3. **Recompute** the strong-discriminator partition, its trace-level rates,
    and the per-packet candidate rule sets from the corrected predicates.

@@ -84,6 +84,27 @@ def test_artefato_de_exposicao_coerente():
     assert por_plano["strong_discriminator"] == {"nenhuma": total}
 
 
+def test_casos_fora_do_cabecalho_discriminam_os_planos():
+    caminho = PROJECT_ROOT / "output" / "campaign" / "servico_fora_do_cabecalho" / "casos.jsonl"
+    casos = [
+        json.loads(linha)
+        for linha in caminho.read_text(encoding="utf-8").splitlines()
+        if linha.strip()
+    ]
+    assert casos
+
+    for caso in casos:
+        teste = caso["servico_fora_do_cabecalho"]
+        # O predicado da propria regra e falso na testemunha por construcao.
+        assert teste["casa_entrada_propria"] is False, caso["sid"]
+        assert teste["porta_usada"] not in (80, 8080), caso["sid"]
+        assert caso["header"]["dst_port"] == teste["porta_usada"], caso["sid"]
+        # O plano global cobre por entrada de outra regra; o strong nao.
+        assert teste["p4_global_previsto"] == "P4_CANDIDATE", caso["sid"]
+        assert teste["p4_strong_previsto"] == "P4_NO_MATCH", caso["sid"]
+        assert teste["fallback_operacional_no_strong"] is False, caso["sid"]
+
+
 def test_rederivacao_da_preservacao_confere():
     relatorio = json.loads(
         (ANALISES / "alert_preservation_offline_post_correction.json").read_text(encoding="utf-8")
@@ -106,6 +127,7 @@ if __name__ == "__main__":
     test_entrada_com_porta_fica_fora_do_filtro()
     test_artefato_de_exposicao_coerente()
     test_rederivacao_da_preservacao_confere()
+    test_casos_fora_do_cabecalho_discriminam_os_planos()
 
     print(
         "Service-based header tests passed."
