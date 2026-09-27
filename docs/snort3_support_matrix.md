@@ -111,9 +111,16 @@ checks addresses (`src/detection/detection_options.cc`,
 `src/detection/rtn_checks.cc`). A different identified service rejects the
 rule; an unidentified service leaves the full header checked.
 
-| Compiler mode | Header of a rule with `service:` | Rules affected |
+A service-specific option adds services only to a rule that has none, in
+`validate_services` (`src/detection/fp_utils.cc`): a selected buffer that an
+inspector registers adds that inspector's services, and other options add
+one guessed from the name prefix. In the evaluated ruleset this reaches three
+NECESSARY rules without `service:` (529, 3238, 3239): `dce_iface` and
+`dce_stub_data` add `dcerpc` and `netbios-ssn`.
+
+| Compiler mode | Header of a service-based rule | Rules affected |
 |---|---|---:|
-| `legacy` (default; frozen artifacts) | assessed as for a port-based rule: protocol and ports PRESERVED/EXPANDED | 2,928 NECESSARY rules |
+| `legacy` (default; frozen artifacts) | assessed as for a port-based rule: protocol and ports PRESERVED/EXPANDED | 2,931 NECESSARY rules (2,928 with `service:`, 3 DCE) |
 | `snort3` (`generate_semantic_manifest.py --service-header-semantics snort3`) | protocol, `src_port`, `dst_port` DELEGATED (`service_based_header_not_checked_on_service_match`); protocol kept when the rule has `flags`, which only matches TCP (`src/ips_options/ips_flags.cc`) | same |
 
 Under `legacy`, the predicate of these rules is a necessary condition only on
@@ -123,8 +130,8 @@ A traditional header that names a service protocol instead of an IP protocol
 (the 12 `alert http ... -> ...` rules of Section 3) behaves differently:
 `SetupRTNFuncList` (`src/parser/parse_rule.cc`) marks such a rule
 `USER_MODE`, and `fp_eval_rtn` (`src/detection/fp_detect.cc`) then forces the
-port checks back on. Their ports are therefore necessary conditions, and none
-of them declares `service:`, so neither mode changes them. Details and measured effect:
+port checks back on. Their ports are therefore necessary conditions, and
+neither mode changes them. Details and measured effect:
 `paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md`,
 `output/analysis/service_header_semantics_whatif.json`.
 

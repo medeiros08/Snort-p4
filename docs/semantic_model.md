@@ -228,18 +228,24 @@ The compiler has two modes (`generate_semantic_manifest.py
 --service-header-semantics`):
 
 - `legacy`, the default, reproduces the frozen artifacts. It keeps protocol
-  and ports in $H_r$ for rules with `service:`, so for those 2,928
-  `NECESSARY` rules the first implication holds only on traffic whose service
-  Snort has not identified.
-- `snort3` delegates protocol, `src_port`, and `dst_port` of rules with
-  `service:`, keeping the protocol when the rule has `flags`, which only
-  matches TCP. $H_r$ is then a subset of what Snort requires, and the
-  relation holds.
+  and ports in $H_r$ for service-based rules, so for those 2,931 `NECESSARY`
+  rules the first implication holds only on traffic whose service Snort has
+  not identified.
+- `snort3` delegates protocol, `src_port`, and `dst_port` of service-based
+  rules, keeping the protocol when the rule has `flags`, which only matches
+  TCP. $H_r$ is then a subset of what Snort requires, and the relation holds.
 
-Fifteen rules use service-specific options (such as `http_uri`) without an
-explicit `service:`. The corpus says those options also make a rule
-service-based, but the mechanism was not confirmed in the source, and
-neither mode changes them.
+A rule is service-based when it has a service and its header names an IP
+protocol. The service comes from `service:` (2,928 rules) or from an option:
+Snort's `validate_services` (`src/detection/fp_utils.cc`) adds the services
+of an inspector-registered buffer the rule selects, or one guessed from the
+option name. In the evaluated ruleset that reaches three rules (529, 3238,
+3239), whose `dce_iface` and `dce_stub_data` add `dcerpc` and
+`netbios-ssn`. A header that names a service protocol (`alert http`, twelve
+`NECESSARY` rules) also gives the rule a service, but marks it `USER_MODE`,
+and Snort then checks its ports; neither mode delegates those.
+`compiler/target_capability.py` (`snort3_service_based`) implements the test
+and errs toward counting a rule as service-based.
 
 Details and measurements: `paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md`.
 
@@ -277,7 +283,7 @@ the entries a packet matched.
 
 | Statement | Supported? |
 |---|---|
-| A `NECESSARY` predicate keeps every packet its source rule would match, within the supported packet domain | Yes for rules without `service:`. For the 2,928 rules with `service:`, only on traffic whose service Snort has not identified, unless compiled with `--service-header-semantics snort3` (§6.2) |
+| A `NECESSARY` predicate keeps every packet its source rule would match, within the supported packet domain | Yes for port-based rules. For the 2,931 service-based rules (§6.2), only on traffic whose service Snort has not identified, unless compiled with `--service-header-semantics snort3` |
 | The deployed global plan marks candidate every packet a `NECESSARY` rule can alert on, within the domain | Yes except for non-TCP traffic of nine service-based rules on ports outside their headers: its port-free entries cover the rest (§6.2) |
 | A P4 candidate match means Snort would alert | No |
 | `EXACT = 0` means the compiler failed | No — it means no rule had all its semantics represented, and the classifier refuses to call partial preservation equivalence |

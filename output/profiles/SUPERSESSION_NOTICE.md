@@ -35,8 +35,9 @@ Do not start BMv2 from them: use `output/ids_prefilter.json`
 ## Service-based rules
 
 Added 2026-09-27. The predicates in every manifest and P4 artifact here, and
-in `output/`, constrain header ports and protocol for the 2,928 NECESSARY rules
-that declare `service:`. Snort 3 does not check those fields once it has
+in `output/`, constrain header ports and protocol for the 2,931 service-based
+NECESSARY rules: 2,928 declare `service:`, and three receive services from
+their DCE options (a count revised the same day from 2,928). Snort 3 does not check those fields once it has
 identified a matching service, so for these rules the predicates are
 necessary conditions only on traffic Snort evaluates with the full header.
 The artifacts are left unchanged. Details:

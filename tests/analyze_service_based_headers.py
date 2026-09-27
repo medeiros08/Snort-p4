@@ -40,10 +40,20 @@ nenhum:
     6 sem porta), registra a parte coberta
     o que sobraria de H_r mantendo so as condicoes de IP
 
-Regras que usam opcao especifica de servico (http_*, file_data...) sem
-`service:` explicito sao contadas a parte e ficam fora das contagens
-principais: o corpus diz que tambem viram service-based, mas o mecanismo nao
-foi confirmado no codigo.
+Regras sem `service:` explicito sao separadas em dois grupos, com o
+mecanismo do Snort 3.12.2.0:
+
+    protocolo de servico no cabecalho   `alert http ...`: parse_rule.cc poe o
+                                        servico na regra e a marca USER_MODE;
+                                        fp_eval_rtn (fp_detect.cc) forca
+                                        check_ports = 1, entao o cabecalho e
+                                        checado por inteiro e nao ha exposicao
+    servico implicito                   cabecalho de protocolo IP e opcao que
+                                        validate_services (fp_utils.cc) usa
+                                        para acrescentar servico: buffer
+                                        registrado por inspetor ou prefixo de
+                                        guess_service. Mesma exposicao das
+                                        regras com `service:`, medida a parte
 
 Codigos de saida:
     0   artefato gravado
@@ -58,7 +68,6 @@ from __future__ import annotations
 import hashlib
 import ipaddress
 import json
-import re
 import sys
 
 from collections import Counter
@@ -82,12 +91,30 @@ SAIDA = PROJECT_ROOT / "output" / "analysis" / "service_based_header_exposure.js
 CAMPOS_NAO_IP = {"src_port", "dst_port", "protocol", "tcp_flags", "flags"}
 CAMPOS_IP = {"src_ip", "dst_ip"}
 
-# Opcoes que o corpus trata como especificas de servico. So entram na
-# contagem separada de regras implicitas.
-OPCAO_DE_SERVICO = re.compile(
-    r"^(http_|file_data$|dce_|dnp3_|modbus_|sip_|ssl_state$|ssl_version$|gtp_|cip_"
-    r"|s7commplus_|iec104_|mms_|opcua_|js_data$|vba_data$|script_data$)"
+sys.path.insert(0, str(PROJECT_ROOT / "compiler"))
+from target_capability import (  # noqa: E402
+    IP_HEADER_PROTOCOLS,
+    SNORT3_GUESSED_SERVICE_PREFIXES,
+    SNORT3_SERVICE_BUFFERS,
 )
+
+# Servicos que os buffers DCE acrescentam: dce_tcp e dce_udp registram
+# dce_iface e dce_stub_data com o servico dcerpc, dce_smb com netbios-ssn
+# (src/service_inspectors/dce_rpc/dce_tcp.cc, dce_udp.cc, dce_smb.cc).
+SERVICOS_DE_BUFFER = {
+    "dce_iface": ["dcerpc", "netbios-ssn"],
+    "dce_stub_data": ["dcerpc", "netbios-ssn"],
+}
+
+
+def opcoes_que_implicam_servico(nomes) -> list[str]:
+    return sorted(
+        {
+            n
+            for n in nomes
+            if n in SNORT3_SERVICE_BUFFERS or n.startswith(SNORT3_GUESSED_SERVICE_PREFIXES)
+        }
+    )
 
 EVIDENCIA = {
     "snort_versao": "3.12.2.0",
@@ -95,6 +122,12 @@ EVIDENCIA = {
         "https://github.com/snort3/snort3/blob/3.12.2.0/src/detection/detection_options.cc",
         "https://github.com/snort3/snort3/blob/3.12.2.0/src/detection/rtn_checks.cc",
         "https://github.com/snort3/snort3/blob/3.12.2.0/src/parser/parse_rule.cc",
+        "https://github.com/snort3/snort3/blob/3.12.2.0/src/detection/fp_detect.cc",
+        "https://github.com/snort3/snort3/blob/3.12.2.0/src/detection/fp_utils.cc",
+        "https://github.com/snort3/snort3/blob/3.12.2.0/src/managers/inspector_manager.cc",
+        "https://github.com/snort3/snort3/blob/3.12.2.0/src/service_inspectors/dce_rpc/dce_tcp.cc",
+        "https://github.com/snort3/snort3/blob/3.12.2.0/src/service_inspectors/dce_rpc/dce_udp.cc",
+        "https://github.com/snort3/snort3/blob/3.12.2.0/src/service_inspectors/dce_rpc/dce_smb.cc",
     ],
     "documentacao": "docs/vendor/snort3/doc/user/concepts.txt:290-296",
 }
@@ -164,39 +197,17 @@ def cobertura(origem, destino, bidirecional: bool, entradas: list[dict]) -> str:
     return "nenhuma"
 
 
-def main() -> int:
-    for caminho in (MANIFESTO, PARTICAO_STRONG, *PLANOS.values()):
-        if not caminho.exists():
-            print(f"entrada ausente: {caminho}", file=sys.stderr)
-            return 1
-
-    regras = json.loads(MANIFESTO.read_text(encoding="utf-8"))["rules"]
-    elegiveis_strong = set(
-        json.loads(PARTICAO_STRONG.read_text(encoding="utf-8"))["sids_no_prefilter"]
-    )
-    sem_porta = {nome: _entradas_sem_porta(caminho) for nome, caminho in PLANOS.items()}
-
-    necessarias = [r for r in regras if r["classification"] == "NECESSARY"]
-    com_servico = []
-    implicitas = 0
-    for regra in necessarias:
-        opcoes = regra["parsed_rule"]["options"]
-        servicos = [
-            s.strip() for o in opcoes if o["name"] == "service" for s in o["value"].split(",")
-        ]
-        if servicos:
-            com_servico.append((regra, servicos))
-        elif any(OPCAO_DE_SERVICO.match(o["name"]) for o in opcoes):
-            implicitas += 1
+def medir(regras_com_servicos, elegiveis_strong: set, sem_porta: dict) -> dict:
+    """Exposicao e cobertura de um grupo de regras service-based."""
 
     expostas = []
     servicos_expostos = Counter()
     campos_de_h = Counter()
     so_ip_restante = Counter()
-    cobertura_por_plano = {nome: Counter() for nome in PLANOS}
+    cobertura_por_plano = {nome: Counter() for nome in sem_porta}
     nao_cobertas_global = []
 
-    for regra, servicos in com_servico:
+    for regra, servicos in regras_com_servicos:
         seletivos = {p["field"] for p in regra["selective_predicates"]}
         if not seletivos & CAMPOS_NAO_IP:
             continue
@@ -226,6 +237,59 @@ def main() -> int:
                     }
                 )
 
+    return {
+        "sids": sorted(expostas, key=int),
+        "elegiveis_no_strong_discriminator": len(set(expostas) & elegiveis_strong),
+        "campos_de_h_r": dict(campos_de_h.most_common()),
+        "servicos": dict(servicos_expostos.most_common()),
+        "mantendo_so_condicoes_de_ip": dict(so_ip_restante),
+        "cobertura_por_plano": {nome: dict(c) for nome, c in cobertura_por_plano.items()},
+        "global_sem_cobertura_total": nao_cobertas_global,
+    }
+
+
+def main() -> int:
+    for caminho in (MANIFESTO, PARTICAO_STRONG, *PLANOS.values()):
+        if not caminho.exists():
+            print(f"entrada ausente: {caminho}", file=sys.stderr)
+            return 1
+
+    regras = json.loads(MANIFESTO.read_text(encoding="utf-8"))["rules"]
+    elegiveis_strong = set(
+        json.loads(PARTICAO_STRONG.read_text(encoding="utf-8"))["sids_no_prefilter"]
+    )
+    sem_porta = {nome: _entradas_sem_porta(caminho) for nome, caminho in PLANOS.items()}
+
+    necessarias = [r for r in regras if r["classification"] == "NECESSARY"]
+    com_servico = []
+    implicitas = []
+    user_mode = []
+    for regra in necessarias:
+        opcoes = regra["parsed_rule"]["options"]
+        servicos = [
+            s.strip() for o in opcoes if o["name"] == "service" for s in o["value"].split(",")
+        ]
+        protocolo = str(regra["parsed_rule"]["protocol"]).lower()
+        if servicos:
+            com_servico.append((regra, servicos))
+        elif protocolo not in IP_HEADER_PROTOCOLS:
+            user_mode.append(str(regra["rule_id"]))
+        else:
+            implicantes = opcoes_que_implicam_servico(o["name"] for o in opcoes)
+            if implicantes:
+                # validate_services so recorre ao guess_service quando nenhum
+                # buffer acrescentou servico.
+                servicos = sorted(
+                    {s for n in implicantes for s in SERVICOS_DE_BUFFER.get(n, [])}
+                ) or ["nao_rastreado"]
+                implicitas.append((regra, servicos))
+
+    medida_explicita = medir(com_servico, elegiveis_strong, sem_porta)
+    medida_implicita = medir(implicitas, elegiveis_strong, sem_porta)
+    expostas = medida_explicita["sids"]
+    so_ip_restante = medida_explicita["mantendo_so_condicoes_de_ip"]
+    cobertura_por_plano = medida_explicita["cobertura_por_plano"]
+
     relatorio = {
         "analise": "service_based_header_exposure",
         "evidencia": EVIDENCIA,
@@ -234,24 +298,52 @@ def main() -> int:
         "manifesto_sha256": _sha256(MANIFESTO),
         "necessarias": len(necessarias),
         "necessarias_com_service_explicito": len(com_servico),
-        "necessarias_so_com_opcao_de_servico_nao_verificadas": implicitas,
+        "necessarias_com_protocolo_de_servico_no_cabecalho": {
+            "definicao": (
+                "sem service:, cabecalho com protocolo de servico: USER_MODE, portas "
+                "checadas (fp_detect.cc, fp_eval_rtn); nao expostas"
+            ),
+            "total": len(user_mode),
+            "sids": sorted(user_mode, key=int),
+        },
         "expostas": {
             "definicao": "NECESSARY com service: explicito e porta, protocolo ou flags entre os predicados seletivos",
             "total": len(expostas),
-            "elegiveis_no_strong_discriminator": len(set(expostas) & elegiveis_strong),
-            "campos_de_h_r": dict(campos_de_h.most_common()),
-            "servicos": dict(servicos_expostos.most_common()),
-            "mantendo_so_condicoes_de_ip": dict(so_ip_restante),
-            "sids": sorted(expostas, key=int),
+            "elegiveis_no_strong_discriminator": medida_explicita["elegiveis_no_strong_discriminator"],
+            "campos_de_h_r": medida_explicita["campos_de_h_r"],
+            "servicos": medida_explicita["servicos"],
+            "mantendo_so_condicoes_de_ip": so_ip_restante,
+            "sids": expostas,
         },
+        "expostas_por_servico_implicito": {
+            "definicao": (
+                "NECESSARY sem service:, cabecalho de protocolo IP, com opcao pela qual "
+                "validate_services (fp_utils.cc) acrescenta servico, e porta, protocolo "
+                "ou flags entre os predicados seletivos"
+            ),
+            "total": len(medida_implicita["sids"]),
+            "opcoes": {
+                str(r["rule_id"]): opcoes_que_implicam_servico(
+                    o["name"] for o in r["parsed_rule"]["options"]
+                )
+                for r, _ in implicitas
+            },
+            "elegiveis_no_strong_discriminator": medida_implicita["elegiveis_no_strong_discriminator"],
+            "campos_de_h_r": medida_implicita["campos_de_h_r"],
+            "servicos": medida_implicita["servicos"],
+            "mantendo_so_condicoes_de_ip": medida_implicita["mantendo_so_condicoes_de_ip"],
+            "cobertura_por_plano": medida_implicita["cobertura_por_plano"],
+            "sids": medida_implicita["sids"],
+        },
+        "service_based_total": len(expostas) + len(medida_implicita["sids"]),
         "cobertura_da_regiao_sem_porta_e_protocolo": {
             "definicao": (
                 "regiao {IPs da regra} x {qualquer porta} x {qualquer protocolo} contida "
                 "numa entrada instalada sem porta; so_tcp quando apenas uma entrada de "
-                "protocolo 6 sem porta a cobre"
+                "protocolo 6 sem porta a cobre. So as regras com service: explicito"
             ),
-            "por_plano": {nome: dict(contagem) for nome, contagem in cobertura_por_plano.items()},
-            "global_sem_cobertura_total": nao_cobertas_global,
+            "por_plano": cobertura_por_plano,
+            "global_sem_cobertura_total": medida_explicita["global_sem_cobertura_total"],
         },
         "planos": {nome: {"caminho": c.relative_to(PROJECT_ROOT).as_posix(), "sha256": _sha256(c)} for nome, c in PLANOS.items()},
     }
@@ -265,11 +357,13 @@ def main() -> int:
     print(f"NECESSARY                          {len(necessarias)}")
     print(f"  com service: explicito           {len(com_servico)}")
     print(f"  expostas (porta/proto/flags em H) {len(expostas)}")
-    print(f"    elegiveis no strong            {len(set(expostas) & elegiveis_strong)}")
-    print(f"    mantendo so IP                 {dict(so_ip_restante)}")
+    print(f"    elegiveis no strong            {medida_explicita['elegiveis_no_strong_discriminator']}")
+    print(f"    mantendo so IP                 {so_ip_restante}")
     for nome, contagem in cobertura_por_plano.items():
-        print(f"  cobertura no plano {nome:<21} {dict(contagem)}")
-    print(f"  so opcao de servico, nao verificadas {implicitas}")
+        print(f"  cobertura no plano {nome:<21} {contagem}")
+    print(f"  protocolo de servico no cabecalho {len(user_mode)} (USER_MODE, nao expostas)")
+    print(f"  servico implicito, expostas      {len(medida_implicita['sids'])} {medida_implicita['sids']}")
+    print(f"    cobertura                      {medida_implicita['cobertura_por_plano']}")
     print(f"gravado em {SAIDA.relative_to(PROJECT_ROOT).as_posix()}")
     return 0
 

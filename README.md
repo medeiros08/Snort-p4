@@ -111,8 +111,9 @@ tem dois modos:
     python compiler/generate_semantic_manifest.py --service-header-semantics snort3
 
 O `legacy` reproduz os artefatos congelados e trata o cabeçalho de uma regra
-com `service:` como o de uma regra por porta; o `snort3` delega porta e
-protocolo dessas regras. O efeito sem tráfego fica em
+service-based (com `service:` ou com serviço dado por opção, como as DCE)
+como o de uma regra por porta; o `snort3` delega porta e protocolo dessas
+regras. O efeito sem tráfego fica em
 `python tests/whatif_service_header_semantics.py`. Detalhes:
 `paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md`.
 
@@ -154,9 +155,10 @@ proveniência são versionados; o dump de runtime do BMv2 e as capturas
 `flow` ou `service`, que são delegados ao Snort. A categoria é alcançável,
 apenas vazia neste dataset.
 
-Para as 2.928 regras com `service:`, o predicado congelado restringe porta e
-protocolo, que o Snort 3 não checa quando identifica o serviço; ele só é
-condição necessária no tráfego avaliado com o cabeçalho inteiro. O plano
+Para as 2.931 regras service-based (2.928 com `service:` e 3 cujas opções
+DCE dão serviço), o predicado congelado restringe porta e protocolo, que o
+Snort 3 não checa quando identifica o serviço; ele só é condição necessária
+no tráfego avaliado com o cabeçalho inteiro. O plano
 global cobre essas regras pelas entradas sem porta; o strong-discriminator,
 não.
 

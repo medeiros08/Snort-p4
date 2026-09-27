@@ -1,8 +1,8 @@
 {
   "achado": "paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md",
   "analise": "service_header_semantics_whatif",
-  "commit": "b2fe9dcee768e2711518db525c338e0e30be678c",
-  "gerado_em": "2026-09-27T07:14:10+00:00",
+  "commit": "c9b89e94b216fc1d0a715fdc73610bb809cedf3d",
+  "gerado_em": "2026-09-27T17:41:50+00:00",
   "gerador": "tests/whatif_service_header_semantics.py",
   "legacy": {
     "backend": {

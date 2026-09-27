@@ -45,7 +45,8 @@ contagens do ruleset (reescrito em 2026-09-27; fechou o achado H10).
 
 - Source rules: 4017
 - EXACT: 0
-- NECESSARY: 4003 (2.928 com `service:` explícito; ver §10)
+- NECESSARY: 4003 (2.931 service-based: 2.928 com `service:` explícito e 3
+  com serviço implícito por opção DCE; ver §10)
 - UNSUPPORTED: 14
 - Instâncias de predicado geradas/expandidas/normalizadas: 6675
 - Matches únicos antes do lowering de flags: 327
@@ -171,12 +172,17 @@ portas e protocolo do cabeçalho não são checados; os endereços são
 `docs/vendor/snort3/doc/user/concepts.txt:290`). O compilador põe porta e
 protocolo no predicado. Então:
 
-- 2.928 das 4.003 NECESSARY têm `service:` e predicado com protocolo (quase
-  sempre porta): para elas `r ⇒ p_r` só vale onde o Snort avalia o cabeçalho
-  inteiro. Só com endereços, 2.921 continuariam seletivas.
-- Plano global: cobre a região inteira de 2.919 dessas regras pelas entradas
+- 2.931 das 4.003 NECESSARY são service-based e têm predicado com protocolo
+  (quase sempre porta): para elas `r ⇒ p_r` só vale onde o Snort avalia o
+  cabeçalho inteiro. São 2.928 com `service:` e 3 (529, 3238, 3239) que
+  recebem `dcerpc` e `netbios-ssn` de `dce_iface`/`dce_stub_data`
+  (`validate_services`, `src/detection/fp_utils.cc`). As 12 `alert http`
+  ficam de fora: `USER_MODE` mantém as portas checadas. Só com endereços,
+  2.924 continuariam seletivas.
+- Plano global: cobre a região inteira de 2.922 dessas regras pelas entradas
   sem porta (`p4-40`, `p4-138`) e só a parte TCP das outras 9.
-- Plano strong e candidate sets: não cobrem nenhuma.
+- Plano strong e candidate sets: não cobrem nenhuma das 2.877 que o strong
+  pré-filtra; as 3 DCE estão no fallback operacional.
 
 O manuscrito já está revisado para esse escopo (§4.5 e §7.2 do artigo). O
 compilador tem a semântica corrigida como opção,
