@@ -221,3 +221,23 @@ Introduction sentence split, the Methodology clause giving $B = 739$ and
 3,278 for the corrected compilation, and a clearer Limitations paragraph on
 the header-precision bounds, now backed by an artifact (§9, corrected
 there to 123 M1 rules outside the strong partition).
+
+## 11. Whole-Day Packet-Level Measurement
+
+`python tests/rederive_trace_metrics.py --janela quinta_inteira=Thursday-WorkingHours.pcap --sem-validacao --saida output/analysis/trace_metrics_full_thursday.json`
+read the raw pcapng (sha256 recorded in the artifact) at commit `6003105`.
+There are no frozen values for the whole day, so validation against them is
+off. The partitions are those of the windows (3,611 / 392 / 14 and
+739 / 3,257 / 21).
+
+| Quantity | legacy | snort3 |
+|---|---:|---:|
+| frames / parser-eligible | 9,322,025 / 9,240,405 | same |
+| global candidate rate | 100% | 100% |
+| strong candidate rate | 97.534% | 95.335% |
+| mean candidate set | 226.53 of 3,611 (93.73%) | 4.27 of 739 (99.42%) |
+| full-ruleset reduction | 84.25% | 18.29% |
+| protocol grouping reduction | 13.66% | 19.68% within 739 |
+
+It goes into External Validity only, as a check that the windows are not
+atypical of the day. No Snort alerts were computed for it.

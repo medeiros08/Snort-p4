@@ -1,0 +1,186 @@
+{
+  "analise": "trace_metrics_by_semantics",
+  "commit": "600310542d6ff835547aa0026c7fa5a300aec153",
+  "gerado_em": "2026-09-27T22:08:45+00:00",
+  "gerador": "tests/rederive_trace_metrics.py",
+  "janelas": {
+    "quinta_inteira": "C:/Users/amede/datasets/cicids2017/raw/Thursday-WorkingHours.pcap"
+  },
+  "janelas_sha256": {
+    "quinta_inteira": "38f8b1bb276849bf1721f7c4de22bebfa7f59a74e52286d4c0a37edbb118fe01"
+  },
+  "legacy": {
+    "janelas": {
+      "quinta_inteira": {
+        "candidate_set_agrupado": {
+          "protocol": {
+            "max": 3443,
+            "mean": 3117.9123466990895,
+            "median": 3439,
+            "min": 0,
+            "p90": 3443,
+            "p95": 3443,
+            "p99": 3443,
+            "reducao": {
+              "sobre_elegiveis_pct": 13.655155173107458,
+              "sobre_ruleset_pct": 12.275022486953214
+            }
+          },
+          "protocol_direction": {
+            "max": 3435,
+            "mean": 1667.0532318659193,
+            "median": 2468,
+            "min": 0,
+            "p90": 2472,
+            "p95": 2472,
+            "p99": 3429,
+            "reducao": {
+              "sobre_elegiveis_pct": 53.83402847228138,
+              "sobre_ruleset_pct": 48.392998957781444
+            }
+          },
+          "protocol_direction_service": {
+            "max": 2028,
+            "mean": 226.82024792203373,
+            "median": 27,
+            "min": 0,
+            "p90": 799,
+            "p95": 799,
+            "p99": 799,
+            "reducao": {
+              "sobre_elegiveis_pct": 93.71863063079387,
+              "sobre_ruleset_pct": 84.24644640472906
+            }
+          },
+          "protocol_service": {
+            "max": 2265,
+            "mean": 474.6730901946397,
+            "median": 37,
+            "min": 0,
+            "p90": 2024,
+            "p95": 2024,
+            "p99": 2024,
+            "reducao": {
+              "sobre_elegiveis_pct": 86.85480226544891,
+              "sobre_ruleset_pct": 78.07634826500772
+            }
+          }
+        },
+        "candidate_set_por_entrada": {
+          "max": 2024,
+          "mean": 226.5302169114882,
+          "median": 27,
+          "min": 0,
+          "p90": 799,
+          "p95": 799,
+          "p99": 799,
+          "reducao": {
+            "sobre_elegiveis_pct": 93.72666250591281,
+            "sobre_ruleset_pct": 84.2536664946107
+          }
+        },
+        "elegiveis": 9240405,
+        "global_candidato_pct": 100.0,
+        "global_candidatos": 9240405,
+        "media_candidate_set": 226.5302169114882,
+        "quadros": 9322025,
+        "strong_candidato_pct": 97.53397172526529,
+        "strong_candidatos": 9012534,
+        "strong_no_match": 227871
+      }
+    },
+    "particao": {
+      "elegiveis": 3611,
+      "fallback": 392,
+      "unsupported": 14
+    }
+  },
+  "nota": "Offline: parser espelhado do P4 e casador de entradas, o mesmo codigo das taxas strong congeladas. O snort3 e o pipeline com --service-header-semantics snort3 no commit registrado; nenhum dos seus planos foi instalado no BMv2.",
+  "snort3": {
+    "janelas": {
+      "quinta_inteira": {
+        "candidate_set_agrupado": {
+          "protocol": {
+            "max": 648,
+            "mean": 593.5291862207338,
+            "median": 642,
+            "min": 0,
+            "p90": 648,
+            "p95": 648,
+            "p99": 648,
+            "reducao": {
+              "sobre_elegiveis_pct": 19.68481918528636,
+              "sobre_ruleset_pct": 3.6213794816844946
+            }
+          },
+          "protocol_direction": {
+            "max": 641,
+            "mean": 328.7659403456883,
+            "median": 548,
+            "min": 0,
+            "p90": 552,
+            "p95": 552,
+            "p99": 552,
+            "reducao": {
+              "sobre_elegiveis_pct": 55.51205137406112,
+              "sobre_ruleset_pct": 10.212448584872092
+            }
+          },
+          "protocol_direction_service": {
+            "max": 301,
+            "mean": 7.435176380256061,
+            "median": 7,
+            "min": 0,
+            "p90": 13,
+            "p95": 13,
+            "p99": 13,
+            "reducao": {
+              "sobre_elegiveis_pct": 98.99388682269877,
+              "sobre_ruleset_pct": 18.211720777190543
+            }
+          },
+          "protocol_service": {
+            "max": 302,
+            "mean": 8.554885851864718,
+            "median": 8,
+            "min": 0,
+            "p90": 14,
+            "p95": 14,
+            "p99": 14,
+            "reducao": {
+              "sobre_elegiveis_pct": 98.84236997944997,
+              "sobre_ruleset_pct": 18.18384650605266
+            }
+          }
+        },
+        "candidate_set_por_entrada": {
+          "max": 296,
+          "mean": 4.2657743897588905,
+          "median": 3,
+          "min": 0,
+          "p90": 8,
+          "p95": 8,
+          "p99": 8,
+          "reducao": {
+            "sobre_elegiveis_pct": 99.42276395267132,
+            "sobre_ruleset_pct": 18.290620503117772
+          }
+        },
+        "elegiveis": 9240405,
+        "global_candidato_pct": 100.0,
+        "global_candidatos": 9240405,
+        "media_candidate_set": 4.2657743897588905,
+        "quadros": 9322025,
+        "strong_candidato_pct": 95.33518281936776,
+        "strong_candidatos": 8809357,
+        "strong_no_match": 431048
+      }
+    },
+    "particao": {
+      "elegiveis": 739,
+      "fallback": 3257,
+      "unsupported": 21
+    }
+  },
+  "validacao_contra_congelado": false
+}

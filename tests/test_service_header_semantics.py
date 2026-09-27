@@ -265,6 +265,30 @@ def test_metricas_de_trace_gravadas_e_coerentes():
             assert agrupado["mean"] >= medido["candidate_set_por_entrada"]["mean"] - 1e-9
 
 
+def test_metricas_do_dia_inteiro_coerentes():
+    # Medicao descritiva sobre a captura inteira: sem valor congelado, mas as
+    # particoes tem de ser as mesmas das janelas e o limite tem de valer.
+    import json
+
+    sys.path.insert(0, str(RAIZ / "tests"))
+    from rederive_trace_metrics import RULESET
+
+    dia = json.loads(
+        (RAIZ / "output" / "analysis" / "trace_metrics_full_thursday.json").read_text(encoding="utf-8")
+    )
+    janelas = json.loads(
+        (RAIZ / "output" / "analysis" / "trace_metrics_by_semantics.json").read_text(encoding="utf-8")
+    )
+    for semantica in ("legacy", "snort3"):
+        assert dia[semantica]["particao"] == janelas[semantica]["particao"]
+        particao = dia[semantica]["particao"]
+        limite = 100.0 * (1 - (particao["fallback"] + particao["unsupported"]) / RULESET)
+        medido = dia[semantica]["janelas"]["quinta_inteira"]
+        assert medido["quadros"] == 9322025
+        assert medido["global_candidato_pct"] == 100.0
+        assert medido["candidate_set_por_entrada"]["reducao"]["sobre_ruleset_pct"] <= limite + 1e-9
+
+
 def test_cobertura_de_alertas_gravada_e_coerente():
     import json
 
@@ -324,6 +348,7 @@ if __name__ == "__main__":
     test_snort3_mantem_portas_com_protocolo_de_servico_no_cabecalho()
     test_opcoes_do_ruleset_classificadas()
     test_metricas_de_trace_gravadas_e_coerentes()
+    test_metricas_do_dia_inteiro_coerentes()
     test_cobertura_de_alertas_gravada_e_coerente()
     test_tetos_de_precisao_de_cabecalho()
 

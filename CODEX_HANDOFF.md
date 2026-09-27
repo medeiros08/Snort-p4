@@ -279,6 +279,22 @@ Em ordem. As que restam exigem o rig.
    corrigidos. Resta decidir se o padrão do compilador vira `snort3`
    (regenera os artefatos congelados, com documento de supersessão) e medir os
    planos corrigidos no BMv2.
+
+   **Decisão do usuário: trocar o padrão para `snort3`?** O que muda:
+   - Regenera os artefatos do pipeline em `output/` (manifesto, entradas P4,
+     plano P4Runtime, `backend_validation.json`): 3.996 NECESSARY / 21
+     UNSUPPORTED, 235 entradas em vez de 331, strong com 739 elegíveis.
+     Os antigos ficam como congelados de referência, com documento de
+     supersessão; nada é sobrescrito sem ele.
+   - No artigo, as tabelas de backend, seletividade e candidate sets e o texto
+     de RQ1–RQ4 passam a ter dois conjuntos de números, ou os novos com os
+     antigos como histórico.
+   - Resultados medidos no BMv2 (taxa global pelos contadores, replay de
+     preservação, campanha end-to-end, 11 casos controlados) foram feitos com
+     o plano `legacy`; para continuarem sendo do data plane com o novo padrão,
+     precisam rodar de novo no rig.
+   - Sem trocar: o artigo já relata os dois (congelado + medição offline
+     `snort3` na §7.2), que é a opção de menor risco para submeter agora.
 3. **Replay de preservação no BMv2 corrigido** e **replay frame-exato do Brute
    Force** (87 frames). A rederivação offline já confere; falta a medição no
    data plane.
