@@ -1968,9 +1968,18 @@ candidate rate, and candidate rule set size. The high \textsc{Necessary}
 rate, the global candidate rate, and the observed reductions should therefore
 not be assumed to hold unchanged outside this configuration.
 
-Only selected Thursday CICIDS2017 windows were evaluated. The dataset is old
-relative to current production traffic, and its traffic mix may not reflect
-contemporary enterprise networks. Held-out Brute Force strengthens the
+Only selected Thursday CICIDS2017 windows were evaluated for alerts. For the
+packet-level quantities alone, we also measured the entire Thursday capture
+offline (9,322,025 frames, 9,240,405 parser-eligible), which contains the
+three windows. The global plan still marks every eligible packet as a
+candidate, and the strong-discriminator plan 97.534\%. The mean candidate set
+is 226.53 rules, a 93.73\% reduction within the P4-eligible partition, or
+84.25\% over the full ruleset; protocol grouping reduces it by 13.66\%. Under
+the corrected compilation of Section~\ref{sec:service-exposure}, the
+full-ruleset reduction is 18.29\%. The windows are therefore not atypical of
+the day, but Snort alerts were not computed for the rest of it. The dataset
+is old relative to current production traffic, and its traffic mix may not
+reflect contemporary enterprise networks. Held-out Brute Force strengthens the
 evidence within this experimental setup, but it does not establish broad
 real-world generalization to production networks, other datasets, or other
 IDS workloads.
