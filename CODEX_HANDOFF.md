@@ -27,8 +27,9 @@ Documentação conceitual: `docs/semantic_model.md`. O corpus normativo de Snort
 3, P4₁₆, p4c, BMv2 e P4Runtime fica em `docs/vendor/` (regenerável por
 `scripts/fetch_reference_docs.sh`; pins em `docs/vendor/MANIFEST.md`), e a
 skill `.claude/skills/snort3-p4` manda citar esse corpus antes de afirmar
-qualquer coisa sobre as linguagens. `docs/snort3_support_matrix.md` está
-incompleto (achado H10 da revisão de 2026-09-11).
+qualquer coisa sobre as linguagens. `docs/snort3_support_matrix.md` registra,
+construto por construto, o que o Snort 3 permite, o que o compilador faz e as
+contagens do ruleset (reescrito em 2026-09-27; fechou o achado H10).
 
 ## 3. Perfil ativo
 
