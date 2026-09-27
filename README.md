@@ -101,6 +101,33 @@ Todos os estágios falham com código diferente de zero quando o artefato que
 gravaram declara erro. Um build que termina com sucesso é um build cujos
 artefatos estão limpos.
 
+### Semântica de cabeçalho de regras service-based
+
+No Snort 3, quando o serviço identificado no fluxo é um dos da regra, porta
+e protocolo do cabeçalho não são checados (os endereços são). O manifesto
+tem dois modos:
+
+    python compiler/generate_semantic_manifest.py                                   # legacy, padrão
+    python compiler/generate_semantic_manifest.py --service-header-semantics snort3
+
+O `legacy` reproduz os artefatos congelados e trata o cabeçalho de uma regra
+com `service:` como o de uma regra por porta; o `snort3` delega porta e
+protocolo dessas regras. O efeito sem tráfego fica em
+`python tests/whatif_service_header_semantics.py`. Detalhes:
+`paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md`.
+
+### Campanha end-to-end
+
+Snort como oráculo e BMv2 como alvo, uma testemunha sintetizada por regra:
+
+    python tests/generate_campaign_cases.py --n 1000           # casos e pcap (qualquer máquina)
+    python tests/precheck_campaign_offline.py --casos output/campaign/e2e_1000
+    python tests/run_campaign_bmv2.py --casos output/campaign/e2e_1000   # no rig
+    python tests/analyze_campaign_attribution.py --casos output/campaign/e2e_1000
+
+`tests/generate_offport_service_cases.py` gera a variante com a testemunha
+HTTP fora da porta do cabeçalho, que testa o ponto acima no data plane.
+
 ## Reprodutibilidade
 
 Os artefatos em `output/` são reproduzíveis byte a byte a partir do código,
@@ -126,6 +153,12 @@ proveniência são versionados; o dump de runtime do BMv2 e as capturas
 `EXACT = 0` no ruleset avaliado: toda assinatura real carrega `content`,
 `flow` ou `service`, que são delegados ao Snort. A categoria é alcançável,
 apenas vazia neste dataset.
+
+Para as 2.928 regras com `service:`, o predicado congelado restringe porta e
+protocolo, que o Snort 3 não checa quando identifica o serviço; ele só é
+condição necessária no tráfego avaliado com o cabeçalho inteiro. O plano
+global cobre essas regras pelas entradas sem porta; o strong-discriminator,
+não.
 
 A avaliação usa um ruleset (snort3-community, 4.017 regras), um perfil e um
 dataset (CIC-IDS2017). Não há medição de throughput, latência nem validação
