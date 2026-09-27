@@ -622,6 +622,24 @@ def rule_services(semantic_rule):
     ]
 
 
+def service_skipped_fields(semantic_rule):
+    """Header fields a service match makes Snort 3 skip for this rule.
+
+    The TCP flags option returns NO_MATCH on a packet without a TCP header
+    (Snort 3.12.2.0, src/ips_options/ips_flags.cc, TcpFlagOption::eval), so a
+    rule carrying `flags` can only alert on TCP and its protocol stays a
+    necessary condition even when the header check is skipped.
+    """
+
+    skipped = set(SERVICE_SKIPPED_HEADER_FIELDS)
+    if any(
+        predicate.kind == "HEADER" and predicate.field == "flags"
+        for predicate in semantic_rule.predicates
+    ):
+        skipped.discard("protocol")
+    return skipped
+
+
 def assess_rule(
     semantic_rule,
     service_header_semantics="legacy",
@@ -649,6 +667,11 @@ def assess_rule(
         service_header_semantics == "snort3"
         and bool(rule_services(assessed_rule))
     )
+    skipped_fields = (
+        service_skipped_fields(assessed_rule)
+        if service_based
+        else set()
+    )
 
     for predicate in (
         assessed_rule.predicates
@@ -663,10 +686,7 @@ def assess_rule(
         ):
             continue
 
-        if (
-            service_based
-            and predicate.field in SERVICE_SKIPPED_HEADER_FIELDS
-        ):
+        if predicate.field in skipped_fields:
             treatment, reason = (
                 "DELEGATED",
                 "service_based_header_not_checked_on_service_match",
