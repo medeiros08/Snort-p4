@@ -155,3 +155,24 @@ Table `tab:grouped`, the RQ4 answer, the Discussion subsection now titled "Why
 Coarse Grouping Does Not Help", the Limitations, and the Conclusion. Nothing
 frozen was rewritten. The measurements are offline, and no plan of the
 corrected compilation has been installed on BMv2.
+
+### 8.1 Observed Alerts Under Both Semantics
+
+`tests/rederive_alert_coverage_by_semantics.py` →
+`output/analysis/alert_coverage_by_semantics.json` repeats, over the cut
+windows, the event-level audit of the strong-discriminator plan. It maps each
+alert of `baseline_full.jsonl` to the frame with the same `pkt_num` and
+checks that the frame's addresses are the alert's. All 3,069 match: 3,068
+directly, and one (Brute Force `pkt_num` 776606, SID 650) on the
+reverse-direction frame that flushed the reassembled data.
+
+| | SQLi | XSS | Brute Force |
+|---|---:|---:|---:|
+| alerts | 150 | 528 | 2,391 |
+| legacy: covered in the candidate set / fallback / missing | 150 / 0 / 0 | 521 / 7 / 0 | 2,289 / 102 / 0 (frozen audit reproduced) |
+| snort3: covered / fallback / missing | 0 / 150 / 0 | 0 / 528 / 0 | 0 / 2,391 / 0 |
+
+Under `snort3`, SID 254 (`service:dns`, 2,960 of the 3,069 alerts) keeps only
+its `HOME_NET` destination and becomes operational fallback, like the other
+four SIDs. No alert is lost, and none exercises the corrected candidate sets.
+The manuscript's §7.2 and RQ4 answer say so.

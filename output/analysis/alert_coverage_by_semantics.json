@@ -1,0 +1,151 @@
+{
+  "alertas_no_quadro_de_sentido_inverso": {
+    "bruteforce": [
+      {
+        "pkt_num": 776606,
+        "sid": 650
+      }
+    ],
+    "sqli": [],
+    "xss": []
+  },
+  "analise": "alert_coverage_by_semantics",
+  "commit": "1cbd9a49bc692f15fc0ae1ed3a71ea8c7fd21849",
+  "gerado_em": "2026-09-27T21:59:06+00:00",
+  "gerador": "tests/rederive_alert_coverage_by_semantics.py",
+  "janelas": {
+    "bruteforce": "C:/Users/amede/datasets/cicids2017/windows/thursday_web_bruteforce.pcap",
+    "sqli": "C:/Users/amede/datasets/cicids2017/windows/thursday_web_sqli.pcap",
+    "xss": "C:/Users/amede/datasets/cicids2017/windows/thursday_web_xss.pcap"
+  },
+  "janelas_sha256": {
+    "bruteforce": "c41480e5d9494ab56325c9b53d23301b0c182230ee1cf6af50f5489010d5edeb",
+    "sqli": "7e36b2e25a8846b0019a2049a3e74e14818340be350e0ae25022de75dd24859d",
+    "xss": "13281f8d7133e0c8aa6286904e3d3e2f2ee4b945654dac444526f5f39bb79fe7"
+  },
+  "legacy": {
+    "bruteforce": {
+      "alertas": 2391,
+      "cobertos": 2289,
+      "dominio": 0,
+      "elegiveis": 2289,
+      "fallback": 102,
+      "faltando": 0,
+      "global_candidato": 2391,
+      "por_sid": {
+        "1394": {
+          "fallback": 1
+        },
+        "254": {
+          "cobertos": 2289
+        },
+        "399": {
+          "fallback": 2
+        },
+        "402": {
+          "fallback": 97
+        },
+        "650": {
+          "fallback": 2
+        }
+      },
+      "sid_desconhecida": 0
+    },
+    "sqli": {
+      "alertas": 150,
+      "cobertos": 150,
+      "dominio": 0,
+      "elegiveis": 150,
+      "fallback": 0,
+      "faltando": 0,
+      "global_candidato": 150,
+      "por_sid": {
+        "254": {
+          "cobertos": 150
+        }
+      },
+      "sid_desconhecida": 0
+    },
+    "xss": {
+      "alertas": 528,
+      "cobertos": 521,
+      "dominio": 0,
+      "elegiveis": 521,
+      "fallback": 7,
+      "faltando": 0,
+      "global_candidato": 528,
+      "por_sid": {
+        "254": {
+          "cobertos": 521
+        },
+        "402": {
+          "fallback": 7
+        }
+      },
+      "sid_desconhecida": 0
+    }
+  },
+  "nota": "Pertinencia por evento, offline: parser espelhado do P4 e casador de entradas. Enderecos de cada alerta conferidos com o quadro de mesmo pkt_num; alertas de dados remontados saem no quadro do sentido oposto e sao listados.",
+  "snort3": {
+    "bruteforce": {
+      "alertas": 2391,
+      "cobertos": 0,
+      "dominio": 0,
+      "elegiveis": 0,
+      "fallback": 2391,
+      "faltando": 0,
+      "global_candidato": 2391,
+      "por_sid": {
+        "1394": {
+          "fallback": 1
+        },
+        "254": {
+          "fallback": 2289
+        },
+        "399": {
+          "fallback": 2
+        },
+        "402": {
+          "fallback": 97
+        },
+        "650": {
+          "fallback": 2
+        }
+      },
+      "sid_desconhecida": 0
+    },
+    "sqli": {
+      "alertas": 150,
+      "cobertos": 0,
+      "dominio": 0,
+      "elegiveis": 0,
+      "fallback": 150,
+      "faltando": 0,
+      "global_candidato": 150,
+      "por_sid": {
+        "254": {
+          "fallback": 150
+        }
+      },
+      "sid_desconhecida": 0
+    },
+    "xss": {
+      "alertas": 528,
+      "cobertos": 0,
+      "dominio": 0,
+      "elegiveis": 0,
+      "fallback": 528,
+      "faltando": 0,
+      "global_candidato": 528,
+      "por_sid": {
+        "254": {
+          "fallback": 521
+        },
+        "402": {
+          "fallback": 7
+        }
+      },
+      "sid_desconhecida": 0
+    }
+  }
+}

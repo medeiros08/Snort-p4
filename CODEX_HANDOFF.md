@@ -270,7 +270,13 @@ Em ordem. As que restam exigem o rig.
    global 100%; strong 92,298% / 92,173% / 94,885% (SQLi/XSS/BF); C(x) médio
    3,97 / 3,94 / 4,48 de 739; redução sobre o ruleset 18,30% / 18,30% /
    18,29%. Saída: `output/analysis/trace_metrics_by_semantics.json`; números
-   no manuscrito (§7.2). Resta decidir se o padrão do compilador vira `snort3`
+   no manuscrito (§7.2). Auditoria de alertas
+   (`tests/rederive_alert_coverage_by_semantics.py` →
+   `output/analysis/alert_coverage_by_semantics.json`): o legacy reproduz
+   2.289 / 102 / 0; no `snort3` nenhum dos 3.069 alertas se perde, mas todos
+   passam a vir de regras em fallback (a sid 254, `service:dns`, fica só com o
+   destino `HOME_NET`), então os traces não exercitam os candidate sets
+   corrigidos. Resta decidir se o padrão do compilador vira `snort3`
    (regenera os artefatos congelados, com documento de supersessão) e medir os
    planos corrigidos no BMv2.
 3. **Replay de preservação no BMv2 corrigido** e **replay frame-exato do Brute
