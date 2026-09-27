@@ -1,0 +1,94 @@
+{
+  "achado": "paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md",
+  "analise": "service_header_semantics_whatif",
+  "commit": "b2fe9dcee768e2711518db525c338e0e30be678c",
+  "gerado_em": "2026-09-27T07:14:10+00:00",
+  "gerador": "tests/whatif_service_header_semantics.py",
+  "legacy": {
+    "backend": {
+      "campos_por_entrada": {
+        "dst_ip": 1,
+        "dst_ip,dst_port,protocol": 151,
+        "dst_ip,dst_port,protocol,src_ip": 2,
+        "dst_ip,dst_port,protocol,src_ip,src_port": 1,
+        "dst_ip,dst_port,protocol,src_port": 7,
+        "dst_ip,dst_port,protocol,src_port,tcp_flags": 1,
+        "dst_ip,dst_port,protocol,tcp_flags": 6,
+        "dst_ip,protocol": 3,
+        "dst_ip,protocol,src_ip": 1,
+        "dst_ip,protocol,src_port": 32,
+        "dst_ip,protocol,src_port,tcp_flags": 3,
+        "dst_ip,protocol,tcp_flags": 4,
+        "dst_ip,src_port": 2,
+        "dst_port,protocol": 7,
+        "dst_port,protocol,src_ip": 42,
+        "dst_port,protocol,src_ip,src_port": 1,
+        "dst_port,protocol,src_port": 2,
+        "protocol": 1,
+        "protocol,src_ip": 4,
+        "protocol,src_ip,src_port": 53,
+        "protocol,src_ip,src_port,tcp_flags": 3,
+        "protocol,src_port": 3,
+        "src_ip": 1
+      },
+      "entradas_finais": 331,
+      "entradas_so_de_endereco": 2,
+      "instancias_de_predicado": 6675,
+      "matches_unicos_antes_das_flags": 327
+    },
+    "classificacao": {
+      "EXACT": 0,
+      "NECESSARY": 4003,
+      "UNSUPPORTED": 14
+    },
+    "strong_discriminator": {
+      "elegiveis": 3611,
+      "entradas_retidas": 322,
+      "fallback_operacional": 392
+    }
+  },
+  "nota": "Sem trafego. O legacy reproduz a particao strong congelada; o snort3 e o pipeline com --service-header-semantics snort3.",
+  "snort3": {
+    "backend": {
+      "campos_por_entrada": {
+        "dst_ip": 2,
+        "dst_ip,dst_port,protocol": 111,
+        "dst_ip,dst_port,protocol,src_ip,src_port": 1,
+        "dst_ip,dst_port,protocol,src_port": 4,
+        "dst_ip,dst_port,protocol,src_port,tcp_flags": 1,
+        "dst_ip,dst_port,protocol,tcp_flags": 3,
+        "dst_ip,protocol": 3,
+        "dst_ip,protocol,src_ip": 1,
+        "dst_ip,protocol,src_port": 20,
+        "dst_ip,protocol,src_port,tcp_flags": 1,
+        "dst_ip,protocol,tcp_flags": 7,
+        "dst_ip,src_ip": 1,
+        "dst_ip,src_port": 2,
+        "dst_port,protocol": 3,
+        "dst_port,protocol,src_ip": 23,
+        "dst_port,protocol,src_ip,src_port": 1,
+        "dst_port,protocol,src_port": 2,
+        "protocol": 1,
+        "protocol,src_ip": 4,
+        "protocol,src_ip,src_port": 37,
+        "protocol,src_ip,src_port,tcp_flags": 3,
+        "protocol,src_port": 3,
+        "src_ip": 1
+      },
+      "entradas_finais": 235,
+      "entradas_so_de_endereco": 4,
+      "instancias_de_predicado": 4040,
+      "matches_unicos_antes_das_flags": 231
+    },
+    "classificacao": {
+      "EXACT": 0,
+      "NECESSARY": 3996,
+      "UNSUPPORTED": 21
+    },
+    "strong_discriminator": {
+      "elegiveis": 739,
+      "entradas_retidas": 225,
+      "fallback_operacional": 3257
+    }
+  }
+}

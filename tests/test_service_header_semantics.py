@@ -128,6 +128,32 @@ def test_semantica_desconhecida_e_recusada():
     raise AssertionError("semantica desconhecida deveria falhar")
 
 
+def test_whatif_gravado_e_coerente():
+    import json
+
+    caminho = RAIZ / "output" / "analysis" / "service_header_semantics_whatif.json"
+    relatorio = json.loads(caminho.read_text(encoding="utf-8"))
+
+    legacy = relatorio["legacy"]
+    snort3 = relatorio["snort3"]
+
+    # O calculo reproduz a particao strong congelada antes de medir o snort3.
+    assert legacy["strong_discriminator"] == {
+        "elegiveis": 3611,
+        "fallback_operacional": 392,
+        "entradas_retidas": 322,
+    }
+    for modo in (legacy, snort3):
+        classes = modo["classificacao"]
+        assert sum(classes.values()) == 4017
+        particao = modo["strong_discriminator"]
+        assert particao["elegiveis"] + particao["fallback_operacional"] == classes["NECESSARY"]
+
+    # Delegar porta e protocolo so alarga: nenhuma regra ganha elegibilidade.
+    assert snort3["strong_discriminator"]["elegiveis"] <= legacy["strong_discriminator"]["elegiveis"]
+    assert snort3["classificacao"]["UNSUPPORTED"] >= legacy["classificacao"]["UNSUPPORTED"]
+
+
 if __name__ == "__main__":
 
     test_padrao_e_legacy()
@@ -138,6 +164,7 @@ if __name__ == "__main__":
     test_snort3_so_alarga()
     test_snort3_mantem_protocolo_quando_ha_flags()
     test_semantica_desconhecida_e_recusada()
+    test_whatif_gravado_e_coerente()
 
     print(
         "Service header semantics tests passed."
