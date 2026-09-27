@@ -32,9 +32,10 @@ Background from the pinned Snort 3 corpus. No frozen number is changed.
 | Strong criterion and nine removed IDs | `output/analysis/operational_policy_simulation.json` `policies.strong_discriminator.install_entries.removed_entry_ids`; matches read from `output/p4_install_entries.json` |
 | 85.43%, 86.40%, 81.81% | (1 − (mean + 406)/4017) × 100 with the frozen means 179.2848, 140.4900, 324.5181; equals `FINAL_SCIENTIFIC_CLOSING_AUDIT.md` §10 |
 | 2,928 service-based NECESSARY rules; 2,877 P4-eligible; 2,921 keep an address predicate; 7 would not | `output/analysis/service_based_header_exposure.json` (`tests/analyze_service_based_headers.py`) |
-| 1,075 NECESSARY rules without a declared service | 4,003 − 2,928 |
+| 1,072 NECESSARY rules whose header ports Snort checks | 4,003 − 2,928 − 3: the 1,075 without `service:` minus the three that use service-specific options (529, 3238, 3239); includes the 12 `alert http` header rules, which `USER_MODE` keeps port-checked |
+| 927 payload-negatives candidate without alert; 7 with alert | `e2e_1000_v4/resultado_strong.jsonl`: candidate payload-negatives by alerted role; the 7 rules (622, 630, 1257, 1415, 1417, 1420, 1421) have no `content` |
 | Global plan covers 2,919 fully and 9 on TCP only; strong plan covers none | same artifact, `cobertura_da_regiao_sem_porta_e_protocolo` |
-| Service counts http 2,316, imap 150, pop3 138, smtp 131 | same artifact, `expostas.servicos` |
+| Service counts http 2,314, imap 150, pop3 138, smtp 131 | same artifact, `expostas.servicos` (an earlier revision printed 2,316, the count over all 4,017 rules) |
 | Snort 3 semantics: 3,996 / 21, 235 final entries, 739 eligible, 3,257 fallback | `output/analysis/service_header_semantics_whatif.json` (`tests/whatif_service_header_semantics.py`; the legacy side reproduces 3,611 / 392 / 322) |
 | 18.40% bound | 739 / 4017, i.e. 1 − (3,257 + 21) / 4,017 |
 
@@ -58,11 +59,38 @@ status`: all five sources aligned) or by the Snort 3.12.2.0 source.
 - `tests/test_service_based_headers.py`: coverage classification on synthetic
   entries, the port filter, and coherence of the exposure and re-derivation
   artifacts.
-- Suite: 17 pass, 3 environment (grpc), 0 fail.
+- `tests/test_service_header_semantics.py`: the `snort3` manifest mode, the
+  flags exception, and coherence of the what-if artifact.
+- Suite: 19 pass, 3 environment (grpc), 0 fail.
 
-## 5. Build Validation
+## 5. Adversarial Review of the Full Manuscript
 
-MiKTeX, scratch copy, pdflatex + bibtex + pdflatex ×3: exit 0, no undefined
-references or citations, the same ten pre-existing overfull boxes, 42 pages.
-Pages with the new Background, §4.5, §7.2, Table 6, and the bibliography were
-inspected.
+After the items above, the whole manuscript was reviewed adversarially
+against the artifacts and the Snort 3.12.2.0 source. Every finding was
+checked before it was applied; one was rejected.
+
+| Finding | Change |
+|---|---|
+| Abstract led with the service-based caveat before the results it qualifies | Reordered: results first, then the scope of the necessary relation; "is meant to retain" replaces "conservatively retains" |
+| Proposed pipeline read as one deployed system with BMv2 forwarding to Snort | Methodology states that it is evaluated by composition, that no component forwards from BMv2 to Snort, and defines $A_{\mathrm{pipeline}}$ as the union of the two partition runs |
+| 1,075 "rules without a declared service" counted the 12 `alert http` rules and three rules with service-specific options inconsistently | 1,060 port-based + 12 `USER_MODE` = 1,072 whose header ports Snort checks; the three are declared unconfirmed (RQ1, Results, Conclusion) |
+| §4.5 said the documentation states "the same behavior" | "a coarser form of this rule", and the `USER_MODE` exception is stated with its source files |
+| http 2,316 | 2,314 (the count over the 2,928; 2,316 is over all 4,017 rules) |
+| "nearly all" constrain a port | 2,877 |
+| Strong plan's port-free entries described as none | It removes nine and keeps six (TCP flags or other addresses), none of which contains an exposed rule's region |
+| Campaign payload-negatives 934 candidate without alert | 927 without alert and 7 with alert (rules with no `content`), under the strong plan |
+| Witness attribution overstated | Each confirmed witness is matched by its own rule's entries and also by an entry of another rule |
+| RQ3 called the global prefilter conservative without exception | Except non-TCP traffic of nine service-based rules; the strong ablation is not conservative for service-based rules |
+| SQLi 95.04% could be read as the installation-state reduction | Stated as a coincidence with Table 3 |
+| "Why no experiment observed it" relied on trace checks | Under the global plan such an alert falls on a packet `p4-40`, `p4-138` or `p4-106` already marks; only the offline strong audit could see it, and it found no missing event |
+| Stage numbering, unreferenced Tables 1 and 3, witness-exclusion reason | Stages (i)–(iii) aligned with Figure 1; both tables referenced; exclusions split into unsatisfiable state and generator limits |
+| Rejected: the 12 `alert http` header rules are exposed | `SetupRTNFuncList` marks them `USER_MODE` and `fp_eval_rtn` forces `check_ports = 1`; the finding led only to the wording fix in §4.5 |
+
+## 6. Build Validation
+
+MiKTeX, scratch copy, pdflatex + bibtex + pdflatex ×2, sources compared with
+`cmp` against the repository: exit 0, no undefined references or
+citations, 43 pages. `microtype` and `\emergencystretch` were added and the
+related-work table narrowed, which removed every overfull and underfull box
+(ten overfull before this revision). Pages with the new Background, §4.5,
+§7.2, §7.10, Table 6, and the bibliography were inspected.

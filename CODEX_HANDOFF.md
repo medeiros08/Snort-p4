@@ -221,13 +221,14 @@ master arbitration, pipeline configuration e leitura das entradas.
   **Tem LaTeX** (MiKTeX em `AppData\Local\Programs\MiKTeX\miktex\bin\x64\`):
   compilar com pdflatex, bibtex, pdflatex, pdflatex e `--enable-installer`;
   `latexmk` trava. Numa cópia isolada, para não sujar `paper/IDS_P4/`.
-- Suíte: `python tests/run_tests.py` → 17 passam, 3 não executam (grpc).
+- Suíte: `python tests/run_tests.py` → 19 passam, 3 não executam (grpc).
 
 ## 14. Manuscrito
 
-42 páginas. Duas figuras TikZ (pipeline; visão conceitual) e nove tabelas. A
+43 páginas, sem overfull nem underfull box. Duas figuras TikZ (pipeline; visão conceitual) e nove tabelas. A
 revisão pré-submissão de 2026-09-27 fechou os itens C1, C4, C5, H2, H5 e H6 da
-revisão de 2026-09-11 e integrou o achado service-based; origem de cada
+revisão de 2026-09-11, integrou o achado service-based e aplicou uma revisão
+adversarial do manuscrito inteiro (§5 da auditoria abaixo); origem de cada
 número em `paper/IDS_P4/REVIEW_ITEMS_RESOLUTION_AUDIT.md` e
 `paper/IDS_P4/CAMPAIGN_INTEGRATION_AUDIT.md`. O `main.pdf` versionado
 corresponde ao `main.tex` atual.
