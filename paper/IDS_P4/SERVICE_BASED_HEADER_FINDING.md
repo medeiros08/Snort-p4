@@ -3,7 +3,8 @@
 **Date:** 2026-09-27
 **Status:** finding confirmed from the Snort 3.12.2.0 source and documentation;
 not yet reproduced on the data plane. The manuscript is revised to state the
-scope of its claims; the compiler is unchanged in this revision.
+scope of its claims. The compiler implements the corrected semantics as an
+option (§8); the frozen artifacts still use the original one.
 
 ## 1. Summary
 
@@ -168,11 +169,28 @@ changes.
 
 ## 8. Required Before Claims Can Be Restored
 
-1. **Compiler.** For rules with services, mark header port and protocol
-   predicates as delegated with a reason such as
-   `service_based_header_not_evaluated`, keep address predicates, and
-   regenerate. This changes the frozen artifacts and must go through a
-   supersession document.
+1. **Compiler.** Implemented as an option, not as the default:
+   `python compiler/generate_semantic_manifest.py --service-header-semantics snort3`
+   delegates `protocol`, `src_port` and `dst_port` of rules with `service:`
+   (reason `service_based_header_not_checked_on_service_match`) and keeps the
+   protocol when the rule carries `flags`, because the TCP flags option
+   returns NO_MATCH without a TCP header (`src/ips_options/ips_flags.cc`,
+   `TcpFlagOption::eval`). The default `legacy` regenerates the frozen
+   manifest byte for byte. Switching the default regenerates every frozen
+   artifact and must go through a supersession document together with the
+   trace re-runs of item 3.
+
+   Structural effect, from `tests/whatif_service_header_semantics.py` →
+   `output/analysis/service_header_semantics_whatif.json` (the same policy
+   code first reproduces the frozen partition 3,611 / 392 / 322):
+
+   | | legacy (frozen) | snort3 |
+   |---|---:|---:|
+   | NECESSARY / UNSUPPORTED | 4,003 / 14 | 3,996 / 21 |
+   | predicate instances → final entries | 6,675 → 331 | 4,040 → 235 |
+   | strong-discriminator eligible / fallback | 3,611 / 392 | 739 / 3,257 |
+   | lower bound on applicable rules per packet | 406 | 3,278 |
+   | upper bound on full-ruleset candidate reduction | 89.89% | 18.40% |
 2. **Data plane test (rig).** Prepared: `tests/generate_offport_service_cases.py`
    writes `output/campaign/servico_fora_do_cabecalho/` (200 HTTP rules with
    `service:http`, seed 20260927, 1,600 frames, pcap sha256 `b150423d…`). Each

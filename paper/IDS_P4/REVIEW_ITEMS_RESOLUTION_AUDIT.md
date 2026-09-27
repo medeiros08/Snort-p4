@@ -35,6 +35,8 @@ Background from the pinned Snort 3 corpus. No frozen number is changed.
 | 1,075 NECESSARY rules without a declared service | 4,003 − 2,928 |
 | Global plan covers 2,919 fully and 9 on TCP only; strong plan covers none | same artifact, `cobertura_da_regiao_sem_porta_e_protocolo` |
 | Service counts http 2,316, imap 150, pop3 138, smtp 131 | same artifact, `expostas.servicos` |
+| Snort 3 semantics: 3,996 / 21, 235 final entries, 739 eligible, 3,257 fallback | `output/analysis/service_header_semantics_whatif.json` (`tests/whatif_service_header_semantics.py`; the legacy side reproduces 3,611 / 392 / 322) |
+| 18.40% bound | 739 / 4017, i.e. 1 − (3,257 + 21) / 4,017 |
 
 ## 3. Snort 3 and P4 Statements Added to the Manuscript
 

@@ -178,8 +178,12 @@ protocolo no predicado. Então:
 - Plano strong e candidate sets: não cobrem nenhuma.
 
 O manuscrito já está revisado para esse escopo (§4.5 e §7.2 do artigo). O
-compilador **não** foi alterado, para não quebrar a reprodutibilidade dos
-artefatos congelados antes da rodada no rig.
+compilador tem a semântica corrigida como opção,
+`generate_semantic_manifest.py --service-header-semantics snort3` (padrão
+`legacy`, que regenera o congelado byte a byte). Efeito estrutural, sem
+tráfego (`tests/whatif_service_header_semantics.py`): 3.996 NECESSARY / 21
+UNSUPPORTED, 235 entradas finais, strong com 739 elegíveis e 3.257 em
+fallback; redução de candidate set sobre o ruleset limitada a 18,40%.
 
 ## 11. Metodologia de replay
 
@@ -243,10 +247,11 @@ Em ordem. As três primeiras exigem o rig.
 
    Esperado se o código lido estiver certo: global CONFIRMADO, strong
    VIOLACAO (código de saída 1 é o esperado). Tudo VACUO invalida a leitura.
-2. **Corrigir o compilador e recalcular.** Para regra com serviço, delegar
-   porta e protocolo com motivo próprio e manter só os endereços; regenerar
-   artefatos com documento de supersessão; recalcular a partição strong, as
-   taxas strong e os candidate sets sobre os traces.
+2. **Adotar a semântica corrigida e recalcular.** A opção `snort3` já existe.
+   Falta torná-la o padrão, regenerar os artefatos com documento de
+   supersessão e recalcular sobre os traces as taxas strong e os candidate
+   sets (a partição strong estrutural já está em
+   `output/analysis/service_header_semantics_whatif.json`).
 3. **Replay de preservação no BMv2 corrigido** e **replay frame-exato do Brute
    Force** (87 frames). A rederivação offline já confere; falta a medição no
    data plane.

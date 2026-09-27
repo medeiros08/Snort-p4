@@ -44,7 +44,9 @@ header ports and protocol of service-based rules, and 2,928 of the necessary
 rules are service-based with predicates that constrain both. The global plan
 still covers all but nine of them through its port-free entries; a
 strong-discriminator ablation that removes those entries, and the candidate
-rule sets derived from it, do not. Despite this semantic coverage, the original global binary
+rule sets derived from it, do not; recompiled with Snort~3's semantics, that
+ablation keeps 739 rules eligible, which bounds the full-ruleset candidate
+reduction at 18.4\%. Despite this semantic coverage, the original global binary
 prefilter marked 100\% of parser-eligible packets as candidates across SQLi,
 XSS, and held-out Brute Force traces. Causal analysis indicates that this
 outcome reflects both broad necessary predicates and distributed union
@@ -1132,6 +1134,23 @@ headers. The 322-entry strong-discriminator plan removed exactly the
 port-free entries, so it contains the region for none of the 2,928 rules;
 2,877 of them are among its 3,611 P4-eligible rules.
 
+Compiling with Snort~3's rule changes the structural results but not their
+direction. The compiler provides this as an option: ports and protocol of
+service-based rules are delegated, and the protocol is kept only for rules
+whose \texttt{flags} option already restricts them to TCP. Seven rules lose
+their last selective predicate, giving 3,996 \textsc{Necessary} and 21
+\textsc{Unsupported} rules, and the backend produces 235 final entries
+instead of 331. Applied unchanged, the strong-discriminator policy keeps only
+739 rules P4-eligible and places 3,257 in operational fallback, because an
+address-only predicate on \texttt{HOME\_NET} is not a strong discriminator;
+applied to the frozen artifacts, the same computation reproduces the frozen
+3,611, 392, and 322. Under the accounting of Table~\ref{tab:candidate-rules},
+in which fallback rules apply to every packet, no packet's candidate set
+could then fall below 3,278 rules, which bounds the full-ruleset reduction at
+18.40\%, against the 81.81\% measured on held-out Brute Force with the frozen
+predicates. These are structural results computed without traffic; the
+trace-level rates under the corrected predicates were not measured.
+
 No experiment in this paper was designed to exercise this case. The
 trace-based checks would reveal it only as a missed alert, and none was
 observed; the end-to-end campaign places each witness on a port of the rule's
@@ -1485,10 +1504,13 @@ Strong discriminator & 322 & 851 & 0 & 2 & 107 & 40 & 153 \\
 observed candidate alert events in the three traces, and the end-to-end
 campaign observed no packet on which Snort raised a sampled rule's alert
 while the data plane reported no-match, across 923 confirmed rules under the
-global plan and 851 under the strong-discriminator plan. The predicates also exposed substantially smaller
-per-packet candidate rule sets; that result remains an offline feasibility
-measurement because dynamic stateful candidate-set execution was not
-implemented.
+global plan and 851 under the strong-discriminator plan. The predicates also
+exposed substantially smaller per-packet candidate rule sets; that result
+remains an offline feasibility measurement because dynamic stateful
+candidate-set execution was not implemented, and it rests on port-constrained
+predicates for service-based rules. With Snort~3's service semantics, the
+strong-discriminator policy keeps 739 eligible rules, which bounds the
+full-ruleset reduction at 18.40\% (Section~\ref{sec:service-exposure}).
 
 Figure~\ref{fig:semantic-compilation-overview} summarizes the semantic
 compilation flow and distinguishes the implemented binary prefilter from the
@@ -1638,6 +1660,17 @@ SQLi and XSS. The 406 fallback rules bound what any candidate set can save:
 counted against the full ruleset, the reductions are 85.43\%, 86.40\%, and
 81.81\%, and no packet can fall below 406 applicable rules.
 
+The service-based case narrows this further. Once ports and protocol of
+service-based rules are treated as Snort~3 treats them, most of those rules
+keep only an address condition on \texttt{HOME\_NET}, and the
+strong-discriminator policy leaves 739 of them P4-eligible, so a
+header-derived candidate set could save at most 18.40\% of the full ruleset
+for any packet. Much of what header provenance appeared to discriminate was
+the header port, which Snort~3 does not use once it knows the service. A
+candidate selector that also used the identified service, which Snort itself
+uses to reject rules of other services, is a natural next step; this paper
+does not evaluate one.
+
 This observation motivates a future design space involving rule masks,
 rule partitions, hierarchical selectors, candidate metadata, and
 dependency-aware scheduling in hybrid P4/IDS systems. It is not evidence of
@@ -1720,8 +1753,9 @@ required the service and the header together. Snort~3 instead replaces the
 port and protocol checks by the service match, so for 2,928 rules the
 compiled predicate over-constrains ports and protocol. This was established
 from the Snort~3.12.2.0 source and documentation, not by a data-plane
-experiment, and the compiler was not changed for this paper; the correction
-it implies is to keep only address conditions for service-based rules.
+experiment. The compiler now offers the corrected semantics as an option,
+but the frozen artifacts and every trace-level result in this paper use the
+original one.
 
 Similarly, the 95.04\% backend reduction measures P4 installation state,
 not traffic reduction or removal of rules from Snort. Packet-level
@@ -1918,8 +1952,11 @@ the frozen 3,611-rule P4-eligible partition, mean candidate-rule-space
 reduction was 95.04\% for SQLi, 96.11\% for XSS, and 91.01\% for held-out
 Brute Force, whose mean candidate set contained 324.52 rules; counting the
 406 fallback rules against the full ruleset, the held-out reduction is
-81.81\%. This candidate-set result is
-an offline feasibility result, not a dynamic IDS execution result. The
+81.81\%. This candidate-set result is an offline feasibility result, not a
+dynamic IDS execution result, and it depends on port-constrained predicates
+for service-based rules: recompiled with Snort~3's service semantics, the
+strong-discriminator policy keeps 739 eligible rules and bounds the
+full-ruleset reduction at 18.40\%. The
 central implication is that semantic correctness and operational usefulness
 are distinct dimensions of IDS rule offloading: a binary candidate bit can
 discard rule-level information that remains useful for downstream selection.
