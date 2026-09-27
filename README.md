@@ -129,6 +129,22 @@ Snort como oráculo e BMv2 como alvo, uma testemunha sintetizada por regra:
 `tests/generate_offport_service_cases.py` gera a variante com a testemunha
 HTTP fora da porta do cabeçalho, que testa o ponto acima no data plane.
 
+### Métricas de trace fora do rig
+
+As métricas de trace são offline (parser espelhado do P4 e casador de
+entradas) e rodam em qualquer máquina com a captura do CIC-IDS2017
+(`output/datasets/cicids2017_thursday_metadata.json` registra origem, tamanho
+e sha256). Sem scapy e sem editcap:
+
+    python tests/cut_cicids2017_windows.py --bruto Thursday-WorkingHours.pcap --destino janelas/
+    python tests/rederive_trace_metrics.py --janela sqli=janelas/thursday_web_sqli.pcap \
+        --janela xss=janelas/thursday_web_xss.pcap --janela bruteforce=janelas/thursday_web_bruteforce.pcap
+    python tests/rederive_alert_coverage_by_semantics.py --janela sqli=... --janela xss=... --janela bruteforce=...
+
+O corte só é aceito se pacotes, bytes e extremos de cada janela baterem com o
+registro. Os dois estágios seguintes só gravam se o `legacy` reproduzir o
+congelado.
+
 ## Reprodutibilidade
 
 Os artefatos em `output/` são reproduzíveis byte a byte a partir do código,

@@ -297,9 +297,22 @@ Em ordem. As que restam exigem o rig.
 - Sem throughput, latência ou validação em hardware.
 - Sem execução candidate-set-aware no Snort.
 - EXACT = 0 no ruleset avaliado.
-- Achados de melhoria ainda abertos na revisão de 2026-09-11: H11 (protocolo
-  isolado como seletivo), H12 (faixas de porta em ternário), M1/M2 (`itype`,
-  `icode`, `ip_proto` na chave).
+- Achados de melhoria ainda abertos na revisão de 2026-09-11, com o ganho
+  máximo medido em 2026-09-27 (regras que sairiam do fallback operacional ÷
+  4.017, isto é, o teto do ganho na redução sobre o ruleset do plano strong):
+  - H12, faixas de porta em ternário: 73 regras recuperáveis (56 por porta),
+    71 hoje fora do strong; ≤ 1,8 ponto no `legacy`, ≤ 1,4 no `snort3`.
+    Custo: porta passa a valor/máscara no formato de entrada, no codificador
+    P4Runtime, no `validate_backend`, na deduplicação e nos dois casadores.
+  - M1, `itype`/`icode` na chave: 124 NECESSARY, 123 hoje no fallback;
+    ≤ 3,1 pontos. Exige chave nova no `ids_prefilter.p4` (não compilável aqui).
+  - M2, `ip_proto` no campo de protocolo já existente: 3 UNSUPPORTED
+    (2462–2464); ≤ 0,07 ponto. Só compilador.
+  - H11, protocolo isolado como seletivo: o plano strong já remove essas
+    entradas (`p4-106` entre as nove), então a ablação strong é o efeito dele.
+  Não implementados: o ganho somado fica abaixo de ~5 pontos e nenhum muda
+  a conclusão do artigo. Contagens em `output/analysis/header_precision_bounds.json`
+  (`tests/analyze_header_precision_bounds.py`).
 
 ## 17. Estado de arquivos e Git
 
