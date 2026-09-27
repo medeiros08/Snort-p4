@@ -248,17 +248,25 @@ Em ordem. As três primeiras exigem o rig.
 
    Esperado se o código lido estiver certo: global CONFIRMADO, strong
    VIOLACAO (código de saída 1 é o esperado). Tudo VACUO invalida a leitura.
-2. **Adotar a semântica corrigida e recalcular.** A opção `snort3` já existe.
-   Falta torná-la o padrão, regenerar os artefatos com documento de
-   supersessão e recalcular sobre os traces as taxas strong e os candidate
-   sets (a partição strong estrutural já está em
-   `output/analysis/service_header_semantics_whatif.json`).
+2. **Recalcular as métricas de trace com a semântica corrigida.** Pronto para
+   o rig:
+
+       python tests/rederive_trace_metrics.py
+
+   Gera os artefatos `snort3` numa worktree temporária, deriva a partição
+   strong e mede, nas três janelas, as taxas global e strong e os candidate
+   sets (por entrada e agrupado), para `legacy` e `snort3`. No `legacy` tem de
+   reproduzir o congelado pós-correção, senão não grava nada. Saída:
+   `output/analysis/trace_metrics_by_semantics.json`. Depois, decidir se o
+   padrão do compilador vira `snort3` (regenera os artefatos congelados, com
+   documento de supersessão) e levar os números ao manuscrito.
 3. **Replay de preservação no BMv2 corrigido** e **replay frame-exato do Brute
    Force** (87 frames). A rederivação offline já confere; falta a medição no
    data plane.
-4. **Métrica de candidate set agrupada** (F-05, alternativa A2): acrescentar
-   `grouped_candidate_rules_per_packet` sem remover a atual; precisa dos
-   traces.
+4. **Métrica de candidate set agrupada** (F-05, alternativa A2): já calculada
+   pelo mesmo `tests/rederive_trace_metrics.py` (`candidate_set_agrupado`, ao
+   lado do candidate set por entrada); falta rodar no rig e levar ao
+   manuscrito no lugar do limite estrutural de 4,8%.
 
 ## 16. Pendências de reforço científico
 
