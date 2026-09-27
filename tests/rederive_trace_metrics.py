@@ -21,6 +21,9 @@ Reducao de candidate set, como no manuscrito: contra a base P4-elegivel e
 contra o ruleset inteiro, contando as regras em fallback (operacional e
 UNSUPPORTED) como aplicaveis a todo pacote.
 
+Fora do rig, as janelas saem da captura bruta com
+`tests/cut_cicids2017_windows.py`, que confere o corte com o registro.
+
 Uso (no rig, com os pcaps das janelas):
     python tests/rederive_trace_metrics.py
     python tests/rederive_trace_metrics.py --janela sqli=/caminho/sqli.pcap ...
@@ -51,7 +54,7 @@ from analyze_prefilter_selectivity import (  # noqa: E402
     compiled_entry_matches_packet,
     parse_frame_like_p4,
 )
-from run_campaign_bmv2 import ler_pcap  # noqa: E402
+from pcap_stream import quadros_com_tempo  # noqa: E402
 from simulate_operational_policy import (  # noqa: E402
     simulate_rule_partition,
     summarize_semantic_rules,
@@ -82,7 +85,8 @@ CONGELADO = {
 
 
 def quadros(caminho: Path):
-    """Quadros do pcap: scapy no rig, leitor proprio (pcap classico) fora dele."""
+    """Quadros do pcap: scapy no rig, leitor proprio em fluxo (pcap classico ou
+    pcapng, `pcap_stream`) fora dele."""
 
     try:
         from scapy.utils import RawPcapReader
@@ -93,7 +97,7 @@ def quadros(caminho: Path):
             for quadro, _metadados in leitor:
                 yield quadro
         return
-    for _s, _u, quadro in ler_pcap(caminho):
+    for _tempo, quadro in quadros_com_tempo(caminho):
         yield quadro
 
 
