@@ -11,7 +11,7 @@ Background from the pinned Snort 3 corpus. No frozen number is changed.
 
 | Item | Before this revision | Resolution |
 |---|---|---|
-| C1 grouping ablation measures nothing | Text presented the across-strategy invariance as an observation | Option A1 of `docs/review/2026-09-13_achados_experimentais.md`: Results and Discussion now say the invariance is by construction, and bound the cost of grouping from the recorded group structure. The grouped candidate set (A2) still needs the traces on the rig. |
+| C1 grouping ablation measures nothing | Text presented the across-strategy invariance as an observation | Option A1 of `docs/review/2026-09-13_achados_experimentais.md`: Results and Discussion now say the invariance is by construction, and bound the cost of grouping from the recorded group structure. The grouped candidate set (A2) was then measured offline on the traces (§8) and replaces the missing measurement; the structural 4.8% bound stays as context. |
 | C3 PDF older than the correction | — | Already resolved (`cc4c2dd`). |
 | C4 Table 7 is pre-correction | No caveat | Text and caption state that the P4 columns were replayed alone on BMv2 before the domain gate; an offline re-derivation under the enforced domain reproduces them (new artifact). The data-plane replay remains for the rig. |
 | C5 offline vs data plane | Strong columns unlabeled | Table 5 caption and the causal-analysis paragraph state that strong-discriminator rates are offline; the held-out strong audit is labeled offline; the 322-entry plan's only BMv2 installation is the campaign. |
@@ -30,7 +30,7 @@ Background from the pinned Snort 3 corpus. No frozen number is changed.
 | Port-80 TCP group holds 2,024 rules; 2,358 rules in more than one group, up to nine | same recomputation (`protocol_service`); `group_overlap` in the artifact |
 | 150/528/2,391 candidate-alert packets reclassified offline, 0 no-match, 0 fallback | `output/analysis/alert_preservation_offline_post_correction.json` (`tests/rederive_alert_preservation_offline.py`) |
 | Strong criterion and nine removed IDs | `output/analysis/operational_policy_simulation.json` `policies.strong_discriminator.install_entries.removed_entry_ids`; matches read from `output/p4_install_entries.json` |
-| 85.43%, 86.40%, 81.81% | (1 − (mean + 406)/4017) × 100 with the frozen means 179.2848, 140.4900, 324.5181; equals `FINAL_SCIENTIFIC_CLOSING_AUDIT.md` §10 |
+| 85.43%, 86.40%, 81.81% | (1 − (mean + 406)/4017) × 100 with the frozen means 179.2848, 140.4900 and, for Brute Force, 324.5228 from the post-correction `output/analysis/ipv4_packet_domain_correction/heldout_bruteforce_revalidation.json` (1,101,459 eligible frames, the population the manuscript reports). The pre-correction 324.5181 of `FINAL_SCIENTIFIC_CLOSING_AUDIT.md` §10, which an earlier version of this row cited, gives the same 81.81% and 91.01% |
 | 2,928 NECESSARY rules with `service:`; 2,877 P4-eligible; 2,921 keep an address predicate; 7 would not | `output/analysis/service_based_header_exposure.json` (`tests/analyze_service_based_headers.py`), `expostas` |
 | 3 more service-based through DCE options (529, 3238, 3239), 2,931 in all; 2,924 would keep an address predicate | same artifact, `expostas_por_servico_implicito` and `service_based_total`; mechanism in §7 |
 | 1,072 NECESSARY rules whose header ports Snort checks | 4,003 − 2,931: the 1,060 port-based rules plus the 12 `alert http` header rules, which `USER_MODE` keeps port-checked (`necessarias_com_protocolo_de_servico_no_cabecalho`) |
@@ -126,3 +126,32 @@ byte (worktree check), and the `snort3` what-if numbers are unchanged:
 Abstract, Introduction, Contributions, §4.5, §7.1, §7.2, Construct Validity,
 Discussion, and Conclusion now count 2,931, and §4.5 states how a rule
 acquires services. Rebuilt: 43 pages, no overfull or underfull box.
+
+## 8. Trace Metrics Measured Offline
+
+With the user's authorization, `Thursday-WorkingHours.pcap` was downloaded
+from the mirror recorded in `output/datasets/cicids2017_thursday_metadata.json`.
+`tests/cut_cicids2017_windows.py` read it once and cut the three windows. The
+capture's sha256, packet count and captured bytes, and every window's packet
+count, captured bytes and first and last timestamps, equal the record
+(`output/datasets/cicids2017_windows_offline_cut.json`).
+`tests/rederive_trace_metrics.py` then ran both semantics. Its legacy pass
+reproduced the frozen post-correction eligible counts, global and strong
+candidate counts and mean candidate sets of all three windows, which it
+checks before it writes anything.
+
+| Manuscript number | Source (`output/analysis/trace_metrics_by_semantics.json`) |
+|---|---|
+| `snort3` strong rates 92.298% / 92.173% / 94.885% | `snort3.janelas.<w>.strong_candidato_pct` |
+| `snort3` mean candidate sets 3.97 / 3.94 / 4.48 of 739; above 99.3% within the partition | `snort3.janelas.<w>.candidate_set_por_entrada` |
+| `snort3` full-ruleset reduction 18.30% / 18.30% / 18.29% | same, `reducao.sobre_ruleset_pct` (fallback 3,257 + unsupported 21 counted on every packet) |
+| `snort3` global plan 100% | `snort3.janelas.<w>.global_candidato_pct` |
+| Table `tab:grouped` and the 12.30–19.10%, 54–57%, 81–92% ranges | `legacy.janelas.<w>.candidate_set_agrupado.<strategy>` |
+| Finest grouping within 0.01 points of entry level | largest gap 0.0096 points (Brute Force) |
+
+Manuscript sections changed: Abstract, Introduction, Contributions,
+Methodology ($C_G$ defined), §7.2, the grouping subsection with the new
+Table `tab:grouped`, the RQ4 answer, the Discussion subsection now titled "Why
+Coarse Grouping Does Not Help", the Limitations, and the Conclusion. Nothing
+frozen was rewritten. The measurements are offline, and no plan of the
+corrected compilation has been installed on BMv2.

@@ -58,7 +58,7 @@ constrain the protocol and, for 2,877, a port. The global plan still covers
 all but nine of them through its port-free entries. The strong-discriminator
 ablation behind the candidate sets does not, and recompiled with Snort~3's
 semantics it keeps 739 rules eligible, which bounds the full-ruleset
-candidate reduction at 18.4\%. These results show that semantic safety and
+candidate reduction at 18.4\%; on the traces it reaches 18.3\%. These results show that semantic safety and
 operational selectivity are distinct, and that what a rule-derived predicate
 guarantees depends on how the IDS evaluates the rule; candidate-set-aware IDS
 execution remains future work.
@@ -114,7 +114,7 @@ contrast, provenance-based analysis retained a 91.01\% mean
 candidate-rule-space reduction on held-out Brute Force within the frozen
 3,611-rule P4-eligible partition, or 81.81\% over the full ruleset; with
 Snort~3's service semantics, the same derivation could save at most 18.40\%
-of the full ruleset. These observations motivate the following
+of the full ruleset, and it saved 18.29--18.30\% on the traces. These observations motivate the following
 contributions and research questions.
 
 \subsection{Contributions}
@@ -140,8 +140,10 @@ This work makes the following contributions:
     \item A provenance-based, offline candidate-rule-space analysis that
     retains substantially smaller per-packet rule sets, including a 91.01\%
     mean reduction on held-out Brute Force within the 3,611-rule P4-eligible
-    partition and 81.81\% over the full ruleset, bounded at 18.40\% once
-    service-based rules are compiled as Snort~3 evaluates them.
+    partition and 81.81\% over the full ruleset, bounded at 18.40\% and
+    measured at 18.29--18.30\% once service-based rules are compiled as
+    Snort~3 evaluates them, and a measurement of the candidate set that a
+    grouped prefilter would forward.
     \item An analysis, from the Snort~3.12.2.0 source, showing that
     service-based rules, whether they declare a \texttt{service} option or
     acquire a service through their options, do not make their header ports
@@ -993,6 +995,11 @@ full packet bypass because fallback rules remain applicable. Because those
 R_{\mathrm{full}}(x) = \left(1 - \frac{|C(x)| + 406}{4017}\right) \times 100\%.
 \]
 
+For a grouping of the retained entries, a prefilter that forwards whole
+groups passes Snort every rule of each group containing a matched entry. Its
+grouped candidate set $C_G(x)$ is the union of the rules of those groups, and
+the same two reductions are computed with $C_G(x)$ in place of $C(x)$.
+
 \paragraph{Observed preservation measures.} We distinguish four finite,
 empirical checks. \emph{Semantic split preservation} compares FULL Snort
 alerts with the union from semantic candidate and \textsc{Unsupported}
@@ -1190,19 +1197,31 @@ applied to the frozen artifacts, the same computation reproduces the frozen
 in which fallback rules apply to every packet, no packet's candidate set
 could then fall below 3,278 rules, which bounds the full-ruleset reduction at
 18.40\%, against the 81.81\% measured on held-out Brute Force with the frozen
-predicates. These are structural results computed without traffic; the
-trace-level rates under the corrected predicates were not measured.
+predicates.
 
-No experiment in this paper was designed to exercise this case. Under the
-global plan, an alert of this kind would fall on a packet that
+We then measured the corrected compilation on the three traces, offline,
+with the parser mirror and entry matcher that produced the frozen
+strong-discriminator rates; the same computation first reproduces the frozen
+rates and candidate sets exactly. The corrected global plan still marks
+every parser-eligible packet as a candidate. Under the strong-discriminator
+policy it marks 92.298\%, 92.173\%, and 94.885\% of the SQLi, XSS, and Brute
+Force packets, against 99.015\%, 98.869\%, and 98.942\% with the frozen
+predicates. The mean candidate set shrinks to 3.97, 3.94, and 4.48 of the
+739 eligible rules, a reduction above 99.3\% within that partition, but the
+3,278 fallback rules apply to every packet, and the full-ruleset reduction is
+18.30\%, 18.30\%, and 18.29\%, just under the bound. Neither plan of the
+corrected compilation was installed on BMv2.
+
+No experiment in this paper was designed to exercise a service on a port
+outside a rule's header. Under the global plan, an alert of this kind would fall on a packet that
 \texttt{p4-40}, \texttt{p4-138}, or \texttt{p4-106} already marks
 candidate, so the trace-based checks could not reveal it; only the offline
 strong-discriminator audit of the held-out trace could, and it found no
 missing event. The end-to-end campaign places each witness on a port of the
-rule's own header. The measurements that follow are therefore correct for the
-traffic they observed, but the strong-discriminator ablation and the
-per-packet candidate rule sets derive from predicates that are not necessary
-conditions for service-based rules.
+rule's own header. The frozen measurements in the rest of this section are
+therefore correct for the traffic they observed, but the strong-discriminator
+ablation and the per-packet candidate rule sets derive from predicates that
+are not necessary conditions for service-based rules.
 
 \subsection{P4 Backend Feasibility (RQ2)}
 Table~\ref{tab:semantic-backend} summarizes the semantic compilation and
@@ -1427,12 +1446,48 @@ candidate rules, a reduction of at most 4.8\%, where entry-level provenance
 gives 91--96\% on average. Finer strategies shrink the largest groups but do
 not remove the effect: under protocol plus service, the TCP group for
 destination port 80 holds 2,024 rules, and 2,358 rules belong to more than one
-group, up to nine. A per-packet grouped candidate set over the traces was not
-computed.
+group, up to nine.
+
+We therefore measured the grouped candidate set on the three traces
+(Table~\ref{tab:grouped}). For each parser-eligible packet it is the union of
+the rules of every group that contains a matched strong-discriminator entry,
+which is what a prefilter that forwards whole groups would pass to Snort.
+Protocol grouping forwards on average 2,921 to 3,167 rules, a reduction of
+12.30--19.10\% over the P4-eligible partition, and its median packet
+activates the 3,439-rule TCP group. Adding direction reaches 54--57\%, and
+protocol plus service 81--92\%. Only protocol plus direction plus service,
+with 308 groups for 322 entries, comes within 0.01 percentage points of the
+entry-level reduction.
+
+\begin{table}[t]
+\centering
+\caption{Grouped candidate set on the traces: mean rules forwarded per
+parser-eligible packet when every rule of each activated group is forwarded,
+and the reduction over the 3,611 P4-eligible rules (strong-discriminator
+plan, frozen predicates, offline). The first row is the entry-level set of
+Table~\ref{tab:candidate-rules}.}
+\label{tab:grouped}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lrrrrrrr}
+\toprule
+ & & \multicolumn{2}{c}{SQLi} & \multicolumn{2}{c}{XSS} & \multicolumn{2}{c}{Brute Force} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+Strategy & Groups & Mean & Red. & Mean & Red. & Mean & Red. \\
+\midrule
+Entry level & -- & 179.3 & 95.04\% & 140.5 & 96.11\% & 324.5 & 91.01\% \\
+Protocol & 4 & 2,921.3 & 19.10\% & 3,046.0 & 15.65\% & 3,167.0 & 12.30\% \\
+Protocol, direction & 12 & 1,540.5 & 57.34\% & 1,621.4 & 55.10\% & 1,657.5 & 54.10\% \\
+Protocol, service & 268 & 377.7 & 89.54\% & 280.3 & 92.24\% & 681.9 & 81.12\% \\
+Protocol, direction, service & 308 & 179.5 & 95.03\% & 140.6 & 96.11\% & 324.9 & 91.00\% \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 The 91--96\% reductions in Table~\ref{tab:candidate-rules} therefore come
 from the mapping of matched P4 entries to their source-rule IDs, followed by
-the union of those provenance sets for each packet, and not from grouping.
+the union of those provenance sets for each packet, and grouping preserves
+them only when its groups are nearly as fine as the entries.
 
 \subsection{Dynamic Alert Preservation (RQ4)}
 Table~\ref{tab:alert-preservation} separates four empirical properties. They
@@ -1565,7 +1620,10 @@ remains an offline feasibility measurement because dynamic stateful
 candidate-set execution was not implemented, and it rests on port-constrained
 predicates for service-based rules. With Snort~3's service semantics, the
 strong-discriminator policy keeps 739 eligible rules, which bounds the
-full-ruleset reduction at 18.40\% (Section~\ref{sec:service-exposure}).
+full-ruleset reduction at 18.40\%; the traces reach 18.29--18.30\%
+(Section~\ref{sec:service-exposure}). A prefilter that forwards whole groups
+keeps the reduction only with groups nearly as fine as the entries: under
+protocol grouping the set shrinks by only 12--19\% (Table~\ref{tab:grouped}).
 
 Figure~\ref{fig:semantic-compilation-overview} summarizes the semantic
 compilation flow and distinguishes the implemented binary prefilter from the
@@ -1735,20 +1793,22 @@ a runtime implementation: candidate-set-aware Snort execution was not
 implemented, no throughput or latency benchmark was conducted, and no
 speedup is demonstrated. In particular, dynamic stateful rule execution
 remains unresolved.
-\subsection{Why Coarse Grouping Is Unlikely to Help}
+\subsection{Why Coarse Grouping Does Not Help}
 The 91--96\% candidate-rule-space reduction was produced by fine-grained
 entry-to-source-rule provenance, not by grouping. The frozen grouping study
-does not show this by comparison, because its candidate-set metric ignores
-the groups and is identical across strategies by construction. The group
-structure it records points the same way with more force: a coarse group
-forwards every rule it contains, and under protocol grouping the TCP group
-holds 3,439 of the 3,611 rules, so coarse grouping would discard most of the
-discrimination that entry-level provenance retains rather than add to it.
+could not show this, because its candidate-set metric ignores the groups and
+is identical across strategies by construction. Measured directly, grouping
+gives back the discrimination it aggregates: a coarse group forwards every
+rule it contains, and under protocol grouping, whose TCP group holds 3,439 of
+the 3,611 rules, the mean reduction falls to 12--19\%. Finer groupings
+recover it step by step, and the one that matches entry-level provenance has
+308 groups for 322 entries (Table~\ref{tab:grouped}).
 
 Coarse structural groups aggregate rules whose necessary predicates remain
 different. The service-oriented groupings also overlap heavily, with 2,358
 rules in more than one group. This does not show that every grouping is
-unhelpful, and the grouped candidate set was not measured on the traces.
+unhelpful: the four evaluated strategies are structural, and the grouped set
+was computed offline.
 Future grouping designs could account for provenance, semantic dependencies,
 rule overlap, flow/state dependencies, and hardware resource constraints.
 \subsection{Implications for P4-Based IDS Offloading}
@@ -1945,10 +2005,10 @@ The candidate rule set analysis reported mean reductions of 95.04\% for SQLi,
 96.11\% for XSS, and 91.01\% for held-out Brute Force within the P4-eligible
 partition, and 85.43\%, 86.40\%, and 81.81\% over the full ruleset. These
 values are offline candidate-rule-space feasibility measurements, and they
-rest on port-constrained predicates for rules with a \texttt{service}
-option; compiled as Snort~3 evaluates those rules, the strong-discriminator
-policy bounds the full-ruleset reduction at 18.40\%, and trace-level values
-under that compilation were not measured. The current prototype
+rest on port-constrained predicates for service-based rules; compiled as
+Snort~3 evaluates those rules, the strong-discriminator policy bounds the
+full-ruleset reduction at 18.40\%, and the traces reach 18.29--18.30\%. The
+current prototype
 does not implement dynamic per-packet Snort rule activation, candidate-rule
 masks inside Snort, rule scheduling driven by P4 metadata, a candidate-set
 aware Snort execution engine, or throughput benchmarking of reduced rule
@@ -1965,10 +2025,10 @@ one such mechanism directly: for two HTTP rules, Snort's alert depended on a
 server-to-client acknowledgment that the strong-discriminator plan marks
 no-match, so a packet-level decision that is safe for the rule's own packets
 can still withhold a packet that stream inspection needs. Likewise, the
-grouping study recorded group structure but did not measure a grouped
-candidate set, and it does not show that every future grouping algorithm
-would fail; future evaluation should measure that set directly and consider
-provenance, dependencies, overlap, and target resource constraints together.
+grouped candidate set was computed offline for four structural strategies
+only, and it does not show that every future grouping algorithm would fail;
+future evaluation should consider provenance, dependencies, overlap, and
+target resource constraints together.
 
 \section{Conclusion}
 This work examined how Snort 3 detection semantics can be partially compiled
@@ -2021,7 +2081,9 @@ Brute Force, whose mean candidate set contained 324.52 rules; counting the
 dynamic IDS execution result, and it depends on port-constrained predicates
 for service-based rules: recompiled with Snort~3's service semantics, the
 strong-discriminator policy keeps 739 eligible rules and bounds the
-full-ruleset reduction at 18.40\%. The
+full-ruleset reduction at 18.40\%, and the traces reach 18.29--18.30\%. A
+prefilter that forwards whole groups kept the frozen reduction only when its
+groups were nearly as fine as its entries. The
 central implication is that semantic correctness and operational usefulness
 are distinct dimensions of IDS rule offloading: a binary candidate bit can
 discard rule-level information that remains useful for downstream selection.

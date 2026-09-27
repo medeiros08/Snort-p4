@@ -231,6 +231,40 @@ def test_opcoes_do_ruleset_classificadas():
     assert implicitas == {"529", "3238", "3239"}
 
 
+def test_metricas_de_trace_gravadas_e_coerentes():
+    # O artefato medido offline sobre as janelas tem de concordar com o
+    # congelado (legacy), com o what-if estrutural (snort3) e com o limite.
+    import json
+
+    sys.path.insert(0, str(RAIZ / "tests"))
+    from rederive_trace_metrics import CONGELADO, RULESET
+
+    trace = json.loads(
+        (RAIZ / "output" / "analysis" / "trace_metrics_by_semantics.json").read_text(encoding="utf-8")
+    )
+    whatif = json.loads(
+        (RAIZ / "output" / "analysis" / "service_header_semantics_whatif.json").read_text(encoding="utf-8")
+    )
+    assert trace["validacao_contra_congelado"] is True
+    for janela, esperado in CONGELADO.items():
+        medido = trace["legacy"]["janelas"][janela]
+        for chave, valor in esperado.items():
+            assert abs(medido[chave] - valor) < 1e-9, (janela, chave)
+
+    particao = trace["snort3"]["particao"]
+    estrutural = whatif["snort3"]["strong_discriminator"]
+    assert particao["elegiveis"] == estrutural["elegiveis"]
+    assert particao["fallback"] == estrutural["fallback_operacional"]
+    limite = 100.0 * (1 - (particao["fallback"] + particao["unsupported"]) / RULESET)
+    for janela, medido in trace["snort3"]["janelas"].items():
+        assert medido["global_candidato_pct"] == 100.0, janela
+        reducao = medido["candidate_set_por_entrada"]["reducao"]["sobre_ruleset_pct"]
+        assert reducao <= limite + 1e-9, janela
+        # Agrupar nunca encolhe o conjunto por entrada.
+        for agrupado in medido["candidate_set_agrupado"].values():
+            assert agrupado["mean"] >= medido["candidate_set_por_entrada"]["mean"] - 1e-9
+
+
 if __name__ == "__main__":
 
     test_padrao_e_legacy()
@@ -245,6 +279,7 @@ if __name__ == "__main__":
     test_snort3_delega_regra_com_servico_implicito()
     test_snort3_mantem_portas_com_protocolo_de_servico_no_cabecalho()
     test_opcoes_do_ruleset_classificadas()
+    test_metricas_de_trace_gravadas_e_coerentes()
 
     print(
         "Service header semantics tests passed."

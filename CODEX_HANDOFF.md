@@ -227,11 +227,17 @@ master arbitration, pipeline configuration e leitura das entradas.
   **Tem LaTeX** (MiKTeX em `AppData\Local\Programs\MiKTeX\miktex\bin\x64\`):
   compilar com pdflatex, bibtex, pdflatex, pdflatex e `--enable-installer`;
   `latexmk` trava. Numa cópia isolada, para não sujar `paper/IDS_P4/`.
-- Suíte: `python tests/run_tests.py` → 19 passam, 3 não executam (grpc).
+- A mesma máquina tem, desde 2026-09-27, a captura
+  `C:\Users\amede\datasets\cicids2017\raw\Thursday-WorkingHours.pcap`
+  (sha256 conferido) e as três janelas em `...\cicids2017\windows\`, cortadas
+  por `tests/cut_cicids2017_windows.py` (registro do corte em
+  `output/datasets/cicids2017_windows_offline_cut.json`). Métricas de trace
+  offline rodam aqui; replay no BMv2, não.
+- Suíte: `python tests/run_tests.py` → 20 passam, 3 não executam (grpc).
 
 ## 14. Manuscrito
 
-43 páginas, sem overfull nem underfull box. Duas figuras TikZ (pipeline; visão conceitual) e nove tabelas. A
+44 páginas, sem overfull nem underfull box. Duas figuras TikZ (pipeline; visão conceitual) e dez tabelas. A
 revisão pré-submissão de 2026-09-27 fechou os itens C1, C4, C5, H2, H5 e H6 da
 revisão de 2026-09-11, integrou o achado service-based e aplicou uma revisão
 adversarial do manuscrito inteiro (§5 da auditoria abaixo); origem de cada
@@ -241,7 +247,7 @@ corresponde ao `main.tex` atual.
 
 ## 15. Pendências que bloqueiam a submissão
 
-Em ordem. As três primeiras exigem o rig.
+Em ordem. As que restam exigem o rig.
 
 1. **Testar o achado service-based no data plane.** Casos prontos em
    `output/campaign/servico_fora_do_cabecalho/` (gerador
@@ -255,25 +261,27 @@ Em ordem. As três primeiras exigem o rig.
 
    Esperado se o código lido estiver certo: global CONFIRMADO, strong
    VIOLACAO (código de saída 1 é o esperado). Tudo VACUO invalida a leitura.
-2. **Recalcular as métricas de trace com a semântica corrigida.** Pronto para
-   o rig:
+2. **Métricas de trace com a semântica corrigida: FEITO offline em
+   2026-09-27**, nesta máquina, com as janelas cortadas da captura (§13):
 
-       python tests/rederive_trace_metrics.py
+       python tests/rederive_trace_metrics.py --janela sqli=... --janela xss=... --janela bruteforce=...
 
-   Gera os artefatos `snort3` numa worktree temporária, deriva a partição
-   strong e mede, nas três janelas, as taxas global e strong e os candidate
-   sets (por entrada e agrupado), para `legacy` e `snort3`. No `legacy` tem de
-   reproduzir o congelado pós-correção, senão não grava nada. Saída:
-   `output/analysis/trace_metrics_by_semantics.json`. Depois, decidir se o
-   padrão do compilador vira `snort3` (regenera os artefatos congelados, com
-   documento de supersessão) e levar os números ao manuscrito.
+   O `legacy` reproduziu o congelado pós-correção exatamente. `snort3`:
+   global 100%; strong 92,298% / 92,173% / 94,885% (SQLi/XSS/BF); C(x) médio
+   3,97 / 3,94 / 4,48 de 739; redução sobre o ruleset 18,30% / 18,30% /
+   18,29%. Saída: `output/analysis/trace_metrics_by_semantics.json`; números
+   no manuscrito (§7.2). Resta decidir se o padrão do compilador vira `snort3`
+   (regenera os artefatos congelados, com documento de supersessão) e medir os
+   planos corrigidos no BMv2.
 3. **Replay de preservação no BMv2 corrigido** e **replay frame-exato do Brute
    Force** (87 frames). A rederivação offline já confere; falta a medição no
    data plane.
-4. **Métrica de candidate set agrupada** (F-05, alternativa A2): já calculada
-   pelo mesmo `tests/rederive_trace_metrics.py` (`candidate_set_agrupado`, ao
-   lado do candidate set por entrada); falta rodar no rig e levar ao
-   manuscrito no lugar do limite estrutural de 4,8%.
+4. **Métrica de candidate set agrupada** (F-05, alternativa A2): **FEITO
+   offline** na mesma rodada (`candidate_set_agrupado`). Redução média sobre
+   as 3.611 elegíveis: protocolo 19,10 / 15,65 / 12,30%; protocolo+direção
+   57,34 / 55,10 / 54,10%; protocolo+serviço 89,54 / 92,24 / 81,12%;
+   protocolo+direção+serviço a menos de 0,01 ponto do nível de entrada. No
+   manuscrito: Tabela `tab:grouped`, §RQ4 e Discussão.
 
 ## 16. Pendências de reforço científico
 

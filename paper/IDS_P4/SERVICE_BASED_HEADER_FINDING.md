@@ -283,3 +283,18 @@ changes.
    hold on the rig and this finding must be revisited.
 3. **Recompute** the strong-discriminator partition, its trace-level rates,
    and the per-packet candidate rule sets from the corrected predicates.
+   Done offline on 2026-09-27 (`tests/rederive_trace_metrics.py` →
+   `output/analysis/trace_metrics_by_semantics.json`, windows cut from the
+   downloaded capture and checked against the dataset record). The legacy
+   pass reproduces the frozen post-correction values exactly; then, for
+   SQLi / XSS / Brute Force under `snort3`:
+
+   | | legacy (frozen) | snort3 |
+   |---|---:|---:|
+   | global candidate rate | 100% / 100% / 100% | 100% / 100% / 100% |
+   | strong-discriminator candidate rate | 99.015% / 98.869% / 98.942% | 92.298% / 92.173% / 94.885% |
+   | mean candidate set (eligible base) | 179.28 / 140.49 / 324.52 of 3,611 | 3.97 / 3.94 / 4.48 of 739 |
+   | full-ruleset reduction | 85.43% / 86.40% / 81.81% | 18.30% / 18.30% / 18.29% |
+
+   Offline, with the parser mirror and matcher of the frozen strong rates;
+   no `snort3` plan has been installed on BMv2.
