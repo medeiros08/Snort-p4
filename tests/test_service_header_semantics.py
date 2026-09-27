@@ -154,6 +154,83 @@ def test_whatif_gravado_e_coerente():
     assert snort3["classificacao"]["UNSUPPORTED"] >= legacy["classificacao"]["UNSUPPORTED"]
 
 
+# Sem service:, mas com opcoes DCE: validate_services (fp_utils.cc) acrescenta
+# os servicos que dce_tcp, dce_udp e dce_smb registram para esses buffers.
+DCE_SEM_SERVICO = (
+    'alert tcp $EXTERNAL_NET any -> 192.168.10.0/24 135 ( msg:"dce"; '
+    'flow:to_server,established; dce_iface:uuid 4b324fc8-1670-01d3-1278-5a47bf6ee188; '
+    'dce_opnum:"15"; dce_stub_data; content:"|00 00 00 00|"; sid:9205; )'
+)
+
+# Cabecalho com protocolo de servico: USER_MODE, portas continuam checadas
+# (fp_eval_rtn forca check_ports = 1).
+HTTP_NO_CABECALHO = (
+    'alert http 192.168.20.0/24 any -> 192.168.10.0/24 8080 ( msg:"http"; '
+    'flow:to_server,established; http_uri; content:"/x"; sid:9206; )'
+)
+
+HTTP_NO_CABECALHO_COM_SERVICO = (
+    'alert http 192.168.20.0/24 any -> 192.168.10.0/24 8080 ( msg:"http"; '
+    'flow:to_server,established; http_uri; content:"/x"; service:http; sid:9207; )'
+)
+
+
+def test_snort3_delega_regra_com_servico_implicito():
+    legacy, _, _ = avaliar(DCE_SEM_SERVICO, "legacy")
+    snort3, _, classificacao = avaliar(DCE_SEM_SERVICO, "snort3")
+    assert tratamentos(legacy)["dst_port"] == "PRESERVED"
+    t = tratamentos(snort3)
+    assert t["protocol"] == "DELEGATED"
+    assert t["dst_port"] == "DELEGATED"
+    assert t["dst_ip"] == "PRESERVED"
+    assert classificacao.classification == "NECESSARY"
+
+
+def test_snort3_mantem_portas_com_protocolo_de_servico_no_cabecalho():
+    for texto in (HTTP_NO_CABECALHO, HTTP_NO_CABECALHO_COM_SERVICO):
+        legacy = tratamentos(avaliar(texto, "legacy")[0])
+        snort3 = tratamentos(avaliar(texto, "snort3")[0])
+        assert snort3 == legacy, texto
+        assert snort3["dst_port"] == "PRESERVED", texto
+
+
+def test_opcoes_do_ruleset_classificadas():
+    # Toda opcao de uma regra NECESSARY sem service: no ruleset avaliado ou
+    # implica servico (e e detectada) ou e opcao do nucleo, sem buffer de
+    # inspetor e sem prefixo de guess_service. Opcao nova no ruleset tem de
+    # ser classificada aqui antes de o modo snort3 ser confiavel.
+    import json
+
+    from target_capability import (
+        SNORT3_GUESSED_SERVICE_PREFIXES,
+        SNORT3_SERVICE_BUFFERS,
+    )
+
+    nucleo = {
+        "msg", "sid", "rev", "gid", "classtype", "reference", "metadata",
+        "content", "pcre", "flow", "flowbits", "byte_test", "byte_jump",
+        "byte_extract", "isdataat", "dsize", "itype", "icode", "icmp_id",
+        "icmp_seq", "flags", "fragbits", "id", "ttl", "ack", "seq",
+        "ip_proto", "stream_size", "detection_filter",
+    }
+    manifesto = json.loads(
+        (RAIZ / "output" / "semantic_manifest.json").read_text(encoding="utf-8")
+    )
+    implicitas = set()
+    for regra in manifesto["rules"]:
+        nomes = [o["name"] for o in regra["parsed_rule"]["options"]]
+        if regra["classification"] != "NECESSARY" or "service" in nomes:
+            continue
+        for nome in nomes:
+            implica = nome in SNORT3_SERVICE_BUFFERS or nome.startswith(
+                SNORT3_GUESSED_SERVICE_PREFIXES
+            )
+            assert implica or nome in nucleo, (regra["rule_id"], nome)
+            if implica and regra["parsed_rule"]["protocol"] in {"tcp", "udp", "icmp", "ip"}:
+                implicitas.add(regra["rule_id"])
+    assert implicitas == {"529", "3238", "3239"}
+
+
 if __name__ == "__main__":
 
     test_padrao_e_legacy()
@@ -165,6 +242,9 @@ if __name__ == "__main__":
     test_snort3_mantem_protocolo_quando_ha_flags()
     test_semantica_desconhecida_e_recusada()
     test_whatif_gravado_e_coerente()
+    test_snort3_delega_regra_com_servico_implicito()
+    test_snort3_mantem_portas_com_protocolo_de_servico_no_cabecalho()
+    test_opcoes_do_ruleset_classificadas()
 
     print(
         "Service header semantics tests passed."

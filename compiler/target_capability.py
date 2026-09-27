@@ -613,6 +613,56 @@ SERVICE_HEADER_SEMANTICS = (
 )
 
 
+# Header protocols Snort 3 treats as IP protocols. Any other name is a
+# service protocol: src/parser/parse_rule.cc adds it to the rule's services
+# and SetupRTNFuncList marks the rule USER_MODE, for which fp_eval_rtn
+# (src/detection/fp_detect.cc) forces check_ports = 1, so the header stays
+# checked in full.
+IP_HEADER_PROTOCOLS = {
+    "ip",
+    "tcp",
+    "udp",
+    "icmp",
+}
+
+# Snort 3 also adds services to a rule that has no `service` option, in
+# validate_services (Snort 3.12.2.0, src/detection/fp_utils.cc). An option
+# that sets a buffer registered by an inspector adds that inspector's
+# services; the buffer map is loaded from every inspector plugin, configured
+# or not (InspectorManager::load_buffer_map, src/managers/inspector_manager.cc).
+# Any other option adds the service guess_service derives from its name
+# prefix, listed here as in the source.
+SNORT3_GUESSED_SERVICE_PREFIXES = (
+    "http_",
+    "cip_",
+    "enip_",
+    "dce_",
+    "dnp3_",
+    "gtp_",
+    "mms_",
+    "modbus_",
+    "s7commplus_",
+    "sip_",
+    "socks_",
+    "ssl_",
+)
+
+# Buffers an inspector registers. Confirmed in the source: dce_tcp and
+# dce_udp (service dcerpc) and dce_smb (netbios-ssn) register dce_iface,
+# dce_stub_data and file_data. The rest are options the corpus calls
+# service-specific (docs/vendor/snort3/doc/user/concepts.txt:293) whose
+# registration was not traced; counting a rule as service-based only
+# broadens its predicate.
+SNORT3_SERVICE_BUFFERS = {
+    "dce_iface",
+    "dce_stub_data",
+    "file_data",
+    "js_data",
+    "vba_data",
+    "script_data",
+}
+
+
 def rule_services(semantic_rule):
     return [
         predicate.value
@@ -620,6 +670,51 @@ def rule_services(semantic_rule):
         if predicate.kind == "APPLICATION"
         and predicate.source_option == "service"
     ]
+
+
+def header_names_service(semantic_rule):
+    return any(
+        predicate.kind == "HEADER"
+        and predicate.field == "protocol"
+        and str(predicate.value).lower() not in IP_HEADER_PROTOCOLS
+        for predicate in semantic_rule.predicates
+    )
+
+
+def implied_service_options(semantic_rule):
+    """Options through which Snort 3 adds a service to the rule.
+
+    A buffer-setting option with one of the guessed prefixes that no
+    inspector registers would add nothing in Snort; it is counted anyway,
+    which errs toward delegating.
+    """
+
+    return sorted(
+        {
+            predicate.source_option
+            for predicate in semantic_rule.predicates
+            if predicate.source_option
+            and (
+                predicate.source_option in SNORT3_SERVICE_BUFFERS
+                or predicate.source_option.startswith(
+                    SNORT3_GUESSED_SERVICE_PREFIXES
+                )
+            )
+        }
+    )
+
+
+def snort3_service_based(semantic_rule):
+    """True when a service match makes Snort 3 skip this rule's header ports
+    and protocol: the rule has a service, from `service` or implied by an
+    option, and its header names an IP protocol."""
+
+    if header_names_service(semantic_rule):
+        return False
+    return bool(
+        rule_services(semantic_rule)
+        or implied_service_options(semantic_rule)
+    )
 
 
 def service_skipped_fields(semantic_rule):
@@ -665,7 +760,7 @@ def assess_rule(
 
     service_based = (
         service_header_semantics == "snort3"
-        and bool(rule_services(assessed_rule))
+        and snort3_service_based(assessed_rule)
     )
     skipped_fields = (
         service_skipped_fields(assessed_rule)
