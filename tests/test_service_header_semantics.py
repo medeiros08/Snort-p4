@@ -103,6 +103,22 @@ def test_snort3_so_alarga():
                 assert legacy[campo] == tratamento, (texto, campo)
 
 
+COM_SERVICO_E_FLAGS = (
+    'alert tcp any any -> 192.168.10.0/24 80 ( msg:"http"; '
+    'flow:to_server,established; flags:S; content:"GET"; service:http; sid:9204; )'
+)
+
+
+def test_snort3_mantem_protocolo_quando_ha_flags():
+    # flags so casa em pacote com cabecalho TCP (ips_flags.cc), entao o
+    # protocolo continua necessario mesmo com o servico casando.
+    avaliada, _, _ = avaliar(COM_SERVICO_E_FLAGS, "snort3")
+    t = tratamentos(avaliada)
+    assert t["protocol"] == "PRESERVED"
+    assert t["dst_port"] == "DELEGATED"
+    assert t["flags"] in {"PRESERVED", "EXPANDED"}
+
+
 def test_semantica_desconhecida_e_recusada():
     ir = build_semantic_ir(parse_rule(COM_SERVICO))
     try:
@@ -120,6 +136,7 @@ if __name__ == "__main__":
     test_snort3_nao_muda_regra_sem_servico()
     test_snort3_sem_endereco_seletivo_vira_unsupported()
     test_snort3_so_alarga()
+    test_snort3_mantem_protocolo_quando_ha_flags()
     test_semantica_desconhecida_e_recusada()
 
     print(
