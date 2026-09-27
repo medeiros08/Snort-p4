@@ -1,0 +1,103 @@
+{
+  "gerador": "tests/cut_cicids2017_windows.py",
+  "gerado_em": "2026-09-27T21:42:27+00:00",
+  "registro": "output/datasets/cicids2017_thursday_metadata.json",
+  "criterio": "timestamp em [inicio, fim) do intervalo oficial, ADT",
+  "status": "CONFERE",
+  "conferencia": {
+    "captura": {
+      "sha256": [
+        "38f8b1bb276849bf1721f7c4de22bebfa7f59a74e52286d4c0a37edbb118fe01",
+        "38f8b1bb276849bf1721f7c4de22bebfa7f59a74e52286d4c0a37edbb118fe01"
+      ],
+      "pacotes": [
+        9322025,
+        9322025
+      ],
+      "bytes_capturados": [
+        7992634369,
+        7992634369
+      ]
+    },
+    "bruteforce": {
+      "pacotes": [
+        1108658,
+        1108658
+      ],
+      "bytes_capturados": [
+        1196560691,
+        1196560691
+      ],
+      "primeiro": [
+        "2017-07-06T09:20:00.000989-03:00",
+        "2017-07-06T09:20:00.000989-03:00"
+      ],
+      "ultimo": [
+        "2017-07-06T09:59:59.986741-03:00",
+        "2017-07-06T09:59:59.986741-03:00"
+      ]
+    },
+    "xss": {
+      "pacotes": [
+        191848,
+        191848
+      ],
+      "bytes_capturados": [
+        113428303,
+        113428303
+      ],
+      "primeiro": [
+        "2017-07-06T10:15:00.035766-03:00",
+        "2017-07-06T10:15:00.035766-03:00"
+      ],
+      "ultimo": [
+        "2017-07-06T10:34:59.898583-03:00",
+        "2017-07-06T10:34:59.898583-03:00"
+      ]
+    },
+    "sqli": {
+      "pacotes": [
+        35274,
+        35274
+      ],
+      "bytes_capturados": [
+        22326005,
+        22326005
+      ],
+      "primeiro": [
+        "2017-07-06T10:40:00.106566-03:00",
+        "2017-07-06T10:40:00.106566-03:00"
+      ],
+      "ultimo": [
+        "2017-07-06T10:41:59.998145-03:00",
+        "2017-07-06T10:41:59.998145-03:00"
+      ]
+    }
+  },
+  "janelas": {
+    "bruteforce": "C:\\Users\\amede\\datasets\\cicids2017\\windows\\thursday_web_bruteforce.pcap",
+    "xss": "C:\\Users\\amede\\datasets\\cicids2017\\windows\\thursday_web_xss.pcap",
+    "sqli": "C:\\Users\\amede\\datasets\\cicids2017\\windows\\thursday_web_sqli.pcap"
+  },
+  "janelas_gravadas": {
+    "bruteforce": {
+      "arquivo": "thursday_web_bruteforce.pcap",
+      "formato": "pcap classico, microssegundos, Ethernet",
+      "sha256": "c41480e5d9494ab56325c9b53d23301b0c182230ee1cf6af50f5489010d5edeb",
+      "tamanho": 1214299243
+    },
+    "xss": {
+      "arquivo": "thursday_web_xss.pcap",
+      "formato": "pcap classico, microssegundos, Ethernet",
+      "sha256": "13281f8d7133e0c8aa6286904e3d3e2f2ee4b945654dac444526f5f39bb79fe7",
+      "tamanho": 116497895
+    },
+    "sqli": {
+      "arquivo": "thursday_web_sqli.pcap",
+      "formato": "pcap classico, microssegundos, Ethernet",
+      "sha256": "7e36b2e25a8846b0019a2049a3e74e14818340be350e0ae25022de75dd24859d",
+      "tamanho": 22890413
+    }
+  },
+  "nota": "Janelas cortadas fora do rig, da captura baixada do mesmo espelho do registro. Os quadros e timestamps sao os das janelas do rig (pacotes, bytes e extremos conferem); o sha256 difere porque o arquivo e pcap classico, nao pcapng."
+}
