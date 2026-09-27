@@ -36,6 +36,7 @@ import sys
 import tempfile
 
 from collections import Counter
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -115,15 +116,17 @@ def resumo(saida: Path) -> dict:
     }
 
 
-def main() -> int:
-    legacy = resumo(PROJECT_ROOT / "output")
-    if legacy["strong_discriminator"] != CONGELADO_STRONG:
-        print(
-            "a politica nao reproduz a particao congelada: "
-            f"{legacy['strong_discriminator']} != {CONGELADO_STRONG}",
-            file=sys.stderr,
-        )
-        return 1
+class EstagioFalhou(RuntimeError):
+    pass
+
+
+@contextmanager
+def saida_snort3():
+    """Worktree temporaria do commit atual com o pipeline em modo snort3.
+
+    Entrega o diretorio `output/` dessa worktree e a remove ao sair. O
+    `output/` do repositorio nao e tocado.
+    """
 
     commit = _git("rev-parse", "HEAD")
     with tempfile.TemporaryDirectory() as temporario:
@@ -138,12 +141,31 @@ def main() -> int:
                     text=True,
                 )
                 if resultado.returncode != 0:
-                    print(f"estagio falhou: {' '.join(estagio)}", file=sys.stderr)
-                    print(resultado.stdout[-2000:], file=sys.stderr)
-                    return 1
-            snort3 = resumo(worktree / "output")
+                    raise EstagioFalhou(
+                        f"{' '.join(estagio)}\n{resultado.stdout[-2000:]}"
+                    )
+            yield worktree / "output"
         finally:
             _git("worktree", "remove", "--force", str(worktree))
+
+
+def main() -> int:
+    legacy = resumo(PROJECT_ROOT / "output")
+    if legacy["strong_discriminator"] != CONGELADO_STRONG:
+        print(
+            "a politica nao reproduz a particao congelada: "
+            f"{legacy['strong_discriminator']} != {CONGELADO_STRONG}",
+            file=sys.stderr,
+        )
+        return 1
+
+    commit = _git("rev-parse", "HEAD")
+    try:
+        with saida_snort3() as saida:
+            snort3 = resumo(saida)
+    except EstagioFalhou as erro:
+        print(f"estagio falhou: {erro}", file=sys.stderr)
+        return 1
 
     relatorio = {
         "analise": "service_header_semantics_whatif",
