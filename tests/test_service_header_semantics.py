@@ -288,6 +288,27 @@ def test_cobertura_de_alertas_gravada_e_coerente():
             assert medido["global_candidato"] == medido["alertas"]
 
 
+def test_tetos_de_precisao_de_cabecalho():
+    import json
+
+    sys.path.insert(0, str(RAIZ / "tests"))
+    from analyze_header_precision_bounds import prefixos
+
+    # Decomposicao em prefixos: [1024, 65535] = 6 prefixos; porta unica = 1.
+    assert prefixos(1024, 65535) == 6
+    assert prefixos(12345, 12346) == 1 + 1
+    assert prefixos(80, 80) == 1
+
+    tetos = json.loads(
+        (RAIZ / "output" / "analysis" / "header_precision_bounds.json").read_text(encoding="utf-8")
+    )
+    for chave in ("h12_faixas_de_porta", "m1_itype_icode", "m2_ip_proto"):
+        bloco = tetos[chave]
+        assert bloco["fora_do_strong"] <= bloco["regras"] == len(bloco["sids"])
+        assert abs(bloco["teto_pontos_sobre_ruleset"] - 100.0 * bloco["fora_do_strong"] / 4017) < 1e-3
+    assert tetos["m2_ip_proto"]["sids"] == ["2462", "2463", "2464"]
+
+
 if __name__ == "__main__":
 
     test_padrao_e_legacy()
@@ -304,6 +325,7 @@ if __name__ == "__main__":
     test_opcoes_do_ruleset_classificadas()
     test_metricas_de_trace_gravadas_e_coerentes()
     test_cobertura_de_alertas_gravada_e_coerente()
+    test_tetos_de_precisao_de_cabecalho()
 
     print(
         "Service header semantics tests passed."

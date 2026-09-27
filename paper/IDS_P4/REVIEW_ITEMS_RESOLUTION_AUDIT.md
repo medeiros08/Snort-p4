@@ -176,3 +176,48 @@ Under `snort3`, SID 254 (`service:dns`, 2,960 of the 3,069 alerts) keeps only
 its `HOME_NET` destination and becomes operational fallback, like the other
 four SIDs. No alert is lost, and none exercises the corrected candidate sets.
 The manuscript's §7.2 and RQ4 answer say so.
+
+## 9. Bounds on the Open Header-Precision Findings
+
+The Implementation Limitations now state how much the remaining
+representable-but-omitted header forms could matter. Counts come from
+`tests/analyze_header_precision_bounds.py` →
+`output/analysis/header_precision_bounds.json`, over
+`output/semantic_manifest.json` and the frozen strong partition
+(`output/campaign/plano_strong_discriminator/particao.json`). Each bound
+assumes that every such rule would leave the fallback and never be a
+candidate, so it is the most the full-ruleset reduction could gain.
+
+| Finding | Rules | Outside the strong partition today | Maximum gain |
+|---|---:|---:|---:|
+| H12 port ranges (ternary prefixes; list items and single ranges, no negation; 580 ternary terms before deduplication) | 73 (56 port-based) | 71 | 71 / 4,017 = 1.8 points |
+| M1 `itype` / `icode` (needs new P4 keys) | 124 NECESSARY | 123 | 3.1 points |
+| M2 `ip_proto` on the existing protocol key | 3 UNSUPPORTED (2462–2464) | 3 | 0.07 points |
+
+None was implemented. Together they stay below about 5 points, which would
+not change any conclusion, and M1 needs a P4 program change that cannot be
+compiled or tested on this machine. H11 (a bare protocol counted as
+selective) is what the strong-discriminator ablation already removes
+(`p4-106` is one of its nine removed entries).
+
+## 10. Consistency Review After the Trace Results
+
+An independent read of the whole manuscript against the artifacts, after
+§§7–9, confirmed every number in Table `tab:grouped`, §7.2, and the
+service-based counts. It found six issues, all fixed:
+
+| Issue | Fix |
+|---|---|
+| Construct Validity said every trace-level result uses the original compilation | Every result outside §7.2 does; the corrected compilation was measured offline only |
+| "the three DCE rules are in its operational fallback" left 51 rules unaccounted | 2,931 − 2,877 = 54 are in fallback, the three DCE rules among them |
+| The nine partially covered rules were all said to have unrestricted addresses | SIDs 1415 and 1416 go to the broadcast address; the other seven are any to any |
+| The Background counts `alert http` rules as service-based, but the 2,931 do not include them | §4.5 now fixes the convention: from there on, service-based means rules whose header names an IP protocol, and the Abstract says the finding "affects" 2,931 rules |
+| An ungrammatical clause in the Contributions | Reworded |
+| "only the offline audit of the held-out trace" | The audits of all three traces, which found no missing event among 3,069 alerts |
+
+Minor fixes applied as well: "the frozen study did not measure", "the broad
+port-free entries", the exception for non-TCP packets of the nine rules, the
+Introduction sentence split, the Methodology clause giving $B = 739$ and
+3,278 for the corrected compilation, and a clearer Limitations paragraph on
+the header-precision bounds, now backed by an artifact (§9, corrected
+there to 123 M1 rules outside the strong partition).

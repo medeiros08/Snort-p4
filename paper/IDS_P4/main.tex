@@ -53,8 +53,8 @@ BMv2 as the target, no rule that a plan prefilters alerted on a witness the
 data plane marked no-match. We also show that the necessary relation holds
 only where Snort evaluates the full rule header. Once Snort~3 identifies a
 flow's service, it ignores the header ports and protocol of service-based
-rules, and 2,931 necessary rules are service-based with predicates that
-constrain the protocol and, for 2,877, a port. The global plan still covers
+rules, which affects 2,931 necessary rules whose predicates constrain the
+protocol and, for 2,877, a port. The global plan still covers
 all but nine of them through its port-free entries. The strong-discriminator
 ablation behind the candidate sets does not, and recompiled with Snort~3's
 semantics it keeps 739 rules eligible, which bounds the full-ruleset
@@ -107,9 +107,9 @@ This paper develops and evaluates a semantics-aware, target-aware compilation
 workflow from Snort 3 rules to P4 predicates, with explicit delegation and
 fallback. Under the evaluated configuration, 4,003 of 4,017 rules admitted
 necessary predicates, although for the 2,931 service-based ones the relation
-holds only where Snort evaluates the full header, and the global binary
-prefilter marked 100\% of
-parser-eligible packets as candidates in the three evaluated traces. In
+holds only where Snort evaluates the full header. The global binary
+prefilter marked 100\% of parser-eligible packets as candidates in the three
+evaluated traces. In
 contrast, provenance-based analysis retained a 91.01\% mean
 candidate-rule-space reduction on held-out Brute Force within the frozen
 3,611-rule P4-eligible partition, or 81.81\% over the full ruleset; with
@@ -148,8 +148,8 @@ This work makes the following contributions:
     service-based rules, whether they declare a \texttt{service} option or
     acquire a service through their options, do not make their header ports
     and protocol necessary conditions, with a measurement of the 2,931
-    affected rules, of which plans remain candidate-complete for them, and of
-    what a compilation faithful to that rule changes.
+    affected rules, of the plans that remain candidate-complete for them, and
+    of what a compilation faithful to that rule changes.
     \item Empirical validation of semantic-split behavior and observed P4
     alert-packet preservation, without claiming formal equivalence or dynamic
     stateful candidate-set execution.
@@ -452,9 +452,11 @@ For a service-based rule whose header names an IP protocol, the header
 condition that is necessary for an alert is therefore $H_r^{\mathrm{addr}}$,
 the address part of $H_r$, and $r(x) \Rightarrow H_r(x)$ holds only for
 packets whose service Snort has not identified. The compiler represents these
-rules with their full header. Section~\ref{sec:service-exposure} measures how many rules this
-affects and which of the deployed plans still cover the traffic on which they
-can alert.
+rules with their full header. From here on, \emph{service-based} refers to
+these rules only; the user-mode rules keep their port checks and are counted
+with the rules whose full header Snort evaluates.
+Section~\ref{sec:service-exposure} measures how many rules this affects and
+which of the deployed plans still cover the traffic on which they can alert.
 
 \subsection{Enforced Packet Domain}
 \label{sec:packet-domain}
@@ -995,6 +997,10 @@ full packet bypass because fallback rules remain applicable. Because those
 R_{\mathrm{full}}(x) = \left(1 - \frac{|C(x)| + 406}{4017}\right) \times 100\%.
 \]
 
+For the corrected compilation of Section~\ref{sec:service-exposure}, the same
+definitions apply with $B=739$ and 3,278 rules applying to every packet in
+place of 406.
+
 For a grouping of the retained entries, a prefilter that forwards whole
 groups passes Snort every rule of each group containing a matched entry. Its
 grouped candidate set $C_G(x)$ is the union of the rules of those groups, and
@@ -1173,15 +1179,15 @@ In the 331-entry global plan, the port- and protocol-free entries
 \texttt{p4-40} and \texttt{p4-138} contain that region for 2,922 rules, and
 \texttt{p4-106} contains its TCP part for the remaining nine: SIDs 1415 and
 1416 (SNMP over UDP to the broadcast address), 1941 (TFTP over UDP), 28852,
-29174, and 38993 (HTTP), and 56583 to 56585 (Kerberos), all with unrestricted
-addresses. The global plan is therefore candidate-complete for these rules
+29174, and 38993 (HTTP), and 56583 to 56585 (Kerberos); the first two from
+any source and the other seven with unrestricted addresses. The global plan is therefore candidate-complete for these rules
 except for non-TCP packets of those nine services that no entry of the rule
 itself matches. The 322-entry strong-discriminator plan removed the nine
 entries that constrain at most the protocol and exactly \texttt{HOME\_NET};
 the six port-free entries it keeps carry TCP flags or other addresses, and
 none contains the region of any of the 2,931 rules. Of those rules, 2,877 are
-among its 3,611 P4-eligible rules; the three DCE rules are in its
-operational fallback, whose rules apply to every packet.
+among its 3,611 P4-eligible rules; the other 54, including the three DCE
+rules, are in its operational fallback, whose rules apply to every packet.
 
 Compiling the rules as Snort~3 evaluates them changes the structural results
 substantially. The compiler provides this as an option: ports and protocol of
@@ -1221,11 +1227,12 @@ service; without its UDP and port-53 conditions its predicate keeps only the
 traces therefore do not exercise the corrected candidate sets at all.
 
 No experiment in this paper was designed to exercise a service on a port
-outside a rule's header. Under the global plan, an alert of this kind would fall on a packet that
+outside a rule's header. Under the global plan, an alert of this kind would
+fall, except for non-TCP packets of the nine rules above, on a packet that
 \texttt{p4-40}, \texttt{p4-138}, or \texttt{p4-106} already marks
 candidate, so the trace-based checks could not reveal it; only the offline
-strong-discriminator audit of the held-out trace could, and it found no
-missing event. The end-to-end campaign places each witness on a port of the
+strong-discriminator audits of the three traces could, and they found no
+missing event among the 3,069 alerts. The end-to-end campaign places each witness on a port of the
 rule's own header. The frozen measurements in the rest of this section are
 therefore correct for the traffic they observed, but the strong-discriminator
 ablation and the per-packet candidate rule sets derive from predicates that
@@ -1383,8 +1390,8 @@ necessary predicates.
 \noindent\textbf{Answer to RQ3.} The global binary prefilter is conservative,
 except for non-TCP traffic of nine service-based rules, but operationally
 non-selective on the evaluated traces. The frozen broad-predicate ablation
-remains nearly as non-selective and, by removing the port-free entries, is
-not conservative for service-based rules (Section~\ref{sec:service-exposure}).
+remains nearly as non-selective and, by removing the broad port-free
+entries, is not conservative for service-based rules (Section~\ref{sec:service-exposure}).
 
 \subsection{Candidate Rule-Set Reduction (RQ4)}
 The global candidate bit asks whether a packet remains a candidate for IDS
@@ -1442,8 +1449,8 @@ candidate rule set, however, is computed at entry level, as the union of the
 provenance of the matched entries, and does not read the group assignment.
 The four strategies therefore report the values of
 Table~\ref{tab:candidate-rules} by construction; that they coincide is not an
-experimental observation, and the study does not measure the candidate set
-that a grouped prefilter would produce.
+experimental observation, and the frozen study did not measure the candidate
+set that a grouped prefilter would produce.
 
 What the study does record is the structure of the groups, and that structure
 bounds the cost of grouping. Under protocol grouping, the four groups
@@ -1879,9 +1886,10 @@ service and the header together. Snort~3 instead replaces the port and
 protocol checks by the service match, so for 2,931 rules the compiled
 predicate over-constrains the protocol and, for 2,877 of them, a port. This
 was established from the Snort~3.12.2.0 source and documentation, not by a
-data-plane experiment. The compiler now offers the corrected semantics as an option,
-but the frozen artifacts and every trace-level result in this paper use the
-original one.
+data-plane experiment. The compiler now offers the corrected semantics as an
+option, but the frozen artifacts and every trace-level result outside
+Section~\ref{sec:service-exposure} use the original one; the corrected
+compilation was measured offline only and was not installed on BMv2.
 
 Similarly, the 95.04\% backend reduction measures P4 installation state,
 not traffic reduction or removal of rules from Snort. Packet-level
@@ -2000,6 +2008,15 @@ tunneling than the evaluated traces would push a larger share of packets
 into unconditional fallback, which is safe but less informative. Extending
 the parser to cover those cases selectively, rather than conservatively,
 remains future work.
+
+Some header conditions that the target could represent are still omitted,
+which only broadens their predicates: port ranges, although the port keys
+are ternary and a range decomposes into prefixes; ICMP type and code; and
+the protocol number given by \texttt{ip\_proto}. Representing them would
+take at most 71, 123, and 3 rules out of the 406 that the frozen
+strong-discriminator plan applies to every packet, so it could raise that
+plan's full-ruleset reduction by at most 1.8, 3.1, and 0.07 percentage
+points. ICMP type and code would also need new table keys.
 
 Replay accounting is also not uniform across traces. The SQLi and XSS
 replays reconcile frame for frame with the data-plane counters, whereas the
