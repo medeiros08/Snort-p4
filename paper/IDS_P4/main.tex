@@ -1,6 +1,8 @@
 \documentclass{article}
 \usepackage{graphicx} % Required for inserting images
 \usepackage{booktabs}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{amsmath}
 \usepackage[hyphens]{url}
 \usepackage{tikz}
@@ -45,7 +47,10 @@ supports an alternative offline utility: deriving per-packet candidate rule
 sets. On held-out Brute Force, the average set decreased from the frozen
 3,611-rule P4-eligible partition to 324.52 rules, a 91.01\%
 candidate-rule-space reduction. Within the evaluated traces, the paths
-preserved all observed candidate alerts. These results show that
+preserved all observed candidate alerts, and an end-to-end campaign over
+1,000 sampled rules, with Snort~3 as the oracle and BMv2 as the target,
+observed no packet on which a sampled rule alerted while the data plane
+reported no-match. These results show that
 semantic safety and operational selectivity are distinct, and that provenance
 can retain useful rule-level information even when a binary prefilter is not
 selective; candidate-set-aware IDS execution remains future work.
@@ -127,6 +132,10 @@ This work makes the following contributions:
     \item Empirical validation of semantic-split behavior and observed P4
     alert-packet preservation, without claiming formal equivalence or dynamic
     stateful candidate-set execution.
+    \item An end-to-end differential campaign that synthesizes a witness flow
+    per rule and compares Snort~3 alerts with BMv2 verdicts frame by frame,
+    observing no violation over a stratified sample of 1,000 rules and
+    measuring how much the evaluated plans can falsify.
 \end{itemize}
 
 \subsection{Research Questions}
@@ -251,7 +260,7 @@ what is preserved, delegated, and still operationally useful.
 \caption{Related-work comparison. ``Not explicit'' denotes information not
 established in the reviewed scope, rather than absence of the feature.}
 \label{tab:related-work-comparison}
-\begin{tabular}{p{1.45cm}p{2.20cm}p{1.90cm}p{2.00cm}p{2.35cm}p{2.80cm}p{2.20cm}p{3.35cm}}
+\begin{tabular}{L{1.45cm}L{2.20cm}L{1.90cm}L{2.00cm}L{2.35cm}L{2.80cm}L{2.20cm}L{3.35cm}}
 \toprule
 \textbf{Work} & \textbf{Source IDS / rules} & \textbf{P4 target} & \textbf{Rule-derived filtering} & \textbf{State / context handling} & \textbf{Explicit semantic relation} & \textbf{Provenance retained} & \textbf{Main objective} \\
 \midrule
@@ -577,7 +586,7 @@ record of the conditions that must still be evaluated by Snort.
 and delegated to Snort; it does not mean ignored by the IDS.}
 \label{tab:compilation-semantics}
 \resizebox{\linewidth}{!}{%
-\begin{tabular}{p{3.00cm}p{4.90cm}p{4.20cm}p{2.65cm}p{6.20cm}}
+\begin{tabular}{L{3.00cm}L{4.90cm}L{4.20cm}L{2.65cm}L{6.20cm}}
 \toprule
 \textbf{Snort construct} & \textbf{Compiler handling} & \textbf{P4 representation} & \textbf{Treatment} & \textbf{Guarantee / condition} \\
 \midrule
@@ -738,7 +747,8 @@ the initial target profile and the distribution of semantic
 classifications. Second, the generated predicates are executed using a
 P4 software target. Finally, the behavior of the resulting pre-filtering
 pipeline is compared with the execution of the original rules directly
-in Snort.
+in Snort, both on captured traces and in an end-to-end campaign over
+synthesized flows (Section~\ref{sec:campaign-method}).
 \subsection{Experimental Environment and P4/BMv2 Target}
 The initial experimental environment consists of Snort 3 as the
 reference IDS and a P4 software switch as the programmable data-plane
@@ -920,6 +930,54 @@ cannot derive a useful and safe pre-filtering predicate. Such rules are
 classified as UNSUPPORTED and remain entirely delegated to Snort. This
 scenario verifies that unsupported semantics are explicitly reported
 rather than silently removed during compilation.
+
+\subsection{End-to-End Differential Campaign}
+\label{sec:campaign-method}
+The trace-based checks exercise only the few rules that fire in the evaluated
+windows. To test the safety relation on a wider set of rules, a differential
+campaign uses Snort~3 as the oracle and BMv2 as the system under test. For
+each rule, a generator synthesizes from the rule's IR a short flow whose
+witness packet should make Snort raise that rule's alert: a TCP handshake when
+the \texttt{flow} option requires an established session, then a witness that
+carries the rule's header values, places each \texttt{content} in the
+inspected buffer, and uses a service port that lets Snort bind the required
+inspector. Each witness has two neighbors: a payload-negative frame with the
+same 5-tuple but without the content, which Snort should not alert on, and,
+where the installed entries leave one, a header-negative frame whose
+destination port falls outside every installed entry.
+
+A witness could be synthesized for 2,142 of the 4,017 rules. The other 1,875,
+including the 14 \textsc{Unsupported} rules, were excluded because no witness
+can be built by choosing bytes; 1,654 of them carry options such as
+\texttt{pcre}, \texttt{byte\_test}, \texttt{byte\_jump}, or
+\texttt{flowbits}. A sample of 1,000 rules, stratified proportionally by
+protocol, service, and direction with a fixed seed, was written to one trace
+in which each case occupies its own second: 6,684 frames, all inside $D$.
+
+Snort~3 reads the trace with the full ruleset and the experimental profile,
+and each alert is attributed to a case twice, by packet range and by
+timestamp. BMv2 receives the same frames one at a time, and the counter
+category that increments after each frame is recorded. Each case then
+receives one verdict. It is \textsc{Confirmed} when Snort alerted and both the
+witness and every frame it alerted on were marked candidate. It is a
+\textsc{Violation} when Snort alerted but the witness, or another frame that
+satisfies the rule's header and on which Snort alerted, was marked no-match;
+this is the only outcome that contradicts $r \Rightarrow \mathrm{cand}$. It is \textsc{Vacuous} when Snort did not
+alert, so the case did not test the implication. It shows \textsc{State
+Dependence} when the witness was a candidate but Snort attributed the alert to
+a session frame that does not satisfy the rule's header and that the data
+plane marked no-match. Rules placed in operational fallback by the
+strong-discriminator policy are reported separately, because the prefilter is
+not responsible for them.
+
+The campaign was run against both the 331-entry global plan and the 322-entry
+strong-discriminator plan. The global plan limits what the campaign can
+falsify: entry \texttt{p4-106} matches every in-domain TCP packet, so a TCP
+witness is a candidate however its own rule was lowered. To quantify this,
+the offline matcher also records whether each witness is matched only by
+entries whose provenance contains the case's own rule. For such a case, a
+lowering defect in that rule would have produced a \textsc{Violation}.
+
 \section{Results}
 \label{sec:results}
 \subsection{Semantic Compilation Coverage (RQ1)}
@@ -1071,6 +1129,7 @@ Brute Force (held-out) & 1108658 & 1101459 & 1101459 & 0 & 98.942\% & 1.058\% \\
 \end{table*}
 
 \subsection{Selectivity Causal Analysis}
+\label{sec:selectivity-causal}
 The causal audit first identified broad \textsc{Necessary} predicates in the
 global table. Entry \texttt{p4-106} matches TCP protocol only; it subsumes
 246 installation entries (74.32\%). Entry \texttt{p4-40} matches traffic
@@ -1155,10 +1214,10 @@ packet. Coarse grouping only aggregates this information and therefore did
 not improve the effective candidate rule set.
 
 \subsection{Dynamic Alert Preservation (RQ4)}
-Table~\ref{tab:alert-preservation} separates four empirical properties:
-semantic split preservation, P4 alert-packet\allowbreak preservation,
-strong-discriminator\allowbreak observed-event\allowbreak coverage, and entry-level candidate-set
-SID membership. These are not interchangeable claims of equivalence.
+Table~\ref{tab:alert-preservation} separates four empirical properties. They
+are semantic split preservation, P4 alert-packet preservation, observed-event
+coverage under the strong discriminator, and entry-level candidate-set SID
+membership. These are not interchangeable claims of equivalence.
 
 For SQLi, XSS, and held-out Brute Force, the semantic split had zero missing
 or additional alerts, and all observed parser-eligible candidate-alert
@@ -1178,11 +1237,6 @@ evaluated ruleset behavior and constitute observed alert preservation, not
 formal equivalence, guaranteed preservation for arbitrary traffic, or
 detection accuracy.
 
-\noindent\textbf{Answer to RQ4.} The evaluated predicates preserved all
-observed candidate alert events while exposing substantially smaller
-per-packet candidate rule sets; the latter remains an offline feasibility
-result because dynamic stateful candidate-set execution was not implemented.
-
 \begin{table}[h]
 \centering
 \scriptsize
@@ -1200,6 +1254,80 @@ Brute Force (held-out) & 2391 & 2391 & 0 & 0 & 0 & 2391 & 2391 & 0 & 100\% \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{End-to-End Differential Campaign (RQ4)}
+\label{sec:campaign-results}
+Table~\ref{tab:campaign} reports the campaign verdicts. No case produced a
+\textsc{Violation} under either plan, and no frame fell outside $D$, so no
+case was resolved by domain fallback. The two attributions of Snort alerts to
+cases, by packet range and by timestamp, agreed for every case.
+
+Under the global plan, 923 of the 1,000 rules were \textsc{Confirmed} and 77
+were \textsc{Vacuous}. All 1,000 witnesses and all 1,000 payload-negative
+frames were candidates, and all 101 header-negative frames were no-matches.
+Every confirmed witness, however, was also matched by an entry of another
+rule, so no confirmation under this plan can be attributed to the rule's own
+predicate. This is the broad coverage of
+Section~\ref{sec:selectivity-causal} seen at the level of individual rules:
+the same coverage that removes packet-level selectivity also removes the
+power to falsify a single rule's lowering.
+
+Under the strong-discriminator plan, 851 rules were \textsc{Confirmed}, 107
+were in operational fallback, 40 were \textsc{Vacuous}, and 2 showed
+\textsc{State Dependence}. Every confirmed witness was matched by at least one
+entry of its own rule, and for 153 of the 851 it was matched by no other
+entry, so a lowering defect in those rules would have been observed as a
+\textsc{Violation}; the other 698 were matched by their own entries together
+with entries of other rules. Of the 107 fallback rules, 66 had witnesses
+marked no-match, as expected for rules with no retained entry, and 41 were
+candidates through other rules' entries. In both runs, the category
+predicted by the offline matcher agreed with the BMv2 counter on all 2,101
+witness and neighbor frames, which extends the eleven-case packet-domain
+suite of Section~\ref{sec:domain-validation} to a thousand rules and to the
+matcher that produced the selectivity results.
+
+The payload-negative frames measure the conservative excess of a
+header-level prefilter: 934 of them were candidates although Snort did not
+alert on them, and the remaining 66 belong to the fallback rules whose
+witnesses were also no-matches. The two \textsc{State Dependence} cases,
+SIDs 43809 and 47386, are HTTP request rules. Snort attributed each alert to
+the server-to-client acknowledgment that triggers inspection of the buffered
+request, and the strong-discriminator plan marks that acknowledgment
+no-match because it does not satisfy the rule's header. The compiled
+predicate held on the witness, but a deployment that withheld no-match
+packets from Snort could delay or suppress these alerts. The global plan
+hides this dependence, because \texttt{p4-138} matches every packet leaving
+\texttt{HOME\_NET}.
+
+\begin{table}[h]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\caption{End-to-end differential campaign over one stratified sample of 1,000
+rules. \emph{Own-only} counts confirmed rules whose witness was matched only
+by entries of their own rule, computed with the offline matcher. The global
+row used an earlier revision of the witness generator than the
+strong-discriminator row; revisions changed witness construction only, and
+none produced a violation.}
+\label{tab:campaign}
+\begin{tabular}{lrrrrrrr}
+\toprule
+Plan & Entries & Confirmed & Violation & \shortstack{State\\dep.} & \shortstack{Oper.\\fallback} & Vacuous & \shortstack{Own-\\only} \\
+\midrule
+Global & 331 & 923 & 0 & 0 & -- & 77 & 0 \\
+Strong discriminator & 322 & 851 & 0 & 2 & 107 & 40 & 153 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Answer to RQ4.} The evaluated predicates preserved all
+observed candidate alert events in the three traces, and the end-to-end
+campaign observed no packet on which Snort raised a sampled rule's alert
+while the data plane reported no-match, across 923 confirmed rules under the
+global plan and 851 under the strong-discriminator plan. The predicates also exposed substantially smaller
+per-packet candidate rule sets; that result remains an offline feasibility
+measurement because dynamic stateful candidate-set execution was not
+implemented.
 
 Figure~\ref{fig:semantic-compilation-overview} summarizes the semantic
 compilation flow and distinguishes the implemented binary prefilter from the
@@ -1321,6 +1449,15 @@ coverage persisted through the distributed union of many retained predicates.
 Thus, the evidence does not attribute poor selectivity to only three broad
 entries. It instead indicates that large heterogeneous rulesets can make a
 single global candidate bit too coarse and discard rule-level provenance.
+
+The union also limits what can be tested. In the end-to-end campaign, every
+confirmed witness under the global plan was also matched by another rule's
+entry, so a defect in any single rule's lowering would have been masked by
+the rest of the table. Only after the broad entries were removed did 153
+confirmations depend on the rule's own entries alone. Testing the lowering
+of an individual rule therefore needs a configuration in which that rule's
+predicate is not covered by the others, a condition closely related to the
+one that packet-level selectivity depends on.
 \subsection{From Packet Bypass to Candidate-Rule Selection}
 The global prefilter asks whether a packet should remain a candidate for IDS
 handling. Provenance enables a different question: which IDS rules remain
@@ -1444,7 +1581,24 @@ establishes that removing the 14 \textsc{Unsupported} rules did not perturb the
 observed alerts; it does not establish that the split is correct for rules that
 the traces never exercised. Rulesets or traces that activate
 \textsc{Unsupported} rules would be required to give this check discriminating
-power.
+power. The end-to-end campaign does not close this gap, because the 14
+\textsc{Unsupported} rules admit no synthesized witness and are outside its
+sample.
+
+The campaign's witnesses are synthesized from the compiler's own IR, so the
+generator and the compiler could share an error. The verdict does not rest on
+that IR, however: a case counts only when Snort, running the original rule
+text, alerts on it, so an IR error that produced a wrong witness yields a
+\textsc{Vacuous} case rather than a \textsc{Confirmed} one. Vacuous cases
+exposed two IR defects in \texttt{content} handling, whitespace inside the
+pattern and negation written as \texttt{!} outside the quotes, and both were
+corrected without changing any P4 artifact. The strong-discriminator run
+preceded the second correction; the only sampled rule it affected, SID 28982,
+was recorded as vacuous. The campaign's reach is also bounded by
+construction. Each rule is exercised at a single point of its packet space.
+The 1,875 rules for which no witness can be synthesized, most of which carry
+the richer payload and state semantics, are not tested at all, and the sample
+is drawn from the synthesizable subset rather than from the full ruleset.
 
 \subsection{External Validity}
 These results should be interpreted within the experimental Snort variable
@@ -1464,6 +1618,13 @@ contemporary enterprise networks. Held-out Brute Force strengthens the
 evidence within this experimental setup, but it does not establish broad
 real-world generalization to production networks, other datasets, or other
 IDS workloads.
+
+The trace-based alert evidence rests on few rules: the three windows fired
+one, two, and five distinct SIDs. The end-to-end campaign widens rule
+coverage to 923 confirmed SIDs under the global plan and 851 under the
+strong-discriminator plan, but its traffic is synthetic, one short flow per
+rule, and says nothing about how often these rules fire, or which packets
+they fire on, in real traffic.
 
 \subsection{Implementation and Target Limitations}
 The prototype uses the BMv2/v1model software target rather than production
@@ -1515,7 +1676,11 @@ depend on prior flow state, stream state, flowbits, temporal conditions, or
 state established by previous packets. The held-out 2,289/2,289 result is
 therefore observed alert-SID membership, not stateful dynamic-execution
 equivalence. The dependency audit reduces one specific class of risk but does
-not prove dynamic safety for all Snort state mechanisms. Likewise, the
+not prove dynamic safety for all Snort state mechanisms. The campaign measured
+one such mechanism directly: for two HTTP rules, Snort's alert depended on a
+server-to-client acknowledgment that the strong-discriminator plan marks
+no-match, so a packet-level decision that is safe for the rule's own packets
+can still withhold a packet that stream inspection needs. Likewise, the
 overlap-limited result for the evaluated coarse groupings does not show that
 every future grouping algorithm would fail; future evaluation should consider
 provenance, dependencies, overlap, and target resource constraints together.
@@ -1548,7 +1713,14 @@ distributed union coverage among retained predicates also sustained the
 near-universal candidate behavior.
 
 For RQ4, the evaluated predicates achieved 100\% observed alert preservation
-in the three traces and exposed a separate provenance-based utility: within
+in the three traces, and the end-to-end campaign observed no violation of
+$r \Rightarrow \mathrm{cand}$ among the sampled rules that Snort confirmed:
+923 under the global plan and 851 under the strong-discriminator plan, 153 of
+the latter attributable to the rule's own entries alone. The same campaign showed that the global plan's broad
+entries leave no confirmation attributable to a single rule, and it measured
+two HTTP rules whose alerts depend on a packet the strong-discriminator plan
+marks no-match. The predicates also exposed a separate provenance-based
+utility: within
 the frozen 3,611-rule P4-eligible partition, mean candidate-rule-space
 reduction was 95.04\% for SQLi, 96.11\% for XSS, and 91.01\% for held-out
 Brute Force, whose mean candidate set contained 324.52 rules. The latter is
@@ -1569,7 +1741,11 @@ compilation pipeline from rule parsing to P4Runtime entry generation, the
 semantic manifest with predicate-to-rule provenance, the compiled P4 program
 and its P4Info, and the JSON artifacts underlying every table and figure. A
 regression check reproduces the ten frozen pipeline artifacts byte for byte
-from the committed sources.
+from the committed sources. The end-to-end campaign's cases, per-case
+verdicts, and Snort alerts are under \path{output/campaign/}; its traces are
+not versioned, but running the case generator at the commit that produced a
+run regenerates its trace byte for byte, as checked against the SHA-256
+digest recorded with each run.
 
 The CICIDS2017 traces are not redistributed here; they are obtained from the
 Canadian Institute for Cybersecurity. The BMv2 target, Snort~3, and the P4
