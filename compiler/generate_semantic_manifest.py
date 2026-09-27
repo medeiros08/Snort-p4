@@ -17,6 +17,7 @@ from build_semantic_ir import (
 )
 
 from target_capability import (
+    SERVICE_HEADER_SEMANTICS,
     assess_rule,
 )
 
@@ -64,7 +65,30 @@ def is_candidate_rule(line):
     return True
 
 
+def parse_arguments():
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Generate the semantic manifest."
+    )
+    parser.add_argument(
+        "--service-header-semantics",
+        choices=SERVICE_HEADER_SEMANTICS,
+        default="legacy",
+        help=(
+            "legacy (default) reproduces the frozen artifacts; snort3 "
+            "delegates protocol and ports of service-based rules, which "
+            "Snort 3 does not check once the flow's service matches "
+            "(paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md)"
+        ),
+    )
+    return parser.parse_args()
+
+
 def main():
+    arguments = parse_arguments()
+    service_header_semantics = arguments.service_header_semantics
+
     ruleset_path = Path(
         RULESET_FILE
     )
@@ -172,7 +196,8 @@ def main():
                     assessed_rule,
                     capability_reasons,
                 ) = assess_rule(
-                    semantic_rule
+                    semantic_rule,
+                    service_header_semantics,
                 )
 
                 # --------------------------------------------
@@ -324,6 +349,13 @@ def main():
 
         "rules": records,
     }
+
+    # Recorded only off the default, so the legacy manifest stays
+    # byte-identical to the frozen one.
+    if service_header_semantics != "legacy":
+        manifest["summary"][
+            "service_header_semantics"
+        ] = service_header_semantics
 
     with open(
         output_path,
