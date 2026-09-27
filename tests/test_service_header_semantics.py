@@ -265,6 +265,29 @@ def test_metricas_de_trace_gravadas_e_coerentes():
             assert agrupado["mean"] >= medido["candidate_set_por_entrada"]["mean"] - 1e-9
 
 
+def test_cobertura_de_alertas_gravada_e_coerente():
+    import json
+
+    relatorio = json.loads(
+        (RAIZ / "output" / "analysis" / "alert_coverage_by_semantics.json").read_text(encoding="utf-8")
+    )
+    congelado = json.loads(
+        (
+            RAIZ / "output" / "experiments" / "cicids2017_thursday_bruteforce"
+            / "strong_discriminator_alert_audit.json"
+        ).read_text(encoding="utf-8")
+    )
+    bf = relatorio["legacy"]["bruteforce"]
+    assert bf["elegiveis"] == congelado["eligible_alert_events"]
+    assert bf["fallback"] == congelado["fallback_alert_events"]
+    assert bf["cobertos"] == congelado["p4_covered_eligible_alert_events"]
+    for semantica in ("legacy", "snort3"):
+        for janela, medido in relatorio[semantica].items():
+            assert medido["faltando"] == 0 and medido["sid_desconhecida"] == 0, (semantica, janela)
+            assert medido["cobertos"] + medido["fallback"] + medido["dominio"] == medido["alertas"]
+            assert medido["global_candidato"] == medido["alertas"]
+
+
 if __name__ == "__main__":
 
     test_padrao_e_legacy()
@@ -280,6 +303,7 @@ if __name__ == "__main__":
     test_snort3_mantem_portas_com_protocolo_de_servico_no_cabecalho()
     test_opcoes_do_ruleset_classificadas()
     test_metricas_de_trace_gravadas_e_coerentes()
+    test_cobertura_de_alertas_gravada_e_coerente()
 
     print(
         "Service header semantics tests passed."

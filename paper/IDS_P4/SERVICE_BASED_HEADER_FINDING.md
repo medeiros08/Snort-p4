@@ -297,4 +297,8 @@ changes.
    | full-ruleset reduction | 85.43% / 86.40% / 81.81% | 18.30% / 18.30% / 18.29% |
 
    Offline, with the parser mirror and matcher of the frozen strong rates;
-   no `snort3` plan has been installed on BMv2.
+   no `snort3` plan has been installed on BMv2. The event-level alert audit
+   (`tests/rederive_alert_coverage_by_semantics.py`) loses none of the 3,069
+   observed alerts under `snort3`, but all of them then come from fallback
+   rules: sid 254 (`service:dns`, 2,960 alerts) keeps only its `HOME_NET`
+   destination. The traces do not exercise the corrected candidate sets.

@@ -1212,6 +1212,14 @@ predicates. The mean candidate set shrinks to 3.97, 3.94, and 4.48 of the
 18.30\%, 18.30\%, and 18.29\%, just under the bound. Neither plan of the
 corrected compilation was installed on BMv2.
 
+Repeating the offline audit of observed alerts under this compilation loses
+none of the 3,069 alerts of the three traces, but only because all of them
+now belong to fallback rules. SID 254, which raised 2,960 of them and whose
+events were all in the frozen candidate sets, declares the \texttt{dns}
+service; without its UDP and port-53 conditions its predicate keeps only the
+\texttt{HOME\_NET} destination, which is not a strong discriminator. The
+traces therefore do not exercise the corrected candidate sets at all.
+
 No experiment in this paper was designed to exercise a service on a port
 outside a rule's header. Under the global plan, an alert of this kind would fall on a packet that
 \texttt{p4-40}, \texttt{p4-138}, or \texttt{p4-106} already marks
@@ -1620,8 +1628,9 @@ remains an offline feasibility measurement because dynamic stateful
 candidate-set execution was not implemented, and it rests on port-constrained
 predicates for service-based rules. With Snort~3's service semantics, the
 strong-discriminator policy keeps 739 eligible rules, which bounds the
-full-ruleset reduction at 18.40\%; the traces reach 18.29--18.30\%
-(Section~\ref{sec:service-exposure}). A prefilter that forwards whole groups
+full-ruleset reduction at 18.40\%; the traces reach 18.29--18.30\%, and all
+their alerts then come from fallback rules, so none exercises the corrected
+candidate sets (Section~\ref{sec:service-exposure}). A prefilter that forwards whole groups
 keeps the reduction only with groups nearly as fine as the entries: under
 protocol grouping the set shrinks by only 12--19\% (Table~\ref{tab:grouped}).
 
