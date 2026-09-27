@@ -111,7 +111,7 @@ Produced by `tests/analyze_service_based_headers.py`
 | would have no selective predicate left | 7 |
 | service-specific options without `service:` (not counted; mechanism unverified) | 15 |
 
-Most frequent services among the 2,928: `http` 2,316, `imap` 150, `pop3` 138,
+Most frequent services among the 2,928: `http` 2,314, `imap` 150, `pop3` 138,
 `smtp` 131, `ftp-data` 95, `ftp` 94.
 
 ## 4. Plan-Level Coverage
@@ -132,8 +132,18 @@ The nine partial cases are sids 1415 and 1416 (SNMP over UDP to
 (HTTP, any to any), and 56583 to 56585 (Kerberos, any to any): for these a
 non-TCP packet of the service on another port would not be marked candidate.
 
-The strong-discriminator policy removed exactly the port-free entries, so its
-retained predicates constrain ports or protocol for every exposed rule.
+The strong-discriminator policy removed the nine entries that constrain at
+most the protocol and exactly `HOME_NET`. It keeps six port-free entries
+(`p4-23`, `p4-84`, `p4-85`, `p4-99`, `p4-116`, `p4-289`), which carry TCP flags
+or other addresses, and none of them contains the region of any exposed rule.
+
+A header that names a service protocol instead of an IP protocol is an
+exception to §2.3. `SetupRTNFuncList` marks such a rule `USER_MODE`, and
+`fp_eval_rtn` then forces `check_ports = 1`, so its ports stay checked. The
+twelve NECESSARY rules of the form `alert http ... -> ...` are therefore not
+exposed, and none declares `service:`. Three further NECESSARY rules (529,
+3238, 3239) use service-specific options without `service:`; whether those
+options add a service was not confirmed in the source.
 
 ## 5. Why No Experiment Observed It
 
@@ -151,7 +161,7 @@ retained predicates constrain ports or protocol for every exposed rule.
 
 | Claim | Effect |
 |---|---|
-| RQ1, 4,003 NECESSARY with `r => p_r` | Holds for the 1,075 NECESSARY rules without an explicit `service:` (15 of them use service-specific options and may also be service-based; unverified); for the 2,928 service-based ones the predicate is necessary only where Snort evaluates the full header. An address-only predicate would be necessary for them and selective for 2,921. |
+| RQ1, 4,003 NECESSARY with `r => p_r` | Holds for the 1,060 port-based NECESSARY rules and the 12 `alert http ... -> ...` rules, whose ports Snort keeps checking (1,072 in all); unconfirmed for 3 rules with service-specific options and no `service:`; for the 2,928 with `service:` the predicate is necessary only where Snort evaluates the full header. An address-only predicate would be necessary for them and selective for 2,921. |
 | Predicate-level soundness argument (§4.4) | The premise `r(x) => H_r(x)` must exclude ports and protocol for service-based rules. |
 | Global prefilter conservatism | Plan-level candidate-completeness holds for 2,919 of 2,928 exposed rules and for the TCP part of the rest, through broad port-free entries. |
 | Global selectivity (100%) | Unaffected. |
