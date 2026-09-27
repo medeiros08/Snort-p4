@@ -591,8 +591,40 @@ def assess_header_predicate(predicate):
     )
 
 
+# Header fields Snort 3 stops checking on a service-based rule once the
+# flow's identified service is one of the rule's services. Snort 3.12.2.0:
+# src/detection/detection_options.cc sets check_ports = 0 on a service match;
+# src/detection/rtn_checks.cc then skips CheckSrcPort*/CheckDstPort* and
+# returns early from CheckProto, while CheckSrcIP/CheckDstIP always run.
+# Documented at docs/vendor/snort3/doc/user/concepts.txt:290.
+SERVICE_SKIPPED_HEADER_FIELDS = {
+    "protocol",
+    "src_port",
+    "dst_port",
+}
+
+# "legacy" reproduces the frozen artifacts: the header of a service-based
+# rule is assessed like a port-based one. "snort3" follows Snort 3's
+# evaluation and delegates the fields above. See
+# paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md.
+SERVICE_HEADER_SEMANTICS = (
+    "legacy",
+    "snort3",
+)
+
+
+def rule_services(semantic_rule):
+    return [
+        predicate.value
+        for predicate in semantic_rule.predicates
+        if predicate.kind == "APPLICATION"
+        and predicate.source_option == "service"
+    ]
+
+
 def assess_rule(
-    semantic_rule
+    semantic_rule,
+    service_header_semantics="legacy",
 ):
     """
     Return a deep copy of the semantic rule with
@@ -602,11 +634,21 @@ def assess_rule(
     The original semantic IR remains target-neutral.
     """
 
+    if service_header_semantics not in SERVICE_HEADER_SEMANTICS:
+        raise ValueError(
+            f"unknown service_header_semantics: {service_header_semantics}"
+        )
+
     assessed_rule = deepcopy(
         semantic_rule
     )
 
     reasons = []
+
+    service_based = (
+        service_header_semantics == "snort3"
+        and bool(rule_services(assessed_rule))
+    )
 
     for predicate in (
         assessed_rule.predicates
@@ -621,11 +663,20 @@ def assess_rule(
         ):
             continue
 
-        treatment, reason = (
-            assess_header_predicate(
-                predicate
+        if (
+            service_based
+            and predicate.field in SERVICE_SKIPPED_HEADER_FIELDS
+        ):
+            treatment, reason = (
+                "DELEGATED",
+                "service_based_header_not_checked_on_service_match",
             )
-        )
+        else:
+            treatment, reason = (
+                assess_header_predicate(
+                    predicate
+                )
+            )
 
         predicate.backend_treatment = (
             treatment
