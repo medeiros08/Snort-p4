@@ -1,0 +1,62 @@
+{
+  "analise": "alert_preservation_offline_post_correction",
+  "entradas": {
+    "caminho": "output/p4_install_entries.json",
+    "sha256": "75494c0f4eec3e5c8a3559b8a65eed5861dbe47179c8e05d5a3bf47203cbf68a",
+    "total": 331
+  },
+  "gerado_em": "2026-09-27T06:36:00+00:00",
+  "gerador": "tests/rederive_alert_preservation_offline.py",
+  "janelas": {
+    "bruteforce": {
+      "bmv2_pre_correcao": {
+        "P4_CANDIDATE": 2391,
+        "P4_NO_MATCH": 0,
+        "pacotes": 2391
+      },
+      "confere": true,
+      "offline_pos_correcao": {
+        "P4_CANDIDATE": 2391,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0,
+        "pacotes": 2391
+      },
+      "pcap": "output/experiments/cicids2017_thursday_bruteforce/candidate_alert_packets.pcap",
+      "pcap_sha256": "ed00df639af5e83d215e20cde9d5d77ddb1b7056884de555fa638856a0ece830"
+    },
+    "sqli": {
+      "bmv2_pre_correcao": {
+        "P4_CANDIDATE": 150,
+        "P4_NO_MATCH": 0,
+        "pacotes": 150
+      },
+      "confere": true,
+      "offline_pos_correcao": {
+        "P4_CANDIDATE": 150,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0,
+        "pacotes": 150
+      },
+      "pcap": "output/experiments/cicids2017_thursday_sqli/candidate_alert_packets.pcap",
+      "pcap_sha256": "c36ded14ad9b04b9c423016681660e10882b027dbca027a2354b5a4aa26d28c0"
+    },
+    "xss": {
+      "bmv2_pre_correcao": {
+        "P4_CANDIDATE": 528,
+        "P4_NO_MATCH": 0,
+        "pacotes": 528
+      },
+      "confere": true,
+      "offline_pos_correcao": {
+        "P4_CANDIDATE": 528,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0,
+        "pacotes": 528
+      },
+      "pcap": "output/experiments/cicids2017_thursday_xss/candidate_alert_packets.pcap",
+      "pcap_sha256": "f61950609991ebe20bf525981ea987144e02c9893dfe7aeef54b1eb59ef4ab30"
+    }
+  },
+  "nota": "Rederivacao offline com o classificador de referencia sob o dominio imposto; nao substitui replay no BMv2 corrigido.",
+  "status": "CONFERE"
+}
