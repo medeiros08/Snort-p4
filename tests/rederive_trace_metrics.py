@@ -33,6 +33,7 @@ Uso (no rig, com os pcaps das janelas):
 from __future__ import annotations
 
 import argparse
+import hashlib
 import ipaddress
 import json
 import statistics
@@ -59,7 +60,7 @@ from simulate_operational_policy import (  # noqa: E402
     simulate_rule_partition,
     summarize_semantic_rules,
 )
-from whatif_service_header_semantics import EstagioFalhou, saida_snort3  # noqa: E402
+from whatif_service_header_semantics import EstagioFalhou, _git, saida_snort3  # noqa: E402
 
 SAIDA = PROJECT_ROOT / "output" / "analysis" / "trace_metrics_by_semantics.json"
 HOME_NET = ipaddress.ip_network("192.168.10.0/24")
@@ -202,6 +203,14 @@ def medir(caminho: Path, conf: dict) -> dict:
     }
 
 
+def sha256_do_arquivo(caminho: Path) -> str:
+    resumo = hashlib.sha256()
+    with open(caminho, "rb") as arquivo:
+        for bloco in iter(lambda: arquivo.read(1 << 22), b""):
+            resumo.update(bloco)
+    return resumo.hexdigest()
+
+
 def reproduz(nome: str, medido: dict) -> list[str]:
     esperado = CONGELADO.get(nome)
     if esperado is None:
@@ -240,8 +249,16 @@ def main() -> int:
         "analise": "trace_metrics_by_semantics",
         "gerado_em": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
         "gerador": "tests/rederive_trace_metrics.py",
+        "commit": _git("rev-parse", "HEAD"),
         "janelas": janelas,
+        "janelas_sha256": {nome: sha256_do_arquivo(Path(c)) for nome, c in janelas.items()},
         "validacao_contra_congelado": not argumentos.sem_validacao,
+        "nota": (
+            "Offline: parser espelhado do P4 e casador de entradas, o mesmo codigo das "
+            "taxas strong congeladas. O snort3 e o pipeline com "
+            "--service-header-semantics snort3 no commit registrado; nenhum dos seus "
+            "planos foi instalado no BMv2."
+        ),
     }
 
     if argumentos.semantica in ("legacy", "ambas"):
