@@ -1,7 +1,9 @@
 # Codex Handoff
 
-Atualizado em 2026-09-09. Substitui integralmente a versão de 2026-08-26, cujas
-seções 12 a 15 descreviam trabalho que já foi executado.
+Atualizado em 2026-09-27. Substitui integralmente a versão de 2026-09-09:
+desde então entraram a campanha end-to-end, as correções de IR, a revisão
+pré-submissão do manuscrito e o achado de regras service-based (§10), que é
+agora a pendência principal.
 
 ## 1. Objetivo científico atual
 
@@ -18,17 +20,22 @@ existem para sustentar afirmações do manuscrito.
 `Snort rules -> semantic IR -> semantic manifest -> P4 backend -> P4Runtime plan -> BMv2`
 
 O fluxo gera candidatos conservadores; regras UNSUPPORTED continuam exigindo
-fallback Snort. O data plane impõe um domínio de pacotes explícito (seção 9) e
-faz fail-open fora dele.
+fallback Snort. O data plane impõe um domínio de pacotes explícito (§6) e faz
+fail-open fora dele. A Figura 1 do artigo desenha esse pipeline.
 
-Documentação conceitual: `docs/semantic_model.md`; matriz de suporte da
-linguagem: `docs/snort3_support_matrix.md`.
+Documentação conceitual: `docs/semantic_model.md`. O corpus normativo de Snort
+3, P4₁₆, p4c, BMv2 e P4Runtime fica em `docs/vendor/` (regenerável por
+`scripts/fetch_reference_docs.sh`; pins em `docs/vendor/MANIFEST.md`), e a
+skill `.claude/skills/snort3-p4` manda citar esse corpus antes de afirmar
+qualquer coisa sobre as linguagens. `docs/snort3_support_matrix.md` está
+incompleto (achado H10 da revisão de 2026-09-11).
 
 ## 3. Perfil ativo
 
 - Perfil: `cicids2017`
-- `HOME_NET`: `192.168.10.0/24`
-- Configuração ativa: `config/active_profile.json`
+- `HOME_NET`: `192.168.10.0/24`; `HTTP_PORTS`: `80 8080`
+- Configuração ativa: `config/active_profile.json`,
+  `config/snort3_experiment.lua` (inclui o `snort.lua` padrão, com wizard)
 - Snort++ 3.12.2.0
 - Ruleset: `rules/snort3-community.rules`, 4.017 regras,
   sha256 `8c0d9172127a7270ec8084ffbd16d3995df6d27aa0ccc232638f5f0293e68e19`
@@ -37,7 +44,7 @@ linguagem: `docs/snort3_support_matrix.md`.
 
 - Source rules: 4017
 - EXACT: 0
-- NECESSARY: 4003
+- NECESSARY: 4003 (2.928 com `service:` explícito; ver §10)
 - UNSUPPORTED: 14
 - Instâncias de predicado geradas/expandidas/normalizadas: 6675
 - Matches únicos antes do lowering de flags: 327
@@ -57,33 +64,19 @@ linguagem: `docs/snort3_support_matrix.md`.
 
 Auditada tanto na partição original quanto na partição strong-discriminator.
 
-## 6. Correção do domínio de pacotes IPv4
+## 6. Domínio de pacotes IPv4 (resolvido)
 
-Em 2026-09-01 a auditoria `paper/IDS_P4/FINAL_SCIENTIFIC_CLOSING_AUDIT.md`
-identificou que o parser P4 extraía um cabeçalho IPv4 fixo de 20 bytes e ia
-direto para L4, sem validar `ihl` nem fragmentação. Isso podia quebrar
-`r => p_r` para tráfego com opções IPv4. Veredito: `NOT_READY`.
+Correção de 2026-09-01 em `p4/ids_prefilter.p4`: o parser só vai para L4 com
+`(version, ihl, flags, fragOffset)` em `(4,5,0,0)` ou `(4,5,2,0)`; `MyIngress`
+repete a checagem e rejeita `parser_error`; fora do domínio,
+`packet_domain_fallback()` marca candidato e conta no índice 2. Matcher offline
+unificado em `tests/p4_packet_domain.py`. Suíte de guarda: 11 casos, 0 falhas.
+Detalhes: `paper/IDS_P4/PARSER_DOMAIN_RECONCILIATION.md`.
 
-A correção foi implementada no mesmo dia em `p4/ids_prefilter.p4`:
-
-- o parser só transiciona para L4 quando `(version, ihl, flags, fragOffset)`
-  casa com `(4,5,0,0)` ou `(4,5,2,0)`;
-- `MyIngress` repete a checagem e ainda rejeita `parser_error`;
-- tudo fora do domínio executa `packet_domain_fallback()`, que marca candidato
-  incondicionalmente e conta no índice 2.
-
-O matcher offline foi unificado em `tests/p4_packet_domain.py`, importado por
-`analyze_prefilter_selectivity.py`, `analyze_p4_parser_coverage.py` e
-`test_ipv4_packet_domain_guard.py`.
-
-Suíte de guarda: `output/analysis/ipv4_packet_domain_guard_test.json`,
-11 casos, 0 falhas — TCP/UDP/ICMP candidate, no-match garantido, flags exatas e
-mascaradas, opções IPv4, primeiro fragmento, fragmento não inicial, IPv4
-truncado e TCP truncado.
-
-Estado do bloqueio: **RESOLVIDO**. Ver
-`paper/IDS_P4/PARSER_DOMAIN_RECONCILIATION.md` para linha do tempo, evidência,
-tabela pré/pós valores e as mudanças aplicadas no manuscrito.
+**Atenção:** os snapshots `output/profiles/*/artifacts/ids_prefilter.json` e
+`.p4info.txt` são o programa **pré-correção**. Não subir o BMv2 a partir deles;
+usar `output/ids_prefilter.json`. Aviso em
+`output/profiles/SUPERSESSION_NOTICE.md`.
 
 ## 7. Categorias obrigatórias
 
@@ -96,12 +89,11 @@ Manter separadas em todos os relatórios:
   fragmento, truncado, erro de parser). Candidato conservador, nunca no-match.
 
 Taxas de candidato e no-match usam apenas o domínio suportado como
-denominador. Colapsar fallback em no-match superestima seletividade; colapsar
-em candidate esconde a cobertura real do parser.
+denominador.
 
-## 8. Resultados por janela (pós-correção)
+## 8. Resultados por janela
 
-Artefatos: `output/experiments/`, `output/analysis/ipv4_packet_domain_correction/`.
+Artefatos: `output/experiments/`, `output/analysis/`.
 
 | Janela | Pacotes | Domínio | Fallback | Global cand. | Strong cand. | Strong no-match |
 |---|---:|---:|---:|---:|---:|---:|
@@ -109,8 +101,8 @@ Artefatos: `output/experiments/`, `output/analysis/ipv4_packet_domain_correction
 | XSS (dev) | 191.848 | 189.076 | 2.772 | 100% | 98,869% | 1,131% |
 | Brute Force (held-out) | 1.108.658 | 1.101.459 | 7.199 | 100% | 98,942% | 1,058% |
 
-Apenas o Brute Force tem frames IPv4 diretos excluídos pelo gate: 16 com
-fragmentação ou flags reservadas. SQLi e XSS não mudaram com a correção.
+As colunas strong são do classificador offline; o plano de 322 entradas nunca
+foi reproduzido com os traces no BMv2.
 
 Alertas e preservação:
 
@@ -120,32 +112,76 @@ Alertas e preservação:
 | XSS | 528 | 2 (254, 402) | 0/0 | 528 | 0 | 100% |
 | Brute Force | 2.391 | 5 (254, 399, 402, 650, 1394) | 0/0 | 2.391 | 0 | 100% |
 
-Held-out: auditoria strong cobriu 2.289 eventos elegíveis por predicados
-retidos e 102 por fallback, com zero missing; pertinência de SID no candidate
-set observada em 2.289/2.289. `policy_tuning_performed: false`.
+As colunas P4 foram medidas no BMv2 **antes** do gate de domínio, reproduzindo
+só os pacotes de alerta; a rederivação offline sob o domínio imposto confere
+(`output/analysis/alert_preservation_offline_post_correction.json`).
 
 Candidate rule set (baseline 3.611 regras P4-elegíveis):
 
-| Janela | Média | Mediana | P90 | P95 | P99 | Máx | Redução média |
+| Janela | Média | Mediana | P95 | P99 | Máx | Redução (3.611) | Redução (4.017) |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| SQLi | 179,28 | 27 | 799 | 799 | 799 | 1228 | 95,04% |
-| XSS | 140,49 | 13 | 799 | 799 | 1227 | 1228 | 96,11% |
-| Brute Force | 324,52 | 241 | 799 | 799 | 1227 | 1228 | 91,01% |
+| SQLi | 179,28 | 27 | 799 | 799 | 1228 | 95,04% | 85,43% |
+| XSS | 140,49 | 13 | 799 | 1227 | 1228 | 96,11% | 86,40% |
+| Brute Force | 324,52 | 241 | 799 | 1227 | 1228 | 91,01% | 81,81% |
 
-Ablação strong-discriminator: 322 entradas retidas, 3.611 regras elegíveis, 392
-em fallback operacional, 14 UNSUPPORTED semânticas. É ablação operacional, não
-reclassificação semântica.
+A última coluna conta as 406 regras de fallback (392 operacionais + 14
+UNSUPPORTED), que valem para todo pacote.
 
-Agrupamento grosseiro: 4, 12, 268 e 308 grupos produziram o mesmo candidate set
-efetivo. Conclusão `GROUPING_LIMITED_BY_OVERLAP`.
+Ablação strong-discriminator: entrada é "strong" se restringe porta, flags TCP
+ou prefixo IPv4 diferente de exatamente `HOME_NET`; regra é P4-elegível só se
+todas as suas entradas finais forem strong. Removeu nove entradas (`p4-3`,
+`p4-5`, `p4-20`, `p4-24`, `p4-40`, `p4-80`, `p4-106`, `p4-138`, `p4-286`),
+reteve 322, 3.611 regras elegíveis, 392 em fallback operacional.
 
-Análise causal: `p4-106` (só protocolo TCP) subsume 246 entradas (74,32%);
-`p4-40` (destino `192.168.10.0/24`) subsume 210 (63,44%); `p4-138` (origem
-correspondente) subsume 107 (32,33%). Dedup e lowering de flags **não** são a
-causa. Conclusão: `BROAD_NECESSARY_PREDICATES` mais cobertura distribuída da
-união.
+Agrupamento grosseiro: a métrica de candidate set do estudo não lê os grupos,
+então a igualdade entre as quatro estratégias é por construção (achado C1/F-05).
+O manuscrito agora diz isso e limita o custo pela estrutura dos grupos (grupo
+TCP com 3.439 de 3.611 regras, redução de no máximo 4,8%).
 
-## 9. Metodologia de replay
+## 9. Campanha end-to-end
+
+Snort como oráculo, BMv2 como alvo, um quadro por vez com leitura de contador.
+Gerador `tests/generate_campaign_cases.py` (testemunha em
+`tests/campaign_witness.py`), executor `tests/run_campaign_bmv2.py`, atribuição
+offline `tests/analyze_campaign_attribution.py`. Amostra estratificada de 1.000
+regras (semente 20260918) entre as 2.142 sintetizáveis.
+
+| Rodada | Plano | Confirmados | Violação | Dep. estado | Fallback op. | Vácuos | Só própria |
+|---|---|---:|---:|---:|---:|---:|---:|
+| `e2e_1000_v2` | global 331 | 923 | 0 | 0 | — | 77 | 0 |
+| `e2e_1000_v4` | strong 322 | 851 | 0 | 2 | 107 | 40 | 153 |
+
+Predição offline = contador do BMv2 em 2.101/2.101 quadros nas duas rodadas. Os
+dois casos de dependência de estado (sids 43809, 47386) têm o alerta HTTP
+atribuído ao ACK de flush do servidor, que o plano strong marca no-match. A v4
+rodou antes da correção de negação (`9de315e`); o único caso afetado, sid
+28982, saiu vácuo. Os pcaps não são versionados, mas o gerador no commit da
+rodada os recria byte a byte (verificado para a v4: `ca5486f0…`).
+
+## 10. Achado aberto: regras service-based
+
+Documento: `paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md`. Medição:
+`tests/analyze_service_based_headers.py` →
+`output/analysis/service_based_header_exposure.json`.
+
+No Snort 3.12.2.0, quando o serviço identificado no fluxo é um dos da regra,
+portas e protocolo do cabeçalho não são checados; os endereços são
+(`src/detection/detection_options.cc`, `rtn_checks.cc`, `parse_rule.cc`;
+`docs/vendor/snort3/doc/user/concepts.txt:290`). O compilador põe porta e
+protocolo no predicado. Então:
+
+- 2.928 das 4.003 NECESSARY têm `service:` e predicado com protocolo (quase
+  sempre porta): para elas `r ⇒ p_r` só vale onde o Snort avalia o cabeçalho
+  inteiro. Só com endereços, 2.921 continuariam seletivas.
+- Plano global: cobre a região inteira de 2.919 dessas regras pelas entradas
+  sem porta (`p4-40`, `p4-138`) e só a parte TCP das outras 9.
+- Plano strong e candidate sets: não cobrem nenhuma.
+
+O manuscrito já está revisado para esse escopo (§4.5 e §7.2 do artigo). O
+compilador **não** foi alterado, para não quebrar a reprodutibilidade dos
+artefatos congelados antes da rodada no rig.
+
+## 11. Metodologia de replay
 
 - Usar `tests/replay_pcap_raw.py`, que envia bytes Ethernet capturados via
   AF_PACKET raw. Não usar `PcapReader/sendp` como evidência quantitativa.
@@ -155,81 +191,85 @@ união.
 - Fazer auditoria de idle (delta zero) antes do sender.
 - Reconciliar: `frames enviados == P4_CANDIDATE + P4_NO_MATCH + PACKET_DOMAIN_FALLBACK`.
 - MTU das quatro veth em 65535 para evitar `EMSGSIZE`.
-- Captura com `tcpdump` é diagnóstico secundário: ela observa os dois lados do
-  par veth e não é contador de um-frame-por-frame-enviado.
+- Captura com `tcpdump` é diagnóstico secundário.
 
-Status do accounting: SQLi `ACCOUNTING_VALID`
-(`ipv4_packet_domain_correction/REPLAY_ACCOUNTING_VALIDATION.md`); XSS
-`ACCOUNTING_VALID` e Brute Force `ACCOUNTING_PARTIAL`
-(`REPLAY_ACCOUNTING_VALIDATION_XSS_BRUTEFORCE.md`).
+Status do accounting: SQLi e XSS `ACCOUNTING_VALID`; Brute Force
+`ACCOUNTING_PARTIAL` (87 frames perdidos). Documentos em
+`output/analysis/ipv4_packet_domain_correction/`.
 
-## 10. Arquivos e scripts importantes
+## 12. BMv2/P4Runtime
 
-- Perfil/configuração: `config/profiles/cicids2017.json`,
-  `config/active_profile.json`, `config/snort3_experiment.lua`
-- Seleção/build: `compiler/select_profile.py`, `compiler/build_profile.py`
-- Instalação/leitura P4Runtime: `compiler/install_p4runtime.py`,
-  `compiler/read_prefilter_counters.py`
-- P4: `p4/ids_prefilter.p4`
-- Domínio de pacotes offline: `tests/p4_packet_domain.py`
-- Suíte de guarda: `tests/test_ipv4_packet_domain_guard.py`
-- Ruleset e partições: `rules/snort3-community.rules`,
-  `output/snort_candidate.rules`, `output/snort_unsupported.rules`
-- Replay raw: `tests/replay_pcap_raw.py`
-- Análise parser: `tests/analyze_p4_parser_coverage.py`
-- Seletividade: `tests/analyze_prefilter_selectivity.py`,
-  `tests/analyze_residual_selectivity.py`
-- Held-out: `tests/evaluate_heldout_bruteforce.py`
-- Comparação Snort: `tests/analyze_cicids2017_sqli_snort.py`
-- Relatórios: `tests/build_cicids2017_sqli_report.py`,
-  `tests/build_cicids2017_xss_report.py`
-- Planos: `output/p4runtime_install_plan.json`, `output/p4_install_entries.json`,
-  `output/ids_prefilter.json`
-- Artefatos pré-correção preservados: `output/historical/ipv4_packet_domain_guard_pre_correction/`
-
-## 11. BMv2/P4Runtime
-
-- `simple_switch_grpc`, device-id 0
+- `simple_switch_grpc` 1.15.0 (build `68f4a978`), device-id 0
 - P4Runtime/gRPC `127.0.0.1:9559`
-- port 0 -> `veth0`, port 1 -> `veth2`
-- interface de replay usual: `veth1`
+- port 0 -> `veth0`, port 1 -> `veth2`; replay em `veth1`
 - capacidade da tabela: 8192; 331 entradas do plano cicids2017
 
-Para restaurar: iniciar o BMv2 com `output/ids_prefilter.json`, executar
-`compiler/install_p4runtime.py`, confirmar master arbitration, pipeline
-configuration e leitura 331/331. Verificar contadores antes de cada fase.
+Subir: `sudo ./scripts/setup_bmv2.sh up` com `output/ids_prefilter.json`,
+depois `python compiler/install_p4runtime.py` (ou `--plan <plano>`); conferir
+master arbitration, pipeline configuration e leitura das entradas.
 
-O ambiente de execução é Linux (WSL ou VM). A máquina Windows onde o
-diretório vive não tem BMv2, veth nem toolchain LaTeX.
+## 13. Ambiente
 
-## 12. Pendências que bloqueiam a submissão
+- Rig Linux (WSL ou VM): BMv2, veth, Snort, scapy, grpc. Todo experimento de
+  data plane roda lá.
+- Máquina Windows onde o repositório vive: sem BMv2, veth, Snort ou scapy.
+  **Tem LaTeX** (MiKTeX em `AppData\Local\Programs\MiKTeX\miktex\bin\x64\`):
+  compilar com pdflatex, bibtex, pdflatex, pdflatex e `--enable-installer`;
+  `latexmk` trava. Numa cópia isolada, para não sujar `paper/IDS_P4/`.
+- Suíte: `python tests/run_tests.py` → 17 passam, 3 não executam (grpc).
 
-1. **Recompilar o PDF.** `main.pdf` é de 2026-09-01 e não corresponde ao
-   `main.tex` atual. Verificar a nova linha da tabela de semântica de
-   compilação (dentro do `resizebox` em landscape) e o ambiente `cases` da
-   subseção `Enforced Packet Domain`.
-2. **Re-derivar a preservação de alertas pós-correção.** Os valores 150/528/2.391
-   são a única medição do Results ainda vinda do pipeline pré-correção. Os 16
-   frames reclassificados continuam candidatos, então nenhum alerta muda de
-   categoria — mas isso hoje é argumento, não medição.
-3. **Replay frame-exato do Brute Force.** Faltaram 87 de 1.108.658 frames
-   (0,0078%), toda a perda na categoria candidate, com fallback exato e
-   no-match zero. Procedimento de rerun no documento de accounting.
+## 14. Manuscrito
 
-## 13. Pendências de reforço científico
+42 páginas. Duas figuras TikZ (pipeline; visão conceitual) e nove tabelas. A
+revisão pré-submissão de 2026-09-27 fechou os itens C1, C4, C5, H2, H5 e H6 da
+revisão de 2026-09-11 e integrou o achado service-based; origem de cada
+número em `paper/IDS_P4/REVIEW_ITEMS_RESOLUTION_AUDIT.md` e
+`paper/IDS_P4/CAMPAIGN_INTEGRATION_AUDIT.md`. O `main.pdf` versionado
+corresponde ao `main.tex` atual.
 
-- Diversidade de alertas baixa: 1, 2 e 5 SIDs únicos; uma única janela held-out.
+## 15. Pendências que bloqueiam a submissão
+
+Em ordem. As três primeiras exigem o rig.
+
+1. **Testar o achado service-based no data plane.** Casos prontos em
+   `output/campaign/servico_fora_do_cabecalho/` (gerador
+   `tests/generate_offport_service_cases.py`; o pcap é recriado por ele):
+
+       python tests/generate_offport_service_cases.py
+       python tests/run_campaign_bmv2.py --casos output/campaign/servico_fora_do_cabecalho
+       python tests/run_campaign_bmv2.py --casos output/campaign/servico_fora_do_cabecalho \
+           --plano output/campaign/plano_strong_discriminator/p4runtime_install_plan.json \
+           --particao output/campaign/plano_strong_discriminator/particao.json --sufixo _strong
+
+   Esperado se o código lido estiver certo: global CONFIRMADO, strong
+   VIOLACAO (código de saída 1 é o esperado). Tudo VACUO invalida a leitura.
+2. **Corrigir o compilador e recalcular.** Para regra com serviço, delegar
+   porta e protocolo com motivo próprio e manter só os endereços; regenerar
+   artefatos com documento de supersessão; recalcular a partição strong, as
+   taxas strong e os candidate sets sobre os traces.
+3. **Replay de preservação no BMv2 corrigido** e **replay frame-exato do Brute
+   Force** (87 frames). A rederivação offline já confere; falta a medição no
+   data plane.
+4. **Métrica de candidate set agrupada** (F-05, alternativa A2): acrescentar
+   `grouped_candidate_rules_per_packet` sem remover a atual; precisa dos
+   traces.
+
+## 16. Pendências de reforço científico
+
 - Um único ruleset, um perfil e um dataset; CIC-IDS2017 é antigo.
+- Diversidade de alertas nos traces: 1, 2 e 5 SIDs. A campanha cobre 851–923
+  SIDs, mas com tráfego sintético.
 - Sem throughput, latência ou validação em hardware.
-- Sem execução candidate-set-aware no Snort (execução dinâmica stateful segue
-  em aberto).
+- Sem execução candidate-set-aware no Snort.
 - EXACT = 0 no ruleset avaliado.
+- Achados de melhoria ainda abertos na revisão de 2026-09-11: H11 (protocolo
+  isolado como seletivo), H12 (faixas de porta em ternário), M1/M2 (`itype`,
+  `icode`, `ip_proto` na chave).
 
-## 14. Estado de arquivos e Git
+## 17. Estado de arquivos e Git
 
-O diretório agora **é** um repositório Git (inicializado em 2026-09-09).
-Capturas `.pcap` estão fora do versionamento por serem diagnóstico secundário e
-regeneráveis pelos scripts de replay; o restante, incluindo artefatos
+Repositório Git desde 2026-09-09, remoto `origin` no GitHub. Capturas `.pcap`
+ficam fora do versionamento (regeneráveis); o restante, incluindo artefatos
 congelados, está versionado.
 
 Convenção do projeto: artefato congelado não é sobrescrito. Correção entra como
