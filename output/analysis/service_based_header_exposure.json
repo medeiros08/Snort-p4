@@ -1,7 +1,7 @@
 {
   "analise": "service_based_header_exposure",
   "cobertura_da_regiao_sem_porta_e_protocolo": {
-    "definicao": "regiao {IPs da regra} x {qualquer porta} x {qualquer protocolo} contida numa entrada instalada sem porta; so_tcp quando apenas uma entrada de protocolo 6 sem porta a cobre",
+    "definicao": "regiao {IPs da regra} x {qualquer porta} x {qualquer protocolo} contida numa entrada instalada sem porta; so_tcp quando apenas uma entrada de protocolo 6 sem porta a cobre. So as regras com service: explicito",
     "global_sem_cobertura_total": [
       {
         "cobertura": "so_tcp",
@@ -108,7 +108,13 @@
     "codigo": [
       "https://github.com/snort3/snort3/blob/3.12.2.0/src/detection/detection_options.cc",
       "https://github.com/snort3/snort3/blob/3.12.2.0/src/detection/rtn_checks.cc",
-      "https://github.com/snort3/snort3/blob/3.12.2.0/src/parser/parse_rule.cc"
+      "https://github.com/snort3/snort3/blob/3.12.2.0/src/parser/parse_rule.cc",
+      "https://github.com/snort3/snort3/blob/3.12.2.0/src/detection/fp_detect.cc",
+      "https://github.com/snort3/snort3/blob/3.12.2.0/src/detection/fp_utils.cc",
+      "https://github.com/snort3/snort3/blob/3.12.2.0/src/managers/inspector_manager.cc",
+      "https://github.com/snort3/snort3/blob/3.12.2.0/src/service_inspectors/dce_rpc/dce_tcp.cc",
+      "https://github.com/snort3/snort3/blob/3.12.2.0/src/service_inspectors/dce_rpc/dce_udp.cc",
+      "https://github.com/snort3/snort3/blob/3.12.2.0/src/service_inspectors/dce_rpc/dce_smb.cc"
     ],
     "documentacao": "docs/vendor/snort3/doc/user/concepts.txt:290-296",
     "snort_versao": "3.12.2.0"
@@ -3094,12 +3100,74 @@
     ],
     "total": 2928
   },
-  "gerado_em": "2026-09-27T06:50:18+00:00",
+  "expostas_por_servico_implicito": {
+    "campos_de_h_r": {
+      "dst_ip,protocol": 3
+    },
+    "cobertura_por_plano": {
+      "global": {
+        "qualquer_protocolo": 3
+      },
+      "strong_discriminator": {
+        "nenhuma": 3
+      }
+    },
+    "definicao": "NECESSARY sem service:, cabecalho de protocolo IP, com opcao pela qual validate_services (fp_utils.cc) acrescenta servico, e porta, protocolo ou flags entre os predicados seletivos",
+    "elegiveis_no_strong_discriminator": 0,
+    "mantendo_so_condicoes_de_ip": {
+      "com_ip_seletivo": 3
+    },
+    "opcoes": {
+      "3238": [
+        "dce_iface",
+        "dce_opnum",
+        "dce_stub_data"
+      ],
+      "3239": [
+        "dce_iface",
+        "dce_opnum",
+        "dce_stub_data"
+      ],
+      "529": [
+        "dce_iface",
+        "dce_opnum",
+        "dce_stub_data"
+      ]
+    },
+    "servicos": {
+      "dcerpc": 3,
+      "netbios-ssn": 3
+    },
+    "sids": [
+      "529",
+      "3238",
+      "3239"
+    ],
+    "total": 3
+  },
+  "gerado_em": "2026-09-27T17:44:21+00:00",
   "gerador": "tests/analyze_service_based_headers.py",
   "manifesto_sha256": "7d34be6ba52f9f4983fa17f114716dce49b7f4825efa2309790b5b7d548a4a6f",
   "necessarias": 4003,
+  "necessarias_com_protocolo_de_servico_no_cabecalho": {
+    "definicao": "sem service:, cabecalho com protocolo de servico: USER_MODE, portas checadas (fp_detect.cc, fp_eval_rtn); nao expostas",
+    "sids": [
+      "2589",
+      "57906",
+      "57907",
+      "57908",
+      "57983",
+      "58615",
+      "58616",
+      "58617",
+      "59925",
+      "59934",
+      "60642",
+      "300131"
+    ],
+    "total": 12
+  },
   "necessarias_com_service_explicito": 2928,
-  "necessarias_so_com_opcao_de_servico_nao_verificadas": 15,
   "planos": {
     "global": {
       "caminho": "output/p4_install_entries.json",
@@ -3109,5 +3177,6 @@
       "caminho": "output/campaign/plano_strong_discriminator/p4_install_entries.json",
       "sha256": "f8ada6083281d0d013f8be3e0bd9dab959c363d282a8b52ed03c4118c6dbc9f8"
     }
-  }
+  },
+  "service_based_total": 2931
 }

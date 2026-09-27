@@ -83,6 +83,23 @@ def test_artefato_de_exposicao_coerente():
     # O plano strong removeu justamente as entradas sem porta.
     assert por_plano["strong_discriminator"] == {"nenhuma": total}
 
+    # Sem service:, cabecalho com protocolo de servico (USER_MODE) nao e
+    # exposto; servico implicito por opcao DCE e.
+    user_mode = relatorio["necessarias_com_protocolo_de_servico_no_cabecalho"]
+    assert user_mode["total"] == len(user_mode["sids"]) == 12
+    implicitas = relatorio["expostas_por_servico_implicito"]
+    assert implicitas["sids"] == ["529", "3238", "3239"]
+    assert implicitas["servicos"] == {"dcerpc": 3, "netbios-ssn": 3}
+    assert implicitas["elegiveis_no_strong_discriminator"] == 0
+    assert implicitas["cobertura_por_plano"]["global"] == {"qualquer_protocolo": 3}
+    grupos = [set(implicitas["sids"]), set(user_mode["sids"]), set(expostas["sids"])]
+    assert sum(map(len, grupos)) == len(set().union(*grupos))
+    assert relatorio["service_based_total"] == total + implicitas["total"]
+    assert (
+        relatorio["necessarias_com_service_explicito"] + user_mode["total"] + implicitas["total"]
+        == 2928 + 12 + 3
+    )
+
 
 def test_casos_fora_do_cabecalho_discriminam_os_planos():
     caminho = PROJECT_ROOT / "output" / "campaign" / "servico_fora_do_cabecalho" / "casos.jsonl"

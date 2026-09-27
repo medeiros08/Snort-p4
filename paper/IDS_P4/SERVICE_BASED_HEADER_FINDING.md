@@ -15,16 +15,18 @@ conditions the compiler represents. In Snort 3.12.2.0 this does not hold for
 one of the rule's services, Snort does not check the header ports or protocol;
 it still checks the header addresses.
 
-2,928 of the 4,003 NECESSARY rules declare `service:` and carry protocol and,
-in almost every case, port conditions in their compiled predicate. For those
-rules, the predicate-level relation `r => p_r` holds only on traffic where
-Snort evaluates the full header.
+2,931 of the 4,003 NECESSARY rules are service-based and carry protocol and,
+in almost every case, port conditions in their compiled predicate: 2,928
+declare `service:`, and three (529, 3238, 3239) receive services from their
+DCE options (§2.3). For those rules, the predicate-level relation `r => p_r`
+holds only on traffic where Snort evaluates the full header.
 
-The implemented 331-entry global plan remains candidate-complete for 2,919 of
-the 2,928, and for the TCP part of the other nine, because it contains
+The implemented 331-entry global plan remains candidate-complete for 2,922 of
+the 2,931, and for the TCP part of the other nine, because it contains
 port-free entries covering every packet to or from `HOME_NET` and every TCP
 packet. The 322-entry strong-discriminator plan covers none of them, and the
-per-packet candidate rule sets inherit the same gap.
+per-packet candidate rule sets inherit the same gap for the 2,877 it
+prefilters; the three DCE rules are in its operational fallback.
 
 ## 2. Evidence
 
@@ -74,7 +76,38 @@ chain is destination port, source port, source IP, destination IP, then
 `CheckProto`. The early `return 1` of `CheckProto` therefore comes after both
 address checks, so addresses are always enforced.
 
-### 2.3 What this means
+### 2.3 How a rule acquires services
+
+A rule's service list is filled from three sources at 3.12.2.0:
+
+- the `service` option;
+- a service protocol in the header: `src/parser/parse_rule.cc` calls
+  `add_service_to_otn` when `is_service_protocol` holds for the header
+  protocol, and the rule is `USER_MODE` (§4);
+- its other options, in `validate_services`
+  (`src/detection/fp_utils.cc:496-574`), called from `parse_rule.cc` for
+  every rule. An option that sets a buffer (cursor type above `CAT_ADJUST`)
+  is looked up in a buffer map; if the rule has no service yet, a buffer
+  registered by one inspector adds that inspector's service, and a buffer
+  registered by several adds all of them (`add_default_services`). Any other
+  option is matched by name prefix in `guess_service`
+  (`fp_utils.cc:169-205`: `http_`, `cip_`, `enip_`, `dce_`, `dnp3_`, `gtp_`,
+  `mms_`, `modbus_`, `s7commplus_`, `sip_`, `socks_`, `ssl_`), used only
+  when no buffer added a service.
+
+The buffer map comes from the `buffers` field of every inspector plugin's
+`InspectApi`, loaded whether or not the inspector is configured
+(`InspectorManager::load_buffer_map`, `src/managers/inspector_manager.cc:808-818`).
+`dce_tcp` and `dce_udp` register `dce_iface`, `dce_stub_data` and `file_data`
+with service `dcerpc`, and `dce_smb` registers the same three with
+`netbios-ssn` (`src/service_inspectors/dce_rpc/dce_tcp.cc:210-235`,
+`dce_udp.cc:200-225`, `dce_smb.cc:486-511`). `Dce2IfaceOption` and
+`Dce2StubDataOption` return `CAT_SET_FAST_PATTERN`
+(`ips_dce_iface.cc:229-230`, `ips_dce_stub_data.cc:57-58`), so a rule with
+`dce_iface` or `dce_stub_data` and no `service:` receives `dcerpc` and
+`netbios-ssn`.
+
+### 2.4 What this means
 
 For a rule with services `S`, Snort's header acceptance of packet `x` is:
 
@@ -109,10 +142,23 @@ Produced by `tests/analyze_service_based_headers.py`
 | of these, P4-eligible in the strong-discriminator partition | 2,877 |
 | would keep a selective predicate with address conditions only | 2,921 |
 | would have no selective predicate left | 7 |
-| service-specific options without `service:` (not counted; mechanism unverified) | 15 |
+| without `service:`, service protocol in the header (`USER_MODE`, not exposed) | 12 |
+| without `service:`, services added by options (§2.3), exposed | 3 |
+| service-based and exposed, in all | 2,931 |
 
 Most frequent services among the 2,928: `http` 2,314, `imap` 150, `pop3` 138,
 `smtp` 131, `ftp-data` 95, `ftp` 94.
+
+The three rules with implied services are sids 529, 3238 and 3239, each with
+`dce_iface`, `dce_opnum` and `dce_stub_data`, which gives them `dcerpc` and
+`netbios-ssn`. Their selective predicates are `{protocol, dst_ip}`: each
+port list contains a range (`1024:`), which falls back, so none constrains a
+port. None is P4-eligible in the strong-discriminator partition. The other
+1,060 NECESSARY rules without `service:` use only core options (content,
+pcre, flow, byte and ICMP/IP header options), none of which sets an
+inspector buffer or matches a `guess_service` prefix;
+`tests/test_service_header_semantics.py::test_opcoes_do_ruleset_classificadas`
+checks this over the manifest.
 
 ## 4. Plan-Level Coverage
 
@@ -122,8 +168,13 @@ whether an installed port-free entry contains that region.
 
 | Plan | Whole region | TCP part only | None |
 |---|---:|---:|---:|
-| Global, 331 entries | 2,919 | 9 | 0 |
-| Strong discriminator, 322 entries | 0 | 0 | 2,928 |
+| Global, 331 entries | 2,919 + 3 | 9 | 0 |
+| Strong discriminator, 322 entries | 0 | 0 | 2,928 + 3 |
+
+The "+ 3" are the rules with implied services, reported separately in the
+artifact (`expostas_por_servico_implicito`); `p4-40` covers all three. The
+strong plan does not prefilter them: they are in its operational fallback,
+whose rules apply to every packet.
 
 In the global plan, `p4-40` (destination `HOME_NET`) and `p4-138` (source
 `HOME_NET`) carry no port or protocol, and `p4-106` covers every TCP packet.
@@ -138,12 +189,12 @@ most the protocol and exactly `HOME_NET`. It keeps six port-free entries
 or other addresses, and none of them contains the region of any exposed rule.
 
 A header that names a service protocol instead of an IP protocol is an
-exception to §2.3. `SetupRTNFuncList` marks such a rule `USER_MODE`, and
+exception to §2.4. `SetupRTNFuncList` marks such a rule `USER_MODE`, and
 `fp_eval_rtn` then forces `check_ports = 1`, so its ports stay checked. The
 twelve NECESSARY rules of the form `alert http ... -> ...` are therefore not
-exposed, and none declares `service:`. Three further NECESSARY rules (529,
-3238, 3239) use service-specific options without `service:`; whether those
-options add a service was not confirmed in the source.
+exposed, and none declares `service:`. An earlier revision of this document
+left the three DCE rules unconfirmed; §2.3 now traces how their options add
+services.
 
 ## 5. Why No Experiment Observed It
 
@@ -161,9 +212,9 @@ options add a service was not confirmed in the source.
 
 | Claim | Effect |
 |---|---|
-| RQ1, 4,003 NECESSARY with `r => p_r` | Holds for the 1,060 port-based NECESSARY rules and the 12 `alert http ... -> ...` rules, whose ports Snort keeps checking (1,072 in all); unconfirmed for 3 rules with service-specific options and no `service:`; for the 2,928 with `service:` the predicate is necessary only where Snort evaluates the full header. An address-only predicate would be necessary for them and selective for 2,921. |
+| RQ1, 4,003 NECESSARY with `r => p_r` | Holds for the 1,060 port-based NECESSARY rules and the 12 `alert http ... -> ...` rules, whose ports Snort keeps checking (1,072 in all); for the 2,931 service-based ones (2,928 with `service:`, 3 with services implied by DCE options) the predicate is necessary only where Snort evaluates the full header. An address-only predicate would be necessary for them and selective for 2,924. |
 | Predicate-level soundness argument (§4.4) | The premise `r(x) => H_r(x)` must exclude ports and protocol for service-based rules. |
-| Global prefilter conservatism | Plan-level candidate-completeness holds for 2,919 of 2,928 exposed rules and for the TCP part of the rest, through broad port-free entries. |
+| Global prefilter conservatism | Plan-level candidate-completeness holds for 2,922 of 2,931 exposed rules and for the TCP part of the rest, through broad port-free entries. |
 | Global selectivity (100%) | Unaffected. |
 | Strong-discriminator ablation | Not candidate-complete for any exposed rule when a service runs on a port outside its header. Its no-match packets cannot be taken as irrelevant to those rules. |
 | Per-packet candidate rule sets, 91–96% (81–86% full ruleset) | Computed from port-constrained predicates, so they can omit a service-based rule for a packet of that service on another port. An address-only derivation for service-based rules would give larger sets, so the reported reductions are an upper bound on it. |
@@ -181,12 +232,18 @@ changes.
 
 1. **Compiler.** Implemented as an option, not as the default:
    `python compiler/generate_semantic_manifest.py --service-header-semantics snort3`
-   delegates `protocol`, `src_port` and `dst_port` of rules with `service:`
+   delegates `protocol`, `src_port` and `dst_port` of service-based rules
    (reason `service_based_header_not_checked_on_service_match`) and keeps the
    protocol when the rule carries `flags`, because the TCP flags option
    returns NO_MATCH without a TCP header (`src/ips_options/ips_flags.cc`,
-   `TcpFlagOption::eval`). The default `legacy` regenerates the frozen
-   manifest byte for byte. Switching the default regenerates every frozen
+   `TcpFlagOption::eval`). Service-based means `service:` or an option through
+   which §2.3 adds a service (`implied_service_options` in
+   `compiler/target_capability.py`, which also counts the buffer-setting
+   options the corpus calls service-specific even where their registration
+   was not traced, since delegating only broadens), and a header that names an
+   IP protocol: a `USER_MODE` header keeps its fields. The default `legacy`
+   regenerates the frozen manifest and the rest of the pipeline byte for
+   byte. Switching the default regenerates every frozen
    artifact and must go through a supersession document together with the
    trace re-runs of item 3.
 
@@ -201,6 +258,10 @@ changes.
    | strong-discriminator eligible / fallback | 3,611 / 392 | 739 / 3,257 |
    | lower bound on applicable rules per packet | 406 | 3,278 |
    | upper bound on full-ruleset candidate reduction | 89.89% | 18.40% |
+
+   Adding the three DCE rules to the `snort3` mode changed none of these
+   numbers: they were already outside the strong-discriminator partition,
+   and their entries merge with ones other rules produce.
 2. **Data plane test (rig).** Prepared: `tests/generate_offport_service_cases.py`
    writes `output/campaign/servico_fora_do_cabecalho/` (200 HTTP rules with
    `service:http`, seed 20260927, 1,600 frames, pcap sha256 `b150423d…`). Each

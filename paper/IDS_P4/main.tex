@@ -53,7 +53,7 @@ BMv2 as the target, no rule that a plan prefilters alerted on a witness the
 data plane marked no-match. We also show that the necessary relation holds
 only where Snort evaluates the full rule header. Once Snort~3 identifies a
 flow's service, it ignores the header ports and protocol of service-based
-rules, and 2,928 necessary rules are service-based with predicates that
+rules, and 2,931 necessary rules are service-based with predicates that
 constrain the protocol and, for 2,877, a port. The global plan still covers
 all but nine of them through its port-free entries. The strong-discriminator
 ablation behind the candidate sets does not, and recompiled with Snort~3's
@@ -106,7 +106,7 @@ an implemented runtime execution mechanism.
 This paper develops and evaluates a semantics-aware, target-aware compilation
 workflow from Snort 3 rules to P4 predicates, with explicit delegation and
 fallback. Under the evaluated configuration, 4,003 of 4,017 rules admitted
-necessary predicates, although for the 2,928 service-based ones the relation
+necessary predicates, although for the 2,931 service-based ones the relation
 holds only where Snort evaluates the full header, and the global binary
 prefilter marked 100\% of
 parser-eligible packets as candidates in the three evaluated traces. In
@@ -143,10 +143,11 @@ This work makes the following contributions:
     partition and 81.81\% over the full ruleset, bounded at 18.40\% once
     service-based rules are compiled as Snort~3 evaluates them.
     \item An analysis, from the Snort~3.12.2.0 source, showing that
-    rules with a \texttt{service} option do not make their header ports and
-    protocol necessary conditions, with a measurement of the 2,928 affected
-    rules, of which plans remain candidate-complete for them, and of what a
-    compilation faithful to that rule changes.
+    service-based rules, whether they declare a \texttt{service} option or
+    acquire a service through their options, do not make their header ports
+    and protocol necessary conditions, with a measurement of the 2,931
+    affected rules, of which plans remain candidate-complete for them, and of
+    what a compilation faithful to that rule changes.
     \item Empirical validation of semantic-split behavior and observed P4
     alert-packet preservation, without claiming formal equivalence or dynamic
     stateful candidate-set execution.
@@ -199,9 +200,9 @@ Snort~3 also distinguishes port-based from service-based rules. A rule is
 service-based when it declares a \texttt{service} option, uses an option
 specific to a service, or names a service protocol in its header, as in
 \texttt{alert http}. Every header component of a port-based rule must match.
-Once Snort has identified the flow's service as one of the services of a rule
-with a \texttt{service} option, it checks the rule's header addresses but
-not its ports or protocol; a rule that names the service protocol in its
+Once Snort has identified the flow's service as one of the services of a
+service-based rule, it checks the rule's header addresses but not its ports
+or protocol; a rule that names the service protocol in its
 header keeps its port checks (Section~\ref{sec:service-based}). A header predicate taken from a rule is
 therefore an approximation whose relation to the rule has to be stated rather
 than assumed.
@@ -438,11 +439,18 @@ in the evaluated ruleset, is marked as a user-mode rule when Snort builds its
 header checks, and that restores the port checks
 (\path{src/parser/parse_rule.cc} and \path{src/detection/fp_detect.cc}).
 
-For a rule with a \texttt{service} option, the header condition that is
-necessary for an alert is therefore $H_r^{\mathrm{addr}}$, the address part
-of $H_r$, and $r(x) \Rightarrow H_r(x)$ holds only for packets whose service
-Snort has not identified. The compiler represents these rules with their full
-header. Section~\ref{sec:service-exposure} measures how many rules this
+A rule need not declare its services. When the rules are loaded, an option
+that selects a buffer registered by a service inspector adds that
+inspector's services to a rule that has none, and a few option-name prefixes
+add a guessed service (\path{src/detection/fp_utils.cc}). The DCE options
+\texttt{dce\_iface} and \texttt{dce\_stub\_data}, for instance, add
+\texttt{dcerpc} and \texttt{netbios-ssn}.
+
+For a service-based rule whose header names an IP protocol, the header
+condition that is necessary for an alert is therefore $H_r^{\mathrm{addr}}$,
+the address part of $H_r$, and $r(x) \Rightarrow H_r(x)$ holds only for
+packets whose service Snort has not identified. The compiler represents these
+rules with their full header. Section~\ref{sec:service-exposure} measures how many rules this
 affects and which of the deployed plans still cover the traffic on which they
 can alert.
 
@@ -685,7 +693,7 @@ Supported TCP flags & Flag syntax is normalized to masks; \texttt{*} is lowered 
 Negation, port ranges, unresolved complex header forms & Capability analysis records fallback or unassessed treatment. & Omitted from $p_r$. & Fallback / delegated & Omission can broaden a predicate; absent another selective $H_r$, the rule is UNSUPPORTED. \\
 Payload, PCRE, buffers, flow/state, stream, temporal, and application semantics & Ordered options and buffer context remain in the IR and manifest. & No P4 match. & Delegated & Snort remains responsible for these conditions and for final detection. \\
 Service-style or otherwise nonselective rule & No traditional header is invented; a rule without a selective represented header is not emitted. & No P4 entry. & \textsc{Unsup.} & Entire rule remains in the Snort fallback. \\
-Traditional header with a \texttt{service} option & Header is assessed as for a port-based rule; the service is recorded as delegated. & Same keys as the header, ports and protocol included. & Preserved / delegated & Necessary only while Snort evaluates the full header; once the flow's service matches, Snort checks addresses only (Section~\ref{sec:service-based}). \\
+Traditional header on a service-based rule & Header is assessed as for a port-based rule; the service is recorded as delegated. & Same keys as the header, ports and protocol included. & Preserved / delegated & Necessary only while Snort evaluates the full header; once the flow's service matches, Snort checks addresses only (Section~\ref{sec:service-based}). \\
 IPv4 options, fragments, truncated headers, non-IPv4 frames & Outside the compiler's scope; handled by the deployed program rather than by lowering. & No table lookup; \texttt{packet\_domain\_fallback} marks a candidate on a dedicated counter. & Fail-open & Retained for Snort without a no-match verdict, so misparsed L4 fields cannot break $r \Rightarrow \mathrm{cand}$. \\
 \bottomrule
 \end{tabular}
@@ -1091,11 +1099,10 @@ and 14 \textsc{Unsupported} classifications. Hence, 99.65\% of the rules
 contributed a candidate predicate under the supported profile. For the 1,060
 port-based \textsc{Necessary} rules, and for the 12 that name a service
 protocol in their header and keep their port checks, that predicate is a
-necessary condition of the rule. For the 2,928 with a \texttt{service} option
-it is necessary only on traffic whose service Snort has not identified
-(Section~\ref{sec:service-exposure}). The remaining three use service-specific
-options without a \texttt{service} option, and their status was not
-confirmed.
+necessary condition of the rule. For the 2,928 with a \texttt{service} option,
+and for three that acquire services through their DCE options, it is
+necessary only on traffic whose service Snort has not identified
+(Section~\ref{sec:service-exposure}).
 
 This percentage characterizes semantic candidate coverage, not complete
 offloading of Snort semantics. For a rule $r$ and its \textsc{Necessary}
@@ -1128,10 +1135,10 @@ within the enforced packet domain, the compiler derives explicit necessary
 predicates for the 1,072 \textsc{Necessary} rules whose header ports Snort
 checks, while making the remaining semantic limitations visible; traffic
 outside that domain is retained by failing open rather than by an unstated
-parsing assumption. For the 2,928 rules with a \texttt{service} option, the
+parsing assumption. For the other 2,931, which are service-based, the
 derived predicates are necessary only where Snort evaluates the full header;
 a predicate restricted to the header addresses would be necessary for all of
-them and still selective for 2,921.
+them and still selective for 2,924.
 
 \subsection{Service-Based Rules and Plan Coverage}
 \label{sec:service-exposure}
@@ -1142,16 +1149,21 @@ constrains the protocol, and 2,877 also constrain a port. By
 Section~\ref{sec:service-based}, Snort can raise such a rule on a packet
 whose ports or protocol differ from the rule header once the flow's service
 is identified, so the rule's own predicate can be false on a packet it
-alerts on. Fifteen further rules are service-based without a \texttt{service}
-option and are not counted: twelve name \texttt{http} in their header and
-keep their port checks, and three use service-specific options through a
-mechanism that was not confirmed in the source.
+alerts on. Of the other 1,075, twelve name \texttt{http} in their header,
+which gives them that service but keeps their port checks. Three more, SIDs
+529, 3238, and 3239, are service-based without a \texttt{service} option:
+their \texttt{dce\_iface} and \texttt{dce\_stub\_data} options add
+\texttt{dcerpc} and \texttt{netbios-ssn} (Section~\ref{sec:service-based}).
+Their predicates constrain the protocol and a \texttt{HOME\_NET} destination
+but no port, because each port list contains a range. The remaining 1,060
+rules use no option that gives them a service. Service-based rules number
+2,931 in all.
 
 Whether this becomes a missed candidate depends on the whole plan. For each
-of the 2,928 rules, the region on which Snort can alert once the service is
+of the 2,931 rules, the region on which Snort can alert once the service is
 identified is the rule's address condition with any port and any protocol.
 In the 331-entry global plan, the port- and protocol-free entries
-\texttt{p4-40} and \texttt{p4-138} contain that region for 2,919 rules, and
+\texttt{p4-40} and \texttt{p4-138} contain that region for 2,922 rules, and
 \texttt{p4-106} contains its TCP part for the remaining nine: SIDs 1415 and
 1416 (SNMP over UDP to the broadcast address), 1941 (TFTP over UDP), 28852,
 29174, and 38993 (HTTP), and 56583 to 56585 (Kerberos), all with unrestricted
@@ -1160,8 +1172,9 @@ except for non-TCP packets of those nine services that no entry of the rule
 itself matches. The 322-entry strong-discriminator plan removed the nine
 entries that constrain at most the protocol and exactly \texttt{HOME\_NET};
 the six port-free entries it keeps carry TCP flags or other addresses, and
-none contains the region of any of the 2,928 rules. Of those rules, 2,877 are
-among its 3,611 P4-eligible rules.
+none contains the region of any of the 2,931 rules. Of those rules, 2,877 are
+among its 3,611 P4-eligible rules; the three DCE rules are in its
+operational fallback, whose rules apply to every packet.
 
 Compiling the rules as Snort~3 evaluates them changes the structural results
 substantially. The compiler provides this as an option: ports and protocol of
@@ -1623,8 +1636,8 @@ offline provenance analysis.
 \end{tikzpicture}
 \caption{Semantics-aware, target-aware compilation overview. Semantic analysis
 retains unsupported or delegated semantics in Snort while deriving necessary
-P4 predicates; for rules with a \texttt{service} option they are necessary
-only where Snort evaluates the full header
+P4 predicates; for service-based rules they are necessary only where Snort
+evaluates the full header
 (Section~\ref{sec:service-based}). Target-aware lowering preserves source-rule
 provenance. The implemented global binary prefilter aggregates predicates into
 candidate metadata and showed limited packet-bypass selectivity in the
@@ -1758,8 +1771,8 @@ need to account for IDS state beyond packet-header matching \cite{brum2025rethin
 
 The service-based case shows that even the header of a rule is not
 self-describing. What a header condition means depends on how the IDS
-evaluates it, and Snort~3 drops the port and protocol conditions of rules
-with a \texttt{service} option once a flow's service is known. A prefilter
+evaluates it, and Snort~3 drops the port and protocol conditions of
+service-based rules once a flow's service is known. A prefilter
 that derives port conditions from Snort~3 rule headers can therefore exclude
 packets the rule would alert on, unless its plan keeps port-free coverage for
 the addresses those rules name. In the evaluated global plan, the broad
@@ -1790,15 +1803,14 @@ evaluated target/profile and a consequence of the conservative classifier,
 which does not label partial preservation as equivalence.
 
 The \textsc{Necessary} classification itself rests on a model of Snort's
-header evaluation that holds for port-based rules but not for rules with a
-\texttt{service} option (Section~\ref{sec:service-based}). The compiler
-treats a declared service as an additional delegated condition, which would
-be sound if Snort required the service and the header together. Snort~3
-instead replaces the port and protocol checks by the service match, so for
-2,928 rules the compiled predicate over-constrains the protocol and, for
-2,877 of them, a port. This was established
-from the Snort~3.12.2.0 source and documentation, not by a data-plane
-experiment. The compiler now offers the corrected semantics as an option,
+header evaluation that holds for port-based rules but not for service-based
+ones (Section~\ref{sec:service-based}). The compiler treats a service as an
+additional delegated condition, which would be sound if Snort required the
+service and the header together. Snort~3 instead replaces the port and
+protocol checks by the service match, so for 2,931 rules the compiled
+predicate over-constrains the protocol and, for 2,877 of them, a port. This
+was established from the Snort~3.12.2.0 source and documentation, not by a
+data-plane experiment. The compiler now offers the corrected semantics as an option,
 but the frozen artifacts and every trace-level result in this paper use the
 original one.
 
@@ -1973,8 +1985,8 @@ Section~\ref{sec:problem}, the construction gives $r \Rightarrow p_r$ inside
 the enforced packet domain for the 1,072 \textsc{Necessary} rules whose
 header ports Snort checks, with options, fragments, and truncated headers
 retained by fail-open fallback, and without presenting partial preservation
-as equivalence. For the 2,928 rules with a \texttt{service} option the
-relation holds only where Snort evaluates the full header, because Snort~3
+as equivalence. For the 2,931 service-based rules the relation holds only
+where Snort evaluates the full header, because Snort~3
 skips header ports and protocol once it identifies the flow's service; the
 global plan still covers them through port-free entries, all but nine
 completely, while the strong-discriminator plan does not. For RQ2, 6,675

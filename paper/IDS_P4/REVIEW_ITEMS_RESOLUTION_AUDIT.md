@@ -31,10 +31,11 @@ Background from the pinned Snort 3 corpus. No frozen number is changed.
 | 150/528/2,391 candidate-alert packets reclassified offline, 0 no-match, 0 fallback | `output/analysis/alert_preservation_offline_post_correction.json` (`tests/rederive_alert_preservation_offline.py`) |
 | Strong criterion and nine removed IDs | `output/analysis/operational_policy_simulation.json` `policies.strong_discriminator.install_entries.removed_entry_ids`; matches read from `output/p4_install_entries.json` |
 | 85.43%, 86.40%, 81.81% | (1 − (mean + 406)/4017) × 100 with the frozen means 179.2848, 140.4900, 324.5181; equals `FINAL_SCIENTIFIC_CLOSING_AUDIT.md` §10 |
-| 2,928 service-based NECESSARY rules; 2,877 P4-eligible; 2,921 keep an address predicate; 7 would not | `output/analysis/service_based_header_exposure.json` (`tests/analyze_service_based_headers.py`) |
-| 1,072 NECESSARY rules whose header ports Snort checks | 4,003 − 2,928 − 3: the 1,075 without `service:` minus the three that use service-specific options (529, 3238, 3239); includes the 12 `alert http` header rules, which `USER_MODE` keeps port-checked |
+| 2,928 NECESSARY rules with `service:`; 2,877 P4-eligible; 2,921 keep an address predicate; 7 would not | `output/analysis/service_based_header_exposure.json` (`tests/analyze_service_based_headers.py`), `expostas` |
+| 3 more service-based through DCE options (529, 3238, 3239), 2,931 in all; 2,924 would keep an address predicate | same artifact, `expostas_por_servico_implicito` and `service_based_total`; mechanism in §7 |
+| 1,072 NECESSARY rules whose header ports Snort checks | 4,003 − 2,931: the 1,060 port-based rules plus the 12 `alert http` header rules, which `USER_MODE` keeps port-checked (`necessarias_com_protocolo_de_servico_no_cabecalho`) |
 | 927 payload-negatives candidate without alert; 7 with alert | `e2e_1000_v4/resultado_strong.jsonl`: candidate payload-negatives by alerted role; the 7 rules (622, 630, 1257, 1415, 1417, 1420, 1421) have no `content` |
-| Global plan covers 2,919 fully and 9 on TCP only; strong plan covers none | same artifact, `cobertura_da_regiao_sem_porta_e_protocolo` |
+| Global plan covers 2,919 + 3 = 2,922 fully and 9 on TCP only; strong plan covers none | same artifact, `cobertura_da_regiao_sem_porta_e_protocolo` and `expostas_por_servico_implicito.cobertura_por_plano` |
 | Service counts http 2,314, imap 150, pop3 138, smtp 131 | same artifact, `expostas.servicos` (an earlier revision printed 2,316, the count over all 4,017 rules) |
 | Snort 3 semantics: 3,996 / 21, 235 final entries, 739 eligible, 3,257 fallback | `output/analysis/service_header_semantics_whatif.json` (`tests/whatif_service_header_semantics.py`; the legacy side reproduces 3,611 / 392 / 322) |
 | 18.40% bound | 739 / 4017, i.e. 1 − (3,257 + 21) / 4,017 |
@@ -94,3 +95,34 @@ citations, 43 pages. `microtype` and `\emergencystretch` were added and the
 related-work table narrowed, which removed every overfull and underfull box
 (ten overfull before this revision). Pages with the new Background, §4.5,
 §7.2, §7.10, Table 6, and the bibliography were inspected.
+
+## 7. The Three Rules Left Unconfirmed
+
+The first revision of §7.2 counted fifteen NECESSARY rules without `service:`
+that use service-specific options and left three of them (529, 3238, 3239)
+unconfirmed. Their mechanism is now traced in the Snort 3.12.2.0 source
+(`SERVICE_BASED_HEADER_FINDING.md` §2.3):
+
+| Step | Source |
+|---|---|
+| `validate_services` runs for every rule after the header service is added | `src/parser/parse_rule.cc:1278-1287` |
+| A buffer-setting option adds the services registered for its buffer when the rule has none; other options use `guess_service` | `src/detection/fp_utils.cc:110-205, 496-574` |
+| The buffer map is built from every inspector plugin, configured or not | `src/managers/inspector_manager.cc:808-818` |
+| `dce_tcp`/`dce_udp` register `dce_iface` and `dce_stub_data` under `dcerpc`, `dce_smb` under `netbios-ssn` | `src/service_inspectors/dce_rpc/dce_tcp.cc:210-235`, `dce_udp.cc:200-225`, `dce_smb.cc:486-511` |
+| Both options are buffer setters (`CAT_SET_FAST_PATTERN`) | `ips_dce_iface.cc:229-230`, `ips_dce_stub_data.cc:57-58` |
+
+The three rules are therefore service-based, which gives 2,931. Their
+predicates constrain the protocol and a `HOME_NET` destination and no port
+(each port list contains a range), the global plan covers them through
+`p4-40`, and the strong plan keeps them in operational fallback. The 12
+`alert http` rules are service-based too, but `USER_MODE` keeps their ports
+checked, so 1,072 is unchanged.
+
+The compiler's `snort3` mode now uses the same test
+(`snort3_service_based` in `compiler/target_capability.py`), excluding
+`USER_MODE` headers. `legacy` regenerates every versioned artifact byte for
+byte (worktree check), and the `snort3` what-if numbers are unchanged:
+3,996 / 21, 235 entries, 739 eligible, 3,257 fallback. The manuscript's
+Abstract, Introduction, Contributions, §4.5, §7.1, §7.2, Construct Validity,
+Discussion, and Conclusion now count 2,931, and §4.5 states how a rule
+acquires services. Rebuilt: 43 pages, no overfull or underfull box.
