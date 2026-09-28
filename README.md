@@ -164,6 +164,7 @@ proveniência são versionados; o dump de runtime do BMv2 e as capturas
 | `CODEX_HANDOFF.md` | estado do projeto, resultados congelados, pendências |
 | `docs/review/` | auditorias |
 | `paper/IDS_P4/` | manuscrito e auditorias do manuscrito |
+| `paper/IDS_P4_PT/` | versão curta em português (IEEEtran), derivada do manuscrito |
 
 ## Limitações conhecidas
 

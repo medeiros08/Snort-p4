@@ -245,6 +245,10 @@ número em `paper/IDS_P4/REVIEW_ITEMS_RESOLUTION_AUDIT.md` e
 `paper/IDS_P4/CAMPAIGN_INTEGRATION_AUDIT.md`. O `main.pdf` versionado
 corresponde ao `main.tex` atual.
 
+Versão curta em português em `paper/IDS_P4_PT/` (IEEEtran, 7 páginas, com
+Silvio E. Quincozes, FACOM/UFU), reescrita em 2026-09-28 a partir do
+`main.tex`. É derivada: número que mudar no `main.tex` muda lá também.
+
 ## 15. Pendências que bloqueiam a submissão
 
 Em ordem. As que restam exigem o rig.
