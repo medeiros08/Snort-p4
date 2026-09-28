@@ -280,7 +280,9 @@ Em ordem. As que restam exigem o rig.
    (regenera os artefatos congelados, com documento de supersessão) e medir os
    planos corrigidos no BMv2.
 
-   **Decisão do usuário: trocar o padrão para `snort3`?** O que muda:
+   **Decisão do usuário (2026-09-28): o padrão continua `legacy` por
+   enquanto.** O artigo segue relatando o congelado e a medição offline
+   `snort3` da §7.2. Se a troca voltar à mesa, isto é o que ela muda:
    - Regenera os artefatos do pipeline em `output/` (manifesto, entradas P4,
      plano P4Runtime, `backend_validation.json`): 3.996 NECESSARY / 21
      UNSUPPORTED, 235 entradas em vez de 331, strong com 739 elegíveis.
