@@ -38,6 +38,9 @@ ips.variables.nets.SQL_SERVERS = '192.168.10.0/24'
 ips.variables.nets.SMTP_SERVERS = '192.168.10.0/24'
 ips.variables.nets.TELNET_SERVERS = '192.168.10.0/24'
 ips.variables.nets.SIP_SERVERS = '192.168.10.0/24'
+ips.variables.nets.DNS_SERVERS = 'any'
+ips.variables.nets.FTP_SERVERS = 'any'
+ips.variables.nets.SSH_SERVERS = 'any'
 
 ------------------------------------------------------------
 -- Port variables
@@ -49,6 +52,7 @@ ips.variables.ports.FILE_DATA_PORTS = '80 110 143'
 ips.variables.ports.SIP_PORTS = '5060 5061'
 ips.variables.ports.SSH_PORTS = '22'
 ips.variables.ports.FTP_PORTS = '21'
+ips.variables.ports.MAIL_PORTS = '110 143'
 
 ------------------------------------------------------------
 -- End of generated experimental configuration

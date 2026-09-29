@@ -195,6 +195,14 @@ Os artefatos por perfil ficam em `output/profiles/<perfil>/`. Os logs de
 proveniência são versionados; o dump de runtime do BMv2 e as capturas
 `.pcap` não, por serem volumosos e regeneráveis.
 
+No rig, `python tests/check_profile_vs_snort.py` confere que as variáveis
+do compilador (`config/snort_variables.json`) são as mesmas, com os mesmos
+valores, que o Snort usa com `config/snort3_experiment.lua`. O lado do
+Snort vem do próprio `snort --dump-config-text`. Uma variável que o Snort
+define e o perfil não faria o compilador recusar uma regra que o Snort
+aceita. Os códigos de saída são 0 (coincidem), 1 (divergem) e 2 (sem Snort
+nesta máquina).
+
 ## Documentação
 
 | Arquivo | Conteúdo |

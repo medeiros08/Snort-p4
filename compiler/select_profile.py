@@ -47,6 +47,16 @@ ACTIVE_PROFILE_FILE = (
 # ============================================================
 
 
+# O conjunto e o de ips.variables do Snort 3.12.2.0 com o snort.lua padrao,
+# conferido por tests/check_profile_vs_snort.py contra
+# `snort --dump-config-text` no rig. Variavel que o Snort define e o perfil
+# nao definisse faria o compilador recusar uma regra que o Snort aceita.
+#
+# DNS_SERVERS, FTP_SERVERS e SSH_SERVERS valem 'any' nos perfis, e nao
+# HOME_NET: o snort.lua faz HOME_NET = 'any' (linha 24) antes de incluir o
+# snort_defaults.lua, que atribui HOME_NET a elas (linhas 35-41) ali mesmo;
+# a configuracao do experimento so redefine HOME_NET depois. O valor
+# efetivo no Snort e 'any', e e ele que o perfil tem de reproduzir.
 NETWORK_VARIABLES = [
     "HOME_NET",
     "EXTERNAL_NET",
@@ -55,6 +65,9 @@ NETWORK_VARIABLES = [
     "SMTP_SERVERS",
     "TELNET_SERVERS",
     "SIP_SERVERS",
+    "DNS_SERVERS",
+    "FTP_SERVERS",
+    "SSH_SERVERS",
 ]
 
 
@@ -65,6 +78,7 @@ PORT_VARIABLES = [
     "SIP_PORTS",
     "SSH_PORTS",
     "FTP_PORTS",
+    "MAIL_PORTS",
 ]
 
 
@@ -781,22 +795,24 @@ def main():
             profile_name
         ),
 
-        "profile_file": str(
+        # as_posix, e nao str: no Windows str() grava `config\\...` e o
+        # arquivo muda conforme a maquina que selecionou o perfil.
+        "profile_file": (
             profile_file.relative_to(
                 PROJECT_ROOT
-            )
+            ).as_posix()
         ),
 
-        "compiler_variables_file": str(
+        "compiler_variables_file": (
             ACTIVE_VARIABLES_FILE.relative_to(
                 PROJECT_ROOT
-            )
+            ).as_posix()
         ),
 
-        "snort_configuration_file": str(
+        "snort_configuration_file": (
             SNORT_CONFIG_FILE.relative_to(
                 PROJECT_ROOT
-            )
+            ).as_posix()
         ),
 
         "HOME_NET": (
