@@ -25,6 +25,8 @@ Esses casos usam constantes de rotulo separadas, mantidas literais. Os
 demais artefatos gravam apenas o basename, que e estavel.
 """
 
+import os
+
 from pathlib import Path
 
 COMPILER_DIR = Path(__file__).resolve().parent
@@ -33,8 +35,71 @@ PROJECT_ROOT = COMPILER_DIR.parent
 
 CONFIG_DIR = PROJECT_ROOT / "config"
 
-OUTPUT_DIR = PROJECT_ROOT / "output"
-
 RULES_DIR = PROJECT_ROOT / "rules"
 
 P4_DIR = PROJECT_ROOT / "p4"
+
+
+# ============================================================
+# Ruleset e diretorio de saida
+# ============================================================
+#
+# O ruleset avaliado e a saida do pipeline vem destas duas variaveis de
+# ambiente; sem elas, os valores sao os de sempre, e o pipeline reproduz os
+# artefatos congelados byte a byte. Variavel de ambiente, e nao argumento de
+# cada estagio, porque os estagios rodam como subprocessos encadeados e
+# todos precisam ver o mesmo par; quem define as duas e
+# `run_static_pipeline.py`, pelos argumentos --ruleset e --saida.
+#
+# Ruleset diferente do padrao com a saida em output/ e recusado: todos os
+# estagios gravam na raiz de OUTPUT_DIR, e os artefatos que estao ali sao os
+# congelados que sustentam o artigo.
+
+VAR_RULESET = "SNORT_P4_RULESET"
+
+VAR_SAIDA = "SNORT_P4_OUTPUT_DIR"
+
+RULESET_PADRAO = RULES_DIR / "snort3-community.rules"
+
+SAIDA_PADRAO = PROJECT_ROOT / "output"
+
+# Rotulo gravado no manifesto para o ruleset padrao. Literal e relativo,
+# como antes, para que o artefato nao dependa de onde o repositorio esta.
+ROTULO_RULESET_PADRAO = "../rules/snort3-community.rules"
+
+
+def _caminho_do_ambiente(nome, padrao):
+    valor = os.environ.get(nome, "").strip()
+    return Path(valor).expanduser().resolve() if valor else padrao
+
+
+RULESET_FILE = _caminho_do_ambiente(VAR_RULESET, RULESET_PADRAO)
+
+OUTPUT_DIR = _caminho_do_ambiente(VAR_SAIDA, SAIDA_PADRAO)
+
+RULESET_E_PADRAO = RULESET_FILE == RULESET_PADRAO
+
+if not RULESET_E_PADRAO and OUTPUT_DIR == SAIDA_PADRAO:
+    raise SystemExit(
+        f"ERRO: {VAR_RULESET} aponta para {RULESET_FILE}, mas a saida "
+        f"continua em {SAIDA_PADRAO}, onde estao os artefatos congelados. "
+        f"Defina {VAR_SAIDA} com outro diretorio, ou use "
+        f"compiler/run_static_pipeline.py --ruleset ... --saida ..."
+    )
+
+
+def ruleset_label():
+    """Rotulo do ruleset gravado no manifesto.
+
+    O padrao mantem o literal de sempre. Outro ruleset dentro do projeto
+    grava o caminho relativo no mesmo estilo; fora do projeto, so o nome do
+    arquivo, para nao vazar o diretorio de instalacao no artefato.
+    """
+
+    if RULESET_E_PADRAO:
+        return ROTULO_RULESET_PADRAO
+    try:
+        relativo = RULESET_FILE.relative_to(PROJECT_ROOT)
+    except ValueError:
+        return RULESET_FILE.name
+    return "../" + relativo.as_posix()
