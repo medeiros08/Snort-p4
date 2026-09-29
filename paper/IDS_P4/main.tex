@@ -1226,14 +1226,30 @@ service; without its UDP and port-53 conditions its predicate keeps only the
 \texttt{HOME\_NET} destination, which is not a strong discriminator. The
 traces therefore do not exercise the corrected candidate sets at all.
 
-No experiment in this paper was designed to exercise a service on a port
+None of the trace or campaign experiments exercises a service on a port
 outside a rule's header. Under the global plan, an alert of this kind would
 fall, except for non-TCP packets of the nine rules above, on a packet that
 \texttt{p4-40}, \texttt{p4-138}, or \texttt{p4-106} already marks
 candidate, so the trace-based checks could not reveal it; only the offline
 strong-discriminator audits of the three traces could, and they found no
 missing event among the 3,069 alerts. The end-to-end campaign places each witness on a port of the
-rule's own header. The frozen measurements in the rest of this section are
+rule's own header.
+
+A dedicated data-plane test exercises exactly this case. It takes 200 HTTP
+rules with \texttt{service:http}, sampled from the synthesizable ones, and
+moves the campaign's HTTP flow to destination port 18080. None of their
+headers lists that port, and none of the rules' own entries matches the
+witness. Snort alerted for 190 of them, 190 distinct SIDs, so it did not
+check the header port. With the global plan installed on BMv2, all 190
+witnesses were candidates, through \texttt{p4-3} or \texttt{p4-5}, two
+port-free entries of other rules that the strong-discriminator policy
+removes. With the strong-discriminator plan, all 190 were no-match, and so
+was the flush acknowledgment to which Snort attributes each alert: the
+prefilter would have dropped both. The other 10 rules raised no alert on
+either plan. The test covers one port and one service; the generalization
+rests on the source reading above.
+
+The frozen measurements in the rest of this section are
 therefore correct for the traffic they observed, but the strong-discriminator
 ablation and the per-packet candidate rule sets derive from predicates that
 are not necessary conditions for service-based rules.
@@ -1885,8 +1901,10 @@ additional delegated condition, which would be sound if Snort required the
 service and the header together. Snort~3 instead replaces the port and
 protocol checks by the service match, so for 2,931 rules the compiled
 predicate over-constrains the protocol and, for 2,877 of them, a port. This
-was established from the Snort~3.12.2.0 source and documentation, not by a
-data-plane experiment. The compiler now offers the corrected semantics as an
+was established from the Snort~3.12.2.0 source and documentation and
+confirmed on BMv2 for one service and one port: 190 HTTP rules alerted on
+port 18080, and the strong-discriminator plan marked all 190 witnesses
+no-match. The compiler now offers the corrected semantics as an
 option, but the frozen artifacts and every trace-level result outside
 Section~\ref{sec:service-exposure} use the original one; the corrected
 compilation was measured offline only and was not installed on BMv2.
@@ -1951,7 +1969,8 @@ strong-discriminator run preceded only the second correction; the only
 sampled rule it affected, SID 28982, was recorded as vacuous. The campaign's reach is also bounded by
 construction. Each rule is exercised at a single point of its packet space,
 always on a port of its own header, so the campaign cannot observe the
-service-based evaluation of Section~\ref{sec:service-based}.
+service-based evaluation of Section~\ref{sec:service-based}; only the
+dedicated off-port test of Section~\ref{sec:service-exposure} does.
 The 1,875 rules for which no witness can be synthesized, most of which carry
 the richer payload and state semantics, are not tested at all, and the sample
 is drawn from the synthesizable subset rather than from the full ruleset.

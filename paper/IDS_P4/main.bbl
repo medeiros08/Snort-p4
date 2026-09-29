@@ -2,13 +2,20 @@
 
 \bibitem{alsabeh2022p4securitysurvey}
 Ali AlSabeh, Joseph Khoury, Elie Kfoury, Jorge Crichigno, and Elias Bou-Harb.
-\newblock A survey on security applications of p4 programmable switches and a
-  stride-based vulnerability assessment.
+\newblock A survey on security applications of {P4} programmable switches and a
+  {STRIDE}-based vulnerability assessment.
 \newblock {\em Computer Networks}, 207:108800, 2022.
+
+\bibitem{bosshart2014p4}
+Pat Bosshart, Dan Daly, Glen Gibb, Martin Izzard, Nick McKeown, Jennifer
+  Rexford, Cole Schlesinger, Dan Talayco, Amin Vahdat, George Varghese, and
+  David Walker.
+\newblock {P4}: Programming protocol-independent packet processors.
+\newblock {\em ACM SIGCOMM Computer Communication Review}, 44(3):87--95, 2014.
 
 \bibitem{brum2025rethinking}
 H.~B. Brum, L.~A.~D. Knob, T.~Ferreto, and D.~Siracusa.
-\newblock Rethinking nids rule-based pre-filtering.
+\newblock Rethinking {NIDS} rule-based pre-filtering.
 \newblock In {\em IFIP/IEEE International Symposium on Integrated Network
   Management and Network Operations (CNSM)}, 2025.
 
@@ -20,7 +27,7 @@ Mah-Rukh Fida and Azza~H. Ahmed.
 
 \bibitem{hagen2025rna}
 L.~S. Hagen, A.~S. Ilha, R.~Parizotto, and L.~P. Gaspary.
-\newblock Rna: Automating ids/ips event detection offload into programmable
+\newblock {RNA}: Automating {IDS/IPS} event detection offload into programmable
   forwarding devices.
 \newblock In {\em IEEE/IFIP Network Operations and Management Symposium
   (NOMS)}, 2025.
@@ -28,38 +35,73 @@ L.~S. Hagen, A.~S. Ilha, R.~Parizotto, and L.~P. Gaspary.
 \bibitem{hauser2023p4survey}
 Frederik Hauser, Marco H\"aberle, Daniel Merling, Steffen Lindner, Vladimir
   Gurevich, Florian Zeiger, Reinhard Frank, and Michael Menth.
-\newblock A survey on data plane programming with p4: Fundamentals, advances,
+\newblock A survey on data plane programming with {P4}: Fundamentals, advances,
   and applied research.
 \newblock {\em Journal of Network and Computer Applications}, 212:103561, 2023.
 
 \bibitem{lewis2019p4id}
 Benjamin Lewis, Matthew Broadbent, and Nicholas Race.
-\newblock P4id: P4 enhanced intrusion detection.
+\newblock {P4ID}: {P4} enhanced intrusion detection.
 \newblock In {\em 2019 IEEE Conference on Network Function Virtualization and
   Software Defined Networks (NFV-SDN)}, 2019.
 
 \bibitem{lewis2023fourmidable}
 Benjamin Lewis, Matthew Broadbent, Charalampos Rotsos, and Nicholas Race.
-\newblock 4midable: Flexible network offloading for security vnfs.
+\newblock {4MIDable}: Flexible network offloading for security {VNFs}.
 \newblock {\em Journal of Network and Systems Management}, 31:52, 2023.
 
 \bibitem{mazloum2025p4security}
 Ali Mazloum, Ali AlSabeh, Elie Kfoury, and Jorge Crichigno.
-\newblock Security applications in p4: Implementation and lessons learned.
+\newblock Security applications in {P4}: Implementation and lessons learned.
 \newblock {\em Computer Networks}, 257:111011, 2025.
 
+\bibitem{bmv2}
+{p4lang}.
+\newblock {BMv2}: The behavioral model software switch.
+\newblock \url{https://github.com/p4lang/behavioral-model}, 2025.
+\newblock \texttt{simple\_switch\_grpc} 1.15.0, commit 68f4a978.
+
+\bibitem{roesch1999snort}
+Martin Roesch.
+\newblock {Snort}: Lightweight intrusion detection for networks.
+\newblock In {\em Proceedings of the 13th USENIX Conference on System
+  Administration (LISA '99)}, pages 229--238, Seattle, WA, USA, 1999. USENIX
+  Association.
+
 \bibitem{senoski2025p4nips}
-Eduardo~Vudala Senoski, Jo\ ao~Ribeiro~Andreotii, Raphael~Kaviak Machnicki,
+Eduardo~Vudala Senoski, Jo{\~a}o~Ribeiro Andreotii, Raphael~Kaviak Machnicki,
   Jorge~Pires Correia, and Vinicius Fulber-Garcia.
-\newblock P4nips: P4 network intrusion prevention system.
+\newblock {P4NIPS}: {P4} network intrusion prevention system.
 \newblock In {\em Anais Estendidos do Simp\'osio Brasileiro de
   Ciberseguran\c{c}a (SBSeg)}, pages 75--84, 2025.
 
+\bibitem{sharafaldin2018cicids}
+Iman Sharafaldin, Arash~Habibi Lashkari, and Ali~A. Ghorbani.
+\newblock Toward generating a new intrusion detection dataset and intrusion
+  traffic characterization.
+\newblock In {\em Proceedings of the 4th International Conference on
+  Information Systems Security and Privacy (ICISSP)}, pages 108--116, 2018.
+
 \bibitem{tavares2021p4onids}
 Kairo Tavares and Tiago Ferreto.
-\newblock P4-onids: A p4-based nids optimized for constrained programmable data
-  planes in sdn.
+\newblock {P4-ONIDS}: A {P4}-based {NIDS} optimized for constrained
+  programmable data planes in {SDN}.
 \newblock In {\em Anais do XXXIX Simpósio Brasileiro de Redes de Computadores
   e Sistemas Distribuídos}, pages 434--447, 2021.
+
+\bibitem{p4spec2023}
+{The P4 Language Consortium}.
+\newblock {\em {P4$_{16}$} Language Specification}, 2023.
+\newblock Version 1.2.4, \url{https://p4.org/specs/}.
+
+\bibitem{p4runtime2024}
+{The P4.org API Working Group}.
+\newblock {\em {P4Runtime} Specification}, 2024.
+\newblock Version 1.4.1, \url{https://p4.org/specs/}.
+
+\bibitem{snort3manual}
+{The Snort Team}.
+\newblock {\em {Snort 3} User Manual}, 2026.
+\newblock Snort 3.12.2.0, \url{https://github.com/snort3/snort3}.
 
 \end{thebibliography}
