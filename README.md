@@ -101,6 +101,30 @@ Todos os estágios falham com código diferente de zero quando o artefato que
 gravaram declara erro. Um build que termina com sucesso é um build cujos
 artefatos estão limpos.
 
+### Outro ruleset
+
+`build_profile.py` compila só o ruleset padrão
+(`rules/snort3-community.rules`) em `output/`. Para compilar outro, sem o rig,
+use:
+
+    python compiler/run_static_pipeline.py --ruleset <arquivo.rules> --saida <diretorio>
+
+O que ele faz:
+
+- Roda as mesmas etapas do `build_profile`, da regra ao plano P4Runtime,
+  com as variáveis do perfil ativo.
+- Grava tudo em `--saida`, com um `proveniencia.json` que registra o ruleset
+  (sha256 e número de regras), o commit, cada etapa e o sha256 de cada
+  artefato.
+- Não valida o ruleset no Snort nem compila o P4. O programa P4 não depende do
+  ruleset e é copiado de `output/`.
+
+Os caminhos vêm de `SNORT_P4_RULESET` e `SNORT_P4_OUTPUT_DIR`
+(`compiler/paths.py`). Um ruleset diferente do padrão com saída em `output/`
+é recusado antes de qualquer escrita, porque ali estão os artefatos
+congelados. Com o ruleset padrão, o executor reproduz esses artefatos byte a
+byte.
+
 ### Semântica de cabeçalho de regras service-based
 
 No Snort 3, quando o serviço identificado no fluxo é um dos da regra, porta

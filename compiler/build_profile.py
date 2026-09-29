@@ -803,6 +803,38 @@ def main():
         args.profile.strip()
     )
 
+    # Este build grava em output/ e config/ por caminhos proprios, e valida
+    # o Snort com o ruleset padrao. Com as variaveis de ruleset ou de saida
+    # definidas, os subprocessos gravariam num lugar e este script em outro.
+    # Ruleset alternativo passa por compiler/run_static_pipeline.py.
+    variaveis_definidas = [
+        nome
+        for nome in (
+            "SNORT_P4_RULESET",
+            "SNORT_P4_OUTPUT_DIR",
+        )
+        if os.environ.get(nome, "").strip()
+    ]
+
+    if variaveis_definidas:
+
+        print()
+        print(
+            "ERROR: "
+            + ", ".join(variaveis_definidas)
+            + " definida(s); nenhum arquivo foi modificado."
+        )
+        print(
+            "build_profile.py compila so o ruleset padrao em output/. "
+            "Para outro ruleset use:"
+        )
+        print(
+            "    python compiler/run_static_pipeline.py "
+            "--ruleset <arquivo.rules> --saida <diretorio>"
+        )
+
+        sys.exit(1)
+
     # Preflight de ambiente.
     #
     # O estagio 01 reescreve config/ e os estagios 02-09 reescrevem os

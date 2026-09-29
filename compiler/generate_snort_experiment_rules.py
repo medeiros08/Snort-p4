@@ -3,42 +3,35 @@ import re
 import sys
 from pathlib import Path
 
+import paths
 import pipeline_gate
 
 
 PROJECT_ROOT = (
-    Path(__file__)
-    .resolve()
-    .parents[1]
+    paths.PROJECT_ROOT
 )
 
 MANIFEST_FILE = (
-    PROJECT_ROOT
-    / "output"
+    paths.OUTPUT_DIR
     / "semantic_manifest.json"
 )
 
 SOURCE_RULES_FILE = (
-    PROJECT_ROOT
-    / "rules"
-    / "snort3-community.rules"
+    paths.RULESET_FILE
 )
 
 CANDIDATE_OUTPUT = (
-    PROJECT_ROOT
-    / "output"
+    paths.OUTPUT_DIR
     / "snort_candidate.rules"
 )
 
 UNSUPPORTED_OUTPUT = (
-    PROJECT_ROOT
-    / "output"
+    paths.OUTPUT_DIR
     / "snort_unsupported.rules"
 )
 
 REPORT_OUTPUT = (
-    PROJECT_ROOT
-    / "output"
+    paths.OUTPUT_DIR
     / "snort_experiment_split.json"
 )
 

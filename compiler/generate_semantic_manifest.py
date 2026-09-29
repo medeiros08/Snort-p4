@@ -33,14 +33,14 @@ import pipeline_gate
 
 
 RULESET_FILE = (
-    paths.RULES_DIR
-    / "snort3-community.rules"
+    paths.RULESET_FILE
 )
 
 # Rotulos gravados no manifesto. Mantidos relativos e literais para que
-# o artefato nao dependa de onde o repositorio esta instalado.
+# o artefato nao dependa de onde o repositorio esta instalado; o do ruleset
+# vem de paths.ruleset_label(), que devolve o literal de sempre no padrao.
 RULESET_LABEL = (
-    "../rules/snort3-community.rules"
+    paths.ruleset_label()
 )
 
 VARIABLES_LABEL = (
