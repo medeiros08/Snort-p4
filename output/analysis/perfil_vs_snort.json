@@ -1,0 +1,64 @@
+{
+  "gerado_em": "2026-09-29T20:06:20+00:00",
+  "configuracao_snort": "config/snort3_experiment.lua",
+  "variaveis_do_compilador": "config/snort_variables.json",
+  "snort": {
+    "DNS_SERVERS": "any",
+    "EXTERNAL_NET": "any",
+    "FILE_DATA_PORTS": "80 110 143",
+    "FTP_PORTS": "21",
+    "FTP_SERVERS": "any",
+    "HOME_NET": "192.168.10.0/24",
+    "HTTP_PORTS": "80 8080",
+    "HTTP_SERVERS": "192.168.10.0/24",
+    "MAIL_PORTS": "110 143",
+    "ORACLE_PORTS": "1521",
+    "SIP_PORTS": "5060 5061",
+    "SIP_SERVERS": "192.168.10.0/24",
+    "SMTP_SERVERS": "192.168.10.0/24",
+    "SQL_SERVERS": "192.168.10.0/24",
+    "SSH_PORTS": "22",
+    "SSH_SERVERS": "any",
+    "TELNET_SERVERS": "192.168.10.0/24"
+  },
+  "compilador": {
+    "HOME_NET": "192.168.10.0/24",
+    "EXTERNAL_NET": "any",
+    "HTTP_SERVERS": "192.168.10.0/24",
+    "SQL_SERVERS": "192.168.10.0/24",
+    "SMTP_SERVERS": "192.168.10.0/24",
+    "TELNET_SERVERS": "192.168.10.0/24",
+    "SIP_SERVERS": "192.168.10.0/24",
+    "DNS_SERVERS": "any",
+    "FTP_SERVERS": "any",
+    "SSH_SERVERS": "any",
+    "HTTP_PORTS": [
+      80,
+      8080
+    ],
+    "ORACLE_PORTS": [
+      1521
+    ],
+    "FILE_DATA_PORTS": [
+      80,
+      110,
+      143
+    ],
+    "SIP_PORTS": [
+      5060,
+      5061
+    ],
+    "SSH_PORTS": [
+      22
+    ],
+    "FTP_PORTS": [
+      21
+    ],
+    "MAIL_PORTS": [
+      110,
+      143
+    ]
+  },
+  "divergencias": [],
+  "status": "OK"
+}

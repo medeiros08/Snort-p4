@@ -7,11 +7,15 @@
   "SMTP_SERVERS": "192.168.10.0/24",
   "TELNET_SERVERS": "192.168.10.0/24",
   "SIP_SERVERS": "192.168.10.0/24",
+  "DNS_SERVERS": "any",
+  "FTP_SERVERS": "any",
+  "SSH_SERVERS": "any",
 
   "HTTP_PORTS": [80, 8080],
   "ORACLE_PORTS": [1521],
   "FILE_DATA_PORTS": [80, 110, 143],
   "SIP_PORTS": [5060, 5061],
   "SSH_PORTS": [22],
-  "FTP_PORTS": [21]
+  "FTP_PORTS": [21],
+  "MAIL_PORTS": [110, 143]
 }
