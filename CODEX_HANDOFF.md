@@ -1,6 +1,8 @@
 # Codex Handoff
 
-Atualizado em 2026-09-27. Substitui integralmente a versão de 2026-09-09:
+Atualizado em 2026-09-29: o achado service-based foi confirmado no plano de
+dados (§10 e §15, item 1). A revisão de 2026-09-27 substituiu integralmente a
+versão de 2026-09-09:
 desde então entraram a campanha end-to-end, as correções de IR, a revisão
 pré-submissão do manuscrito e o achado de regras service-based (§10), que é
 agora a pendência principal.
@@ -184,6 +186,19 @@ protocolo no predicado. Então:
 - Plano strong e candidate sets: não cobrem nenhuma das 2.877 que o strong
   pré-filtra; as 3 DCE estão no fallback operacional.
 
+**Confirmado no plano de dados em 2026-09-29** (§9 do documento). Foram 200
+regras HTTP com `service:http`, com a testemunha na porta 18080, fora do
+cabeçalho de todas elas. Resultado:
+
+- O Snort alertou em 190 casos: 190 sids distintos, com os mesmos 220
+  alertas nas duas rodadas.
+- Plano global: 190 CONFIRMADO, graças a entradas de outras regras.
+- Plano strong: 190 VIOLAÇÃO; a testemunha e o ACK de flush saem no-match.
+- 10 vácuos, sem relação com a porta.
+- O medido bateu com a previsão da geração.
+
+Escopo: uma porta e um serviço. A generalização vem da leitura do código.
+
 O manuscrito já está revisado para esse escopo (§4.5 e §7.2 do artigo). O
 compilador tem a semântica corrigida como opção,
 `generate_semantic_manifest.py --service-header-semantics snort3` (padrão
@@ -265,6 +280,18 @@ Em ordem. As que restam exigem o rig.
 
    Esperado se o código lido estiver certo: global CONFIRMADO, strong
    VIOLACAO (código de saída 1 é o esperado). Tudo VACUO invalida a leitura.
+
+   **FEITO no rig em 2026-09-29, e confirmou a leitura.** Global: 190
+   CONFIRMADO e 10 VACUO. Strong: 190 VIOLACAO e 10 VACUO. Resultados em
+   `output/campaign/servico_fora_do_cabecalho/` (`relatorio*.json`,
+   `resultado*.jsonl`, `snort_alertas*.jsonl`); análise no §9 de
+   `SERVICE_BASED_HEADER_FINDING.md`.
+
+   Falta levar o resultado ao manuscrito. Três passagens ainda dizem que
+   nenhum experimento exercitou serviço fora da porta do cabeçalho:
+   - `main.tex:1229`
+   - `IDS_P4_PT/artigo.tex:657`
+   - `IDS_P4_PT/artigo.tex:730`, onde o teste aparece como trabalho futuro.
 2. **Métricas de trace com a semântica corrigida: FEITO offline em
    2026-09-27**, nesta máquina, com as janelas cortadas da captura (§13):
 

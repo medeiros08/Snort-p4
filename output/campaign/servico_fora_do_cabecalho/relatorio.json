@@ -1,0 +1,42 @@
+{
+  "campanha": "servico_fora_do_cabecalho",
+  "casos": 200,
+  "dependencia_de_estado": 0,
+  "divergencia_de_atribuicao": 0,
+  "efetivos": 190,
+  "fallback_operacional": 0,
+  "gerado_em": "2026-09-29T18:31:26+00:00",
+  "negativo_header": {
+    "categorias": {},
+    "taxa_no_match_dominio_suportado": null
+  },
+  "negativo_payload": {
+    "categorias": {
+      "P4_CANDIDATE": 200
+    },
+    "nota": "candidate sem alerta e o excesso conservador do prefilter",
+    "taxa_candidato_dominio_suportado": 1.0
+  },
+  "parametros": {
+    "bmv2_executado": true,
+    "device_id": 0,
+    "endereco": "127.0.0.1:9559",
+    "interface": "veth1",
+    "intervalo": 0.1,
+    "snort_executado": true
+  },
+  "particao": null,
+  "plano": null,
+  "quadros": 1600,
+  "testemunha": {
+    "categorias": {
+      "P4_CANDIDATE": 200
+    },
+    "taxa_candidato_dominio_suportado": 1.0
+  },
+  "vacuos": 10,
+  "vereditos": {
+    "CONFIRMADO": 190,
+    "VACUO": 10
+  }
+}
