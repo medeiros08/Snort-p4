@@ -653,9 +653,9 @@ regras elegíveis; e a redução sobre o ruleset fica em 18,30\%, 18,30\% e
 passam a vir de regras em fallback: a SID 254, responsável por 2.960 deles,
 declara \texttt{service:dns} e, sem UDP e porta 53, fica apenas com o destino
 \texttt{HOME\_NET}. Os traços, portanto, não exercitam os conjuntos candidatos
-corrigidos. Nenhum plano da compilação corrigida foi instalado no BMv2, e
-nenhum experimento deste trabalho exercitou um serviço fora da porta do
-cabeçalho.
+corrigidos. Nenhum plano da compilação corrigida foi instalado no BMv2. Um
+teste no BMv2 com 200 regras \texttt{service:http} na porta 18080 confirmou
+o achado: o Snort alertou em 190, e o plano forte marcou todas como no-match.
 
 \subsection{Discussão dos resultados}
 
@@ -690,7 +690,7 @@ sintético, um ponto por regra e sempre numa porta do próprio cabeçalho, de
 modo que não observa a avaliação service-based; as 1.875 regras sem
 testemunha sintetizável não foram testadas. A semântica service-based foi
 estabelecida pela leitura do código-fonte e da documentação do
-Snort~3.12.2.0, e não por um experimento no plano de dados. O alvo é o BMv2 em
+Snort~3.12.2.0 e confirmada no BMv2 só para um serviço e uma porta. O alvo é o BMv2 em
 software: não houve medição de vazão, latência ou recursos de hardware. Por
 fim, algumas condições de cabeçalho representáveis ainda são omitidas, o que
 só alarga os predicados: faixas de porta, tipo e código ICMP e
@@ -726,9 +726,8 @@ acompanhada de um manifesto de compilação que torna auditável o que cada
 tradução preserva, e a constatação de que essa garantia depende de como o IDS
 avalia a regra, e não apenas do seu texto.
 
-Como trabalhos futuros, quatro direções se destacam. A primeira é testar no
-plano de dados uma testemunha de serviço fora da porta do cabeçalho e medir
-no BMv2 os planos da compilação corrigida. A segunda é um seletor de regras
+Como trabalhos futuros, quatro direções se destacam. A primeira é medir no
+BMv2 os planos da compilação corrigida. A segunda é um seletor de regras
 candidatas que use o serviço identificado, além do cabeçalho, e a execução do
 Snort orientada por esse conjunto, transformando a redução medida
 \emph{offline} em ganho efetivo --- o que exige tratar as dependências de

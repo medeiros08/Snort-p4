@@ -338,6 +338,11 @@ installed table was exactly the plan under test.
   data packet, which the strong plan marks no-match. Under that plan the
   prefilter would drop both the request and the frame the alert is
   attributed to.
+- **Covering entries.** Replaying each witness offline against the global
+  plan with the reference matcher, the first matching entry is `p4-3` for
+  130 cases and `p4-5` for 60. They are the TCP entries with only a
+  `HOME_NET` destination or source and no port, two of the nine the
+  strong-discriminator policy removes.
 - **Prediction.** The measured witness categories match the prediction
   recorded at generation (`proveniencia.json`: candidate under the global
   plan, no-match under the strong plan, for all 200).

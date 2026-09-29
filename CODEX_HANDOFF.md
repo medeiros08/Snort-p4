@@ -287,11 +287,14 @@ Em ordem. As que restam exigem o rig.
    `resultado*.jsonl`, `snort_alertas*.jsonl`); análise no §9 de
    `SERVICE_BASED_HEADER_FINDING.md`.
 
-   Falta levar o resultado ao manuscrito. Três passagens ainda dizem que
-   nenhum experimento exercitou serviço fora da porta do cabeçalho:
-   - `main.tex:1229`
-   - `IDS_P4_PT/artigo.tex:657`
-   - `IDS_P4_PT/artigo.tex:730`, onde o teste aparece como trabalho futuro.
+   O resultado já está no manuscrito.
+   - `main.tex`: §7.2, um parágrafo novo com o teste; Threats, onde o achado
+     passa a ser dado como confirmado no BMv2 para um serviço e uma porta; e
+     os limites da campanha, que agora apontam para o teste.
+   - `IDS_P4_PT/artigo.tex`: resultados, Limitações e trabalhos futuros.
+
+   Builds limpos: `main.pdf` com 44 páginas e `artigo.pdf` com 7, sem
+   overfull nem underfull.
 2. **Métricas de trace com a semântica corrigida: FEITO offline em
    2026-09-27**, nesta máquina, com as janelas cortadas da captura (§13):
 
