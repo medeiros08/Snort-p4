@@ -1,8 +1,10 @@
 # Service-Based Rules: the Header Is Not a Necessary Condition
 
 **Date:** 2026-09-27
-**Status:** finding confirmed from the Snort 3.12.2.0 source and documentation;
-not yet reproduced on the data plane. The manuscript is revised to state the
+**Status:** finding confirmed from the Snort 3.12.2.0 source and documentation,
+and reproduced on the data plane on 2026-09-29 (§9): 190 alerting HTTP cases
+on a port outside their headers, CONFIRMED under the global plan and VIOLATION
+under the strong-discriminator plan. The manuscript is revised to state the
 scope of its claims. The compiler implements the corrected semantics as an
 option (§8); the frozen artifacts still use the original one.
 
@@ -198,6 +200,9 @@ services.
 
 ## 5. Why No Experiment Observed It
 
+This section explains why the experiments *before* the dedicated test of §9
+could not reveal the finding.
+
 - The CICIDS2017 web windows carry HTTP on the header ports, and the alerts
   observed are dominated by non-HTTP sids (254, 399, 402, 650, 1394).
 - The end-to-end campaign synthesizes each witness on the rule's own header
@@ -262,7 +267,7 @@ changes.
    Adding the three DCE rules to the `snort3` mode changed none of these
    numbers: they were already outside the strong-discriminator partition,
    and their entries merge with ones other rules produce.
-2. **Data plane test (rig).** Prepared: `tests/generate_offport_service_cases.py`
+2. **Data plane test (rig).** **Done on 2026-09-29; result in §9.** Prepared: `tests/generate_offport_service_cases.py`
    writes `output/campaign/servico_fora_do_cabecalho/` (200 HTTP rules with
    `service:http`, seed 20260927, 1,600 frames, pcap sha256 `b150423d…`). Each
    witness is the usual HTTP flow moved to destination port 18080, outside
@@ -302,3 +307,76 @@ changes.
    observed alerts under `snort3`, but all of them then come from fallback
    rules: sid 254 (`service:dns`, 2,960 alerts) keeps only its `HOME_NET`
    destination. The traces do not exercise the corrected candidate sets.
+
+## 9. Data-Plane Result (2026-09-29)
+
+The test of §8 item 2 ran on the rig with `tests/run_campaign_bmv2.py`: BMv2
+`simple_switch_grpc`, Snort 3.12.2.0 as the oracle, one frame at a time with
+a counter read after each. Before sending, the runner verified that the
+installed table was exactly the plan under test.
+
+| | Global plan (331 entries) | Strong-discriminator plan (322 entries) |
+|---|---:|---:|
+| CONFIRMED | 190 | 0 |
+| **VIOLATION** | 0 | **190** |
+| VACUOUS | 10 | 10 |
+| Witness packet: candidate / no-match | 200 / 0 | 0 / 200 |
+
+### 9.1 Checks
+
+- **Same input.** The pcap matches the generator record (sha256
+  `b150423d…`). Snort raised the same 220 alerts in both runs, so only the
+  installed table differs between them.
+- **Off-header ports.** The 190 alerting cases are 190 distinct sids. All used
+  destination port 18080, which appears in none of their headers: 198 of the
+  200 cases have `[80, 8080]`, one has `80`, and one has `7001`. Snort alerted
+  anyway, which is the port skipping of §2.
+- **Attribution.** As in every HTTP case of the end-to-end campaign, Snort
+  attributes the alert to the server's flush acknowledgment. That frame was
+  candidate in all 190 cases under the global plan and no-match in all 190
+  under the strong plan. VIOLATION is decided on the witness, the rule's own
+  data packet, which the strong plan marks no-match. Under that plan the
+  prefilter would drop both the request and the frame the alert is
+  attributed to.
+- **Prediction.** The measured witness categories match the prediction
+  recorded at generation (`proveniencia.json`: candidate under the global
+  plan, no-match under the strong plan, for all 200).
+
+### 9.2 Vacuous cases
+
+The 10 vacuous cases are sids 806, 1056, 1608, 3087, 3131, 26836, 28080,
+30570, 42129 and 42834. They do not bear on the port question: Snort raised
+no alert for them at all.
+
+- Five (1056, 3087, 3131, 28080, 42834) were already vacuous in
+  `e2e_1000_v4` with the witness on the header port, for witness-generator
+  reasons.
+- The other five (806, 1608, 26836, 30570, 42129) are not in the
+  `e2e_1000_v4` sample and were not investigated.
+
+### 9.3 What this establishes
+
+- **Strong-discriminator plan.** It is not candidate-complete for
+  service-based rules carried on a port outside their header. This is now
+  observed on the data plane, not only derived from the source: every one of
+  the 190 alerting cases would have been lost.
+- **Global plan.** It held in this test, but only because entries of other
+  rules without port conditions cover the witness (§4). The rule's own
+  entries did not match the witness in any case.
+
+### 9.4 Scope
+
+- **One port.** Every case used port 18080. The generalization to other ports
+  rests on the source reading of §2, not on this measurement.
+- **One service.** Only HTTP with `service:http` was tested. Other services
+  are covered by the source reading, not measured.
+
+### 9.5 Artifacts
+
+In `output/campaign/servico_fora_do_cabecalho/`:
+
+- `relatorio.json`, `resultado.jsonl` and `snort_alertas.jsonl` for the
+  global run.
+- The same three files with suffix `_strong` for the strong run.
+- The pcap is not versioned; `tests/generate_offport_service_cases.py`
+  recreates it.
