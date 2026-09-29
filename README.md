@@ -119,6 +119,22 @@ O que ele faz:
 - Não valida o ruleset no Snort nem compila o P4. O programa P4 não depende do
   ruleset e é copiado de `output/`.
 
+A divisão das regras exige uma regra ativa com SID por linha, sem SID
+repetido. Rulesets distribuídos em pacote trazem comentários, regras
+comentadas e SIDs repetidos entre arquivos. Nesse caso, acrescente
+`--limpar`:
+
+- Compila uma cópia só com as regras ativas e junta as regras quebradas em
+  várias linhas com `\`.
+- Resolve `gid:sid` repetido como o Snort 3 ao carregar o ruleset: fica a
+  revisão maior e, no empate, a mais recente. Recusa o ruleset se as
+  ocorrências diferem em ação ou protocolo, como o Snort também recusa.
+- Registra tudo o que foi removido no `proveniencia.json`.
+
+Variável que o perfil ativo não define deixa o predicado UNASSESSED, e a
+validação recusa o manifesto. Rulesets antigos usam, por exemplo,
+`$SHELLCODE_PORTS` e `$AIM_SERVERS`.
+
 Os caminhos vêm de `SNORT_P4_RULESET` e `SNORT_P4_OUTPUT_DIR`
 (`compiler/paths.py`). Um ruleset diferente do padrão com saída em `output/`
 é recusado antes de qualquer escrita, porque ali estão os artefatos
