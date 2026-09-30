@@ -1,0 +1,11 @@
+gerado_em=2026-09-29T20:49:43Z
+commit=539f44ffc7411dc0163c054049d14c609b77a323
+pcap=/mnt/c/Users/amede/datasets/cicids2017/windows/thursday_web_bruteforce.pcap
+pcap_sha256=c41480e5d9494ab56325c9b53d23301b0c182230ee1cf6af50f5489010d5edeb
+programa_sha256=f5167adc69e8ae053d4496a7b3a17715aff0e483c6d7aa27aadd13c99f005992
+p4info_sha256=0d60057afb6f34e904f7b8fb2f0a1d6af3e8b2959fedfdadeea9b6916acdf6f4
+plano_sha256=d75589838c41d6d6a0d6bbd6a381c2f14b9bc9c0dfd156836f536cd541347939
+intervalo_s=0.002
+txqueuelen=10000
+ociosidade_s=10
+drenagem_s=10

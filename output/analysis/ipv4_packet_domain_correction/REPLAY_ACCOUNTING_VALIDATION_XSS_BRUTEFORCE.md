@@ -1,5 +1,11 @@
 # XSS and Brute Force AF_PACKET Replay Accounting Validation
 
+> **Addendum (2026-09-30).** The frame-exact Brute Force rerun described
+> below was executed. It is `ACCOUNTING_VALID`: 1,108,658 frames sent and
+> counted, with 1,101,459 candidate, 0 no-match, and 7,199 fallback. The
+> `ACCOUNTING_PARTIAL` status in this document is superseded. See
+> `../replay_pos_correcao/REPLAY_POST_CORRECTION_VALIDATION.md`.
+
 ## Scope
 
 This document completes the post-correction replay accounting started in

@@ -116,8 +116,12 @@ Alertas e preservação:
 | XSS | 528 | 2 (254, 402) | 0/0 | 528 | 0 | 100% |
 | Brute Force | 2.391 | 5 (254, 399, 402, 650, 1394) | 0/0 | 2.391 | 0 | 100% |
 
-As colunas P4 foram medidas no BMv2 **antes** do gate de domínio, reproduzindo
-só os pacotes de alerta; a rederivação offline sob o domínio imposto confere
+As colunas P4 foram medidas primeiro no BMv2 **antes** do gate de domínio,
+reproduzindo só os pacotes de alerta. Em 2026-09-30 foram medidas de novo com
+o programa corrigido e com envio dos bytes exatos, e deram contabilidade
+exata nas três janelas
+(`output/analysis/replay_pos_correcao/REPLAY_POST_CORRECTION_VALIDATION.md`).
+A rederivação offline sob o domínio imposto também confere
 (`output/analysis/alert_preservation_offline_post_correction.json`).
 
 Candidate rule set (baseline 3.611 regras P4-elegíveis):
@@ -219,9 +223,14 @@ fallback; redução de candidate set sobre o ruleset limitada a 18,40%.
 - MTU das quatro veth em 65535 para evitar `EMSGSIZE`.
 - Captura com `tcpdump` é diagnóstico secundário.
 
-Status do accounting: SQLi e XSS `ACCOUNTING_VALID`; Brute Force
-`ACCOUNTING_PARTIAL` (87 frames perdidos). Documentos em
-`output/analysis/ipv4_packet_domain_correction/`.
+Status do accounting: SQLi, XSS e Brute Force `ACCOUNTING_VALID`.
+
+- SQLi e XSS: documentos em `output/analysis/ipv4_packet_domain_correction/`.
+- Brute Force: era `ACCOUNTING_PARTIAL`, com 87 frames perdidos. A nova
+  rodada de 2026-09-30, com `txqueuelen` 10000 e intervalo de 2 ms, fechou
+  exata: 1.108.658 enviados e contados. Documento em
+  `output/analysis/replay_pos_correcao/`; roteiro em
+  `scripts/rig_replay_pos_correcao.sh`.
 
 ## 12. BMv2/P4Runtime
 
@@ -332,8 +341,13 @@ Em ordem. As que restam exigem o rig.
    - Sem trocar: o artigo já relata os dois (congelado + medição offline
      `snort3` na §7.2), que é a opção de menor risco para submeter agora.
 3. **Replay de preservação no BMv2 corrigido** e **replay frame-exato do Brute
-   Force** (87 frames). A rederivação offline já confere; falta a medição no
-   data plane.
+   Force**: **FEITOS no rig em 2026-09-30**, os quatro `ACCOUNTING_VALID`.
+   - Pacotes de alerta: 150 / 528 / 2.391, todos candidatos, 0 no-match.
+   - Janela Brute Force: 1.108.658 enviados e contados; 1.101.459
+     candidatos, 0 no-match, 7.199 fallback, igual ao offline.
+
+   Documento:
+   `output/analysis/replay_pos_correcao/REPLAY_POST_CORRECTION_VALIDATION.md`.
 4. **Métrica de candidate set agrupada** (F-05, alternativa A2): **FEITO
    offline** na mesma rodada (`candidate_set_agrupado`). Redução média sobre
    as 3.611 elegíveis: protocolo 19,10 / 15,65 / 12,30%; protocolo+direção
