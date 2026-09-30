@@ -1318,13 +1318,14 @@ through domain fallback.
 Trace replay accounting was reconciled against the data plane. SQLi and XSS
 agree frame for frame: 35,274 and 191,848 frames sent, with identical
 totals across the three counters and exact per-category agreement with the
-offline classifier. The Brute Force replay recorded 1,108,571 of 1,108,658
-sent frames, a 0.008\% shortfall confined to the candidate category, with
-domain fallback exact at 7,199 and no-match at zero. That residue is a
-transport-layer measurement loss on a 23-minute replay rather than a
-classification disagreement, so the offline classifier, which covers the
-complete trace population, is used as the primary source for the held-out
-quantities.
+offline classifier. A first Brute Force replay recorded 1,108,571 of
+1,108,658 sent frames, a 0.008\% shortfall confined to the candidate
+category, with domain fallback exact at 7,199 and no-match at zero: a
+transport-layer measurement loss on a 23-minute replay, not a
+classification disagreement. A rerun with longer veth queues and a 2~ms
+inter-frame delay recorded all 1,108,658 frames, with 1,101,459 candidates,
+7,199 domain fallbacks, and no no-match, in exact per-category agreement
+with the offline classifier.
 
 Revalidating the frozen analyses under the enforced domain reproduced the
 reported results. On the held-out trace the global candidate rate remains
@@ -1530,11 +1531,12 @@ For SQLi, XSS, and held-out Brute Force, the semantic split had zero missing
 or additional alerts, and all observed parser-eligible candidate-alert
 packets matched the P4 table. The P4 columns of
 Table~\ref{tab:alert-preservation} were measured on BMv2 by replaying only
-the candidate-alert packets of each trace, before the packet-domain gate of
-Section~\ref{sec:packet-domain} was added to the data plane. Re-classifying
-the same packets offline under the enforced domain gives the same counts,
-with none falling into domain fallback; the data-plane replay was not
-repeated under the corrected program. No \textsc{Unsupported} rule fired in any of the
+the candidate-alert packets of each trace, first before the packet-domain
+gate of Section~\ref{sec:packet-domain} was added to the data plane and then
+again under the corrected program, sending the captured bytes unchanged. The
+second replay reconciles exactly: 150, 528, and 2,391 frames sent and
+counted, all candidates, none in no-match or domain fallback. Re-classifying
+the same packets offline under the enforced domain gives the same counts. No \textsc{Unsupported} rule fired in any of the
 three traces, which limits the discriminating power of the semantic split
 comparison; Section~\ref{sec:threats} states this explicitly. Thus, observed
 alert preservation was 100\% in the three traces. In held-out Brute Force, FULL Snort produced 2,391 alerts
@@ -1556,8 +1558,8 @@ detection accuracy.
 \setlength{\tabcolsep}{2pt}
 \caption{Observed alert preservation. Missing and additional compare the
 semantic split with FULL Snort; P4 columns concern candidate-alert packets,
-replayed alone on BMv2 before the packet-domain correction and reproduced
-offline under the enforced domain.}
+replayed alone on BMv2 under the corrected program, with exact accounting,
+and reproduced offline under the enforced domain.}
 \label{tab:alert-preservation}
 \begin{tabular}{lrrrrrrrrr}
 \toprule
@@ -2046,13 +2048,12 @@ strong-discriminator plan applies to every packet, so it could raise that
 plan's full-ruleset reduction by at most 1.8, 3.1, and 0.07 percentage
 points. ICMP type and code would also need new table keys.
 
-Replay accounting is also not uniform across traces. The SQLi and XSS
-replays reconcile frame for frame with the data-plane counters, whereas the
-held-out Brute Force replay lost 87 of 1,108,658 frames (0.008\%) in the
-transport layer, all within the candidate category. The reported held-out
-quantities therefore derive from the offline classifier over the complete
-trace, with the data-plane replay as corroboration at 99.99\% frame
-agreement rather than as an exact reproduction.
+Replay accounting reconciles frame for frame with the data-plane counters in
+all three traces. A first held-out Brute Force replay lost 87 of 1,108,658
+frames (0.008\%) in the transport layer, all within the candidate category.
+A rerun with longer veth queues and a 2~ms inter-frame delay delivered and
+counted every frame: 1,101,459 candidates, no no-match, and 7,199 domain
+fallbacks, the offline classifier's values exactly.
 
 \subsection{Limitations of the Candidate-Set Analysis}
 The candidate rule set analysis reported mean reductions of 95.04\% for SQLi,

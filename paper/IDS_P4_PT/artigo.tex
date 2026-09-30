@@ -467,10 +467,9 @@ tabela, e a proveniência liga cada entrada às regras que a originaram.
 deltas exatos; os cinco fragmentados ou truncados caíram em
 \texttt{PACKET\_DOMAIN\_FALLBACK}. Nos traços, ficaram fora de $D$ 350, 2.772
 e 7.199 quadros, quase todos ARP e IPv6, e todos mantidos como candidatos. O
-replay do SQLi e do XSS reconcilia quadro a quadro com os contadores; no Brute
-Force, 87 de 1.108.658 quadros (0,008\%) se perderam no transporte, todos na
-categoria candidato, e as quantidades do held-out vêm, por isso, do
-classificador offline, que cobre o traço completo.
+replay reconcilia quadro a quadro com os contadores nos três traços; no Brute
+Force, a primeira rodada perdeu 87 de 1.108.658 quadros no transporte, e uma
+nova, com filas maiores, contou todos, igual ao classificador offline.
 
 \textbf{Seletividade: o resultado negativo (Q3).} O pré-filtro binário global
 marcou \textbf{100\% dos pacotes elegíveis} como candidatos nos três traços
@@ -511,8 +510,8 @@ Brute Force & 1.101.459 & 100\% & 98,942\% & 2.391 & 5 & 2.391 \\
 \textbf{Preservação de alertas (Q4).} Nos três traços, a partição semântica
 não produziu alertas faltantes nem adicionais, e todos os pacotes de alerta
 elegíveis foram candidatos (Tabela~\ref{tab:sel}). As colunas P4 foram
-medidas no BMv2 reproduzindo só os pacotes de alerta, antes da introdução do
-gate de domínio; a reclassificação offline sob o domínio imposto dá as mesmas
+medidas no BMv2 reproduzindo só os pacotes de alerta, de novo com o programa
+corrigido e com contabilidade exata; a reclassificação offline dá as mesmas
 contagens. No held-out, a auditoria do discriminador forte cobriu 2.289
 eventos por predicados retidos e 102 por fallback, sem nenhum faltante.
 Registra-se, contudo, que nenhuma das 14 regras \cls{Unsupported} disparou e
