@@ -1,0 +1,187 @@
+{
+  "gerado_em": "2026-10-01T18:04:10+00:00",
+  "gerador": "tests/analyze_external_rulesets.py",
+  "entradas_geradas_por": "scripts/rig_rulesets_externos.sh",
+  "pacote_snort2": "snort-rules-default 2.9.15.1-6build1",
+  "snort3": "Version 3.12.2.0",
+  "rulesets": {
+    "snort3_sensitive_data": {
+      "sha256": "226a0ad924f3f8563f50526a9aa61f00446f354af79a76d3ef779d1e93ee514e",
+      "sha256_confere_com_o_rig": true,
+      "rodada": {
+        "codigo_de_saida": 0,
+        "status": "ok",
+        "etapa_que_falhou": null,
+        "limpeza": {
+          "linhas_vazias": 0,
+          "comentarios": 0,
+          "regras_comentadas": 0,
+          "sem_sid": 0,
+          "duplicadas": 0,
+          "regras_mantidas": 25
+        },
+        "sintaxe_snort2": {
+          "regras": 0,
+          "marcas": {}
+        },
+        "resumo": {
+          "classificacao": {
+            "EXACT": 0,
+            "NECESSARY": 25,
+            "UNSUPPORTED": 0
+          },
+          "entradas_p4_finais": 1,
+          "plano_p4runtime": 1
+        },
+        "falhas_de_parse": 0
+      }
+    },
+    "snort3_file_magic": {
+      "sha256": "b8bf6b0069f578e0507442dbbb48ae35d45461a9fe7cc7dde4d2493f058ed4ef",
+      "sha256_confere_com_o_rig": true,
+      "rodada": {
+        "codigo_de_saida": 1,
+        "status": "falhou",
+        "etapa_que_falhou": "generate_semantic_manifest.py",
+        "limpeza": {
+          "linhas_vazias": 0,
+          "comentarios": 0,
+          "regras_comentadas": 0,
+          "sem_sid": 0,
+          "duplicadas": 0,
+          "regras_mantidas": 219
+        },
+        "sintaxe_snort2": {
+          "regras": 0,
+          "marcas": {}
+        },
+        "resumo": {
+          "classificacao": {
+            "EXACT": 0,
+            "NECESSARY": 0,
+            "UNSUPPORTED": 0
+          },
+          "entradas_p4_finais": null,
+          "plano_p4runtime": null
+        },
+        "falhas_de_parse": 219
+      }
+    },
+    "snort2_ubuntu_convertido": {
+      "sha256": "247e6d0542c3f34054f3d992da36532ffdc694b97dec16c29a7282b56e6c3c3c",
+      "sha256_confere_com_o_rig": true,
+      "rodada": {
+        "codigo_de_saida": 1,
+        "status": "recusado_na_limpeza",
+        "motivo": "ERRO: gid 1 sid 647: linhas 5143 e 5165 diferem em acao ou protocolo; o Snort 3 recusa o ruleset (parse_rule.cc, mergeDuplicateOtn)",
+        "etapa_que_falhou": null,
+        "resumo": null,
+        "falhas_de_parse": null
+      },
+      "variaveis_indefinidas": {
+        "$AIM_SERVERS": 5,
+        "$SHELLCODE_PORTS": 43
+      },
+      "regras_com_variavel_indefinida": 27,
+      "linhas_removidas": 48,
+      "rodada_sem_indefinidas": {
+        "codigo_de_saida": 0,
+        "status": "ok",
+        "etapa_que_falhou": null,
+        "limpeza": {
+          "linhas_vazias": 0,
+          "comentarios": 3708,
+          "regras_comentadas": 153,
+          "sem_sid": 0,
+          "duplicadas": 0,
+          "regras_mantidas": 3887
+        },
+        "sintaxe_snort2": {
+          "regras": 2,
+          "marcas": {
+            "opcao_inexistente:EN-US\\": 2,
+            "opcao_inexistente:q138268": 1,
+            "opcao_inexistente:q188806": 1
+          }
+        },
+        "resumo": {
+          "classificacao": {
+            "EXACT": 10,
+            "NECESSARY": 3869,
+            "UNSUPPORTED": 8
+          },
+          "entradas_p4_finais": 333,
+          "plano_p4runtime": 333
+        }
+      }
+    },
+    "snort2_ubuntu": {
+      "sha256": "911a6e23cb59154eb93e8fd602890fb36b3c22b232d8395941f9beee3b31689c",
+      "sha256_confere_com_o_rig": true,
+      "rodada": {
+        "codigo_de_saida": 1,
+        "status": "recusado_na_limpeza",
+        "motivo": "ERRO: gid 1 sid 647: linhas 4299 e 4322 diferem em acao ou protocolo; o Snort 3 recusa o ruleset (parse_rule.cc, mergeDuplicateOtn)",
+        "etapa_que_falhou": null,
+        "resumo": null,
+        "falhas_de_parse": null
+      },
+      "variaveis_indefinidas": {
+        "$AIM_SERVERS": 5,
+        "$SHELLCODE_PORTS": 43
+      },
+      "regras_com_variavel_indefinida": 27,
+      "linhas_removidas": 48,
+      "rodada_sem_indefinidas": {
+        "codigo_de_saida": 0,
+        "status": "ok",
+        "etapa_que_falhou": null,
+        "limpeza": {
+          "linhas_vazias": 565,
+          "comentarios": 1449,
+          "regras_comentadas": 140,
+          "sem_sid": 0,
+          "duplicadas": 0,
+          "regras_mantidas": 3900
+        },
+        "sintaxe_snort2": {
+          "regras": 3272,
+          "marcas": {
+            "opcao_inexistente:nocase": 3335,
+            "opcao_inexistente:uricontent": 2215,
+            "opcao_inexistente:distance": 1905,
+            "opcao_inexistente:within": 1771,
+            "opcao_inexistente:depth": 1198,
+            "opcao_inexistente:offset": 655,
+            "pcre_flag_removida:U": 576,
+            "opcao_inexistente:threshold": 16,
+            "opcao_inexistente:asn1": 10,
+            "opcao_inexistente:rawbytes": 9,
+            "opcao_inexistente:EN-US\\": 2,
+            "opcao_inexistente:sameip": 1,
+            "opcao_inexistente:q138268": 1,
+            "opcao_inexistente:ftpbounce": 1,
+            "pcre_flag_removida:B": 1,
+            "opcao_inexistente:q188806": 1
+          }
+        },
+        "resumo": {
+          "classificacao": {
+            "EXACT": 10,
+            "NECESSARY": 3881,
+            "UNSUPPORTED": 9
+          },
+          "entradas_p4_finais": 335,
+          "plano_p4runtime": 335
+        }
+      }
+    }
+  },
+  "cru_x_convertido": {
+    "regras_comuns": 3887,
+    "so_no_cru": 13,
+    "so_no_convertido": 0,
+    "classificacao_diferente": 0,
+    "entradas_p4_diferentes": 0
+  }
+}

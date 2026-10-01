@@ -478,8 +478,21 @@ congelados.
   `tests/test_limpar_ruleset.py`. Com o ruleset padrão, o executor gera os
   10 artefatos idênticos ao congelado.
 
-**Testes com outros rulesets (2026-09-29).** As saídas não foram
-versionadas, porque ficaram no scratchpad da sessão.
+**Testes com outros rulesets (2026-09-29, reproduzidos em 2026-10-01).** Os
+testes agora são reproduzíveis:
+
+- `scripts/rig_rulesets_externos.sh` (rig) recria as entradas em
+  `C:\Users\amede\datasets\rulesets\`, com o sha256 de cada uma.
+- `tests/analyze_external_rulesets.py` (Windows) as compila e grava
+  `output/analysis/rulesets_externos.json`.
+- O documento é `paper/IDS_P4/EXTERNAL_RULESETS_ROBUSTNESS.md`.
+
+Toda recusa coincide com uma recusa do Snort 3: variável indefinida,
+`gid:sid` repetido com outro protocolo (o sid 647, em TCP e UDP) e regras
+`file_id`. O `compiler/snort2_syntax.py` avisa quando o ruleset tem sintaxe
+Snort 2: 3.272 regras no arquivo cru e 2 no convertido. As 2 são falso
+positivo de um defeito do parser com `\;`, que não afeta o ruleset do
+projeto.
 
 | Ruleset | Regras | Resultado | EXACT / NECESSARY / UNSUPP. | Entradas |
 |---|---:|---|---|---:|
