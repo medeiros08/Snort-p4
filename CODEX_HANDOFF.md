@@ -1,6 +1,14 @@
 # Codex Handoff
 
-Atualizado em 2026-09-29: o achado service-based foi confirmado no plano de
+Atualizado em 2026-10-01: as quatro pendências que bloqueavam a submissão
+estão concluídas (§15). Desde 2026-09-29 também entraram:
+
+- ruleset e saída configuráveis, com o executor estático (§18);
+- o perfil com as 17 variáveis que o Snort efetivamente usa, e a checagem
+  dele contra o Snort (§3);
+- o título delimitado ao escopo medido, e a afiliação completa (§14).
+
+Em 2026-09-29 o achado service-based foi confirmado no plano de
 dados (§10 e §15, item 1). A revisão de 2026-09-27 substituiu integralmente a
 versão de 2026-09-09:
 desde então entraram a campanha end-to-end, as correções de IR, a revisão
@@ -42,6 +50,27 @@ contagens do ruleset (reescrito em 2026-09-27; fechou o achado H10).
 - Snort++ 3.12.2.0
 - Ruleset: `rules/snort3-community.rules`, 4.017 regras,
   sha256 `8c0d9172127a7270ec8084ffbd16d3995df6d27aa0ccc232638f5f0293e68e19`
+
+**Variáveis (desde 2026-09-29):** o perfil tem as mesmas 17 variáveis que o
+Snort usa em `ips.variables` com `config/snort3_experiment.lua`. Isso foi
+conferido contra o próprio Snort, com `--dump-config-text`. Antes, eram 13.
+
+- **As 4 que faltavam:** `DNS_SERVERS`, `FTP_SERVERS` e `SSH_SERVERS` valem
+  `any`, e `MAIL_PORTS` vale `110 143`. Uma regra que as usasse seria aceita
+  pelo Snort e recusada pelo compilador. O ruleset do projeto não usa
+  nenhuma, então os artefatos congelados não mudaram.
+- **Por que `any`, e não `HOME_NET`:** o `snort.lua` faz `HOME_NET = 'any'`
+  (linha 24) antes de incluir o `snort_defaults.lua`, que copia `HOME_NET`
+  para elas ali mesmo (linhas 35–41). A configuração do experimento só
+  redefine `HOME_NET` depois.
+- **Checagem no rig:** `python tests/check_profile_vs_snort.py`. Sai com 0
+  se coincidem, 1 se divergem e 2 se não há Snort na máquina. O último
+  relatório está em `output/analysis/perfil_vs_snort.json` (PERFIL OK). O
+  teste offline da comparação é `tests/test_profile_vs_snort.py`. A checagem
+  ainda não roda dentro do `build_profile.py`.
+- `$SHELLCODE_PORTS` e `$AIM_SERVERS` são variáveis do Snort 2. O Snort 3
+  não as define e recusa a regra com `FATAL: PortVar Lookup failed`. O
+  compilador também recusa, então os dois concordam.
 
 ## 4. Resultados estáticos congelados
 
@@ -257,7 +286,7 @@ master arbitration, pipeline configuration e leitura das entradas.
   por `tests/cut_cicids2017_windows.py` (registro do corte em
   `output/datasets/cicids2017_windows_offline_cut.json`). Métricas de trace
   offline rodam aqui; replay no BMv2, não.
-- Suíte: `python tests/run_tests.py` → 20 passam, 3 não executam (grpc).
+- Suíte: `python tests/run_tests.py` → 23 passam, 3 não executam (grpc).
 
 ## 14. Manuscrito
 
@@ -273,9 +302,25 @@ Versão curta em português em `paper/IDS_P4_PT/` (IEEEtran, 7 páginas, com
 Silvio E. Quincozes, FACOM/UFU), reescrita em 2026-09-28 a partir do
 `main.tex`. É derivada: número que mudar no `main.tex` muda lá também.
 
+**Título (desde 2026-10-01).** Delimita três coisas: só as condições de
+cabeçalho viram predicado, o pré-filtro é conservador (marca candidatos, não
+detecta) e a avaliação é no BMv2, sem hardware.
+
+- `main.tex`: *Compiling Snort 3 Rule Headers into Conservative P4
+  Prefilters: An Evaluation on BMv2*. Antes era *From Semantic Safety to
+  Candidate-Rule-Space Reduction in Snort-to-P4 Compilation*.
+- `artigo.tex`: *Compilação de Cabeçalhos de Regras do Snort 3 em
+  Pré-filtros P4 Conservadores: Avaliação no BMv2*. Sem "uma", para caber em
+  duas linhas.
+
+A afiliação do primeiro autor agora traz a cidade (UNIPAMPA, Alegrete,
+Brazil) nos dois manuscritos, e o `main.tex` está datado de outubro de 2026.
+Os builds continuam limpos: 44 e 7 páginas.
+
 ## 15. Pendências que bloqueiam a submissão
 
-Em ordem. As que restam exigem o rig.
+**Todas as quatro concluídas** (a última, o item 3, em 2026-09-30). O
+registro de cada uma fica abaixo.
 
 1. **Testar o achado service-based no data plane.** Casos prontos em
    `output/campaign/servico_fora_do_cabecalho/` (gerador
@@ -379,6 +424,21 @@ Em ordem. As que restam exigem o rig.
   Não implementados: o ganho somado fica abaixo de ~5 pontos e nenhum muda
   a conclusão do artigo. Contagens em `output/analysis/header_precision_bounds.json`
   (`tests/analyze_header_precision_bounds.py`).
+- Campanha end-to-end:
+  - A `e2e_1000_v4` só foi medida no BMv2 sob o plano strong; nunca rodou
+    com o plano global.
+  - Restam 40 casos vácuos por limites do gerador de testemunhas.
+- **Rulesets de fora** (§18):
+  - O compilador aceita sintaxe Snort 2 sem avisar. Os predicados P4 saíram
+    iguais aos da versão convertida, mas a atribuição de buffers na IR
+    provavelmente sai errada. Isso não foi medido.
+  - As 10 regras EXACT que o ruleset do Snort 2 produziu não foram
+    verificadas no Snort.
+- Trabalho futuro decidido pelo usuário:
+  - o compilador como controlador P4Runtime contínuo (atualização
+    incremental, troca de plano, telemetria);
+  - o encaminhamento por fluxo, para que o Snort receba o fluxo inteiro;
+  - o hardware físico, quando houver acesso.
 
 ## 17. Estado de arquivos e Git
 
@@ -389,3 +449,51 @@ congelados, está versionado.
 Convenção do projeto: artefato congelado não é sobrescrito. Correção entra como
 documento novo declarando supersessão, no máximo com adendo curto no topo do
 documento antigo apontando para o novo.
+
+## 18. Ruleset configurável e testes com outros rulesets
+
+Desde 2026-09-29 o compilador aceita outro ruleset sem tocar nos artefatos
+congelados.
+
+- `compiler/paths.py` é a fonte única: `SNORT_P4_RULESET` e
+  `SNORT_P4_OUTPUT_DIR`. Sem as variáveis, valem os caminhos de sempre, e o
+  pipeline reproduz `output/` byte a byte.
+- **Travas:** um ruleset diferente do padrão com a saída em `output/` é
+  recusado ao importar `paths`, antes de qualquer escrita. O
+  `build_profile.py` recusa as duas variáveis.
+- **Executor estático (Windows, sem o rig):**
+
+      python compiler/run_static_pipeline.py --ruleset <arquivo.rules> --saida <diretorio> [--limpar]
+
+  - Roda as mesmas etapas do `build_profile`, de `PYTHON_STEPS` até
+    `generate_p4runtime_install.py`. Copia o programa P4 de `output/`,
+    porque ele não depende do ruleset.
+  - Grava `proveniencia.json`: sha256 do ruleset, commit, cada etapa e o
+    sha256 de cada artefato.
+  - `--limpar` compila uma cópia só com as regras ativas. Para `gid:sid`
+    repetido segue o Snort 3 (`parse_rule.cc`, `mergeDuplicateOtn`): fica a
+    revisão maior e, no empate, a mais recente. Se as ocorrências diferem
+    em ação ou protocolo, recusa, como o Snort.
+- **Testes:** `tests/test_ruleset_configuravel.py` e
+  `tests/test_limpar_ruleset.py`. Com o ruleset padrão, o executor gera os
+  10 artefatos idênticos ao congelado.
+
+**Testes com outros rulesets (2026-09-29).** As saídas não foram
+versionadas, porque ficaram no scratchpad da sessão.
+
+| Ruleset | Regras | Resultado | EXACT / NECESSARY / UNSUPP. | Entradas |
+|---|---:|---|---|---:|
+| `sensitive_data.rules` (vem com o Snort 3) | 25 | ok | 0 / 25 / 0 | 1 |
+| `file_magic.rules` (vem com o Snort 3) | 219 | recusado: são regras `file_id`, não de tráfego | — | — |
+| `snort-rules-default` 2.9.15.1 do Ubuntu, convertido pelo `snort2lua` | 3.935 | recusado: 27 regras com variável indefinida | 10 / 3.917 / 8 | — |
+| o mesmo, sem essas 27 regras e com `--limpar` | 3.887 | ok | 10 / 3.869 / 8 | 333 |
+| o mesmo em sintaxe Snort 2 crua, sem as 27 e limpo | 3.900 | ok | 10 / 3.881 / 9 | 335 |
+
+O que os testes mostraram:
+
+- Nas 3.887 regras comuns às versões crua e convertida, a classificação e as
+  entradas P4 são idênticas. As diferenças vêm só das 13 regras que o
+  `snort2lua` não converteu.
+- As 10 regras EXACT são só de cabeçalho, sem opções de detecção (§16).
+- A variável indefinida e as linhas sem SID foram recusadas pelas validações
+  de sempre, sem nenhuma decisão implícita.
