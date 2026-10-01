@@ -429,11 +429,18 @@ registro de cada uma fica abaixo.
     com o plano global.
   - Restam 40 casos vácuos por limites do gerador de testemunhas.
 - **Rulesets de fora** (§18):
-  - O compilador aceita sintaxe Snort 2 sem avisar. Os predicados P4 saíram
-    iguais aos da versão convertida, mas a atribuição de buffers na IR
-    provavelmente sai errada. Isso não foi medido.
-  - As 10 regras EXACT que o ruleset do Snort 2 produziu não foram
-    verificadas no Snort.
+  - O compilador aceita sintaxe Snort 2, e desde 2026-10-01 avisa. Os
+    predicados P4 saíram iguais aos da versão convertida, mas a atribuição
+    de buffers na IR provavelmente sai errada. Isso não foi medido.
+  - **Feito em 2026-10-01:** as 10 regras EXACT que o ruleset do Snort 2
+    produziu foram conferidas no Snort, nas duas direções, por
+    `tests/check_exact_rules.py` (rig, sem `sudo`): 34 quadros, 340 pares
+    (quadro, regra) e 0 discordâncias. É a primeira evidência medida de
+    EXACT, mas com escopo estreito: pontos amostrados, dentro de D, com o
+    casador offline e não o BMv2, e fora do ruleset avaliado
+    (`EXTERNAL_RULESETS_ROBUSTNESS.md` §6.1).
+  - O sintoma da sintaxe Snort 2 agora gera aviso
+    (`compiler/snort2_syntax.py`).
 - Trabalho futuro decidido pelo usuário:
   - o compilador como controlador P4Runtime contínuo (atualização
     incremental, troca de plano, telemetria);
