@@ -111,8 +111,12 @@ use:
 
 O que ele faz:
 
-- Roda as mesmas etapas do `build_profile`, da regra ao plano P4Runtime,
-  com as variáveis do perfil ativo.
+- Roda as mesmas etapas do `build_profile`, da regra ao plano P4Runtime.
+  Usa as variáveis do perfil ativo, ou as de outro perfil com
+  `--perfil <nome>` (`config/profiles/<nome>.json`), sem reescrever
+  `config/`.
+- Avisa quando o ruleset tem sintaxe do Snort 2, que o Snort 3 recusaria
+  (`compiler/snort2_syntax.py`).
 - Grava tudo em `--saida`, com um `proveniencia.json` que registra o ruleset
   (sha256 e número de regras), o commit, cada etapa e o sha256 de cada
   artefato.
@@ -131,15 +135,16 @@ comentadas e SIDs repetidos entre arquivos. Nesse caso, acrescente
   ocorrências diferem em ação ou protocolo, como o Snort também recusa.
 - Registra tudo o que foi removido no `proveniencia.json`.
 
-Variável que o perfil ativo não define deixa o predicado UNASSESSED, e a
-validação recusa o manifesto. Rulesets antigos usam, por exemplo,
-`$SHELLCODE_PORTS` e `$AIM_SERVERS`.
+Variável que o perfil não define deixa o predicado UNASSESSED, e a validação
+recusa o manifesto. O Snort 3 também recusa a regra. Rulesets do Snort 2
+usam, por exemplo, `$SHELLCODE_PORTS` e `$AIM_SERVERS`.
 
-Os caminhos vêm de `SNORT_P4_RULESET` e `SNORT_P4_OUTPUT_DIR`
-(`compiler/paths.py`). Um ruleset diferente do padrão com saída em `output/`
-é recusado antes de qualquer escrita, porque ali estão os artefatos
-congelados. Com o ruleset padrão, o executor reproduz esses artefatos byte a
-byte.
+Os caminhos vêm de `SNORT_P4_RULESET`, `SNORT_P4_VARIABLES` e
+`SNORT_P4_OUTPUT_DIR` (`compiler/paths.py`). Ruleset ou perfil diferente do
+padrão com saída em `output/` é recusado antes de qualquer escrita, porque ali
+estão os artefatos congelados. Com o ruleset e o perfil padrão, o executor
+reproduz esses artefatos byte a byte. Com `--perfil controlled`, as entradas
+P4 saem idênticas às do snapshot congelado desse perfil.
 
 ### Semântica de cabeçalho de regras service-based
 

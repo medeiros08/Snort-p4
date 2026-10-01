@@ -44,7 +44,7 @@ RULESET_LABEL = (
 )
 
 VARIABLES_LABEL = (
-    "../config/snort_variables.json"
+    paths.variables_label()
 )
 
 OUTPUT_FILE = (

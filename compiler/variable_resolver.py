@@ -5,8 +5,7 @@ from pathlib import Path
 
 
 CONFIG_FILE = (
-    paths.CONFIG_DIR
-    / "snort_variables.json"
+    paths.VARIABLES_FILE
 )
 
 

@@ -59,13 +59,23 @@ VAR_RULESET = "SNORT_P4_RULESET"
 
 VAR_SAIDA = "SNORT_P4_OUTPUT_DIR"
 
+# Arquivo de variaveis do perfil. O padrao e o que compiler/select_profile.py
+# grava para o perfil ativo; run_static_pipeline.py --perfil aponta para outro
+# perfil sem reescrever config/.
+VAR_VARIAVEIS = "SNORT_P4_VARIABLES"
+
 RULESET_PADRAO = RULES_DIR / "snort3-community.rules"
 
 SAIDA_PADRAO = PROJECT_ROOT / "output"
 
-# Rotulo gravado no manifesto para o ruleset padrao. Literal e relativo,
-# como antes, para que o artefato nao dependa de onde o repositorio esta.
+VARIAVEIS_PADRAO = CONFIG_DIR / "snort_variables.json"
+
+# Rotulos gravados no manifesto para os arquivos padrao. Literais e
+# relativos, como antes, para que o artefato nao dependa de onde o
+# repositorio esta.
 ROTULO_RULESET_PADRAO = "../rules/snort3-community.rules"
+
+ROTULO_VARIAVEIS_PADRAO = "../config/snort_variables.json"
 
 
 def _caminho_do_ambiente(nome, padrao):
@@ -77,15 +87,33 @@ RULESET_FILE = _caminho_do_ambiente(VAR_RULESET, RULESET_PADRAO)
 
 OUTPUT_DIR = _caminho_do_ambiente(VAR_SAIDA, SAIDA_PADRAO)
 
+VARIABLES_FILE = _caminho_do_ambiente(VAR_VARIAVEIS, VARIAVEIS_PADRAO)
+
 RULESET_E_PADRAO = RULESET_FILE == RULESET_PADRAO
 
-if not RULESET_E_PADRAO and OUTPUT_DIR == SAIDA_PADRAO:
-    raise SystemExit(
-        f"ERRO: {VAR_RULESET} aponta para {RULESET_FILE}, mas a saida "
-        f"continua em {SAIDA_PADRAO}, onde estao os artefatos congelados. "
-        f"Defina {VAR_SAIDA} com outro diretorio, ou use "
-        f"compiler/run_static_pipeline.py --ruleset ... --saida ..."
+VARIAVEIS_E_PADRAO = VARIABLES_FILE == VARIAVEIS_PADRAO
+
+if (not RULESET_E_PADRAO or not VARIAVEIS_E_PADRAO) and OUTPUT_DIR == SAIDA_PADRAO:
+    alterado = (
+        f"{VAR_RULESET} aponta para {RULESET_FILE}"
+        if not RULESET_E_PADRAO
+        else f"{VAR_VARIAVEIS} aponta para {VARIABLES_FILE}"
     )
+    raise SystemExit(
+        f"ERRO: {alterado}, mas a saida continua em {SAIDA_PADRAO}, onde "
+        f"estao os artefatos congelados. Defina {VAR_SAIDA} com outro "
+        f"diretorio, ou use compiler/run_static_pipeline.py com --saida."
+    )
+
+
+def _rotulo(arquivo, e_padrao, rotulo_padrao):
+    if e_padrao:
+        return rotulo_padrao
+    try:
+        relativo = arquivo.relative_to(PROJECT_ROOT)
+    except ValueError:
+        return arquivo.name
+    return "../" + relativo.as_posix()
 
 
 def ruleset_label():
@@ -96,10 +124,10 @@ def ruleset_label():
     arquivo, para nao vazar o diretorio de instalacao no artefato.
     """
 
-    if RULESET_E_PADRAO:
-        return ROTULO_RULESET_PADRAO
-    try:
-        relativo = RULESET_FILE.relative_to(PROJECT_ROOT)
-    except ValueError:
-        return RULESET_FILE.name
-    return "../" + relativo.as_posix()
+    return _rotulo(RULESET_FILE, RULESET_E_PADRAO, ROTULO_RULESET_PADRAO)
+
+
+def variables_label():
+    """Rotulo do arquivo de variaveis gravado no manifesto, na mesma regra."""
+
+    return _rotulo(VARIABLES_FILE, VARIAVEIS_E_PADRAO, ROTULO_VARIAVEIS_PADRAO)
