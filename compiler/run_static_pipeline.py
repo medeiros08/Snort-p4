@@ -60,6 +60,7 @@ sys.path.insert(0, str(COMPILER_DIR))
 
 import paths  # noqa: E402
 from build_profile import PYTHON_STEPS  # noqa: E402
+from snort2_syntax import analisar_ruleset  # noqa: E402
 
 ETAPAS = [nome for nome, _descricao in PYTHON_STEPS] + [
     "generate_p4runtime_install.py"
@@ -289,6 +290,10 @@ def main() -> int:
             **limpeza,
         }
 
+    # Aviso, nao recusa: o ruleset compila, mas regra com sintaxe do Snort 2
+    # tem buffers atribuidos errado na IR (snort2_syntax.py).
+    sintaxe_snort2 = analisar_ruleset(compilado)
+
     proveniencia = {
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "gerador": "compiler/run_static_pipeline.py",
@@ -299,6 +304,7 @@ def main() -> int:
             "padrao": ruleset == paths.RULESET_PADRAO,
         },
         "limpeza": limpeza,
+        "sintaxe_snort2": sintaxe_snort2,
         "perfil_de_variaveis": perfil_ativo(),
         **commit_atual(),
         "programa_p4": {
@@ -321,6 +327,13 @@ def main() -> int:
             f"{limpeza['regras_comentadas']} regras comentadas, "
             f"{len(limpeza['sem_sid'])} sem sid, "
             f"{len(limpeza['duplicadas'])} gid:sid repetidos"
+        )
+    if sintaxe_snort2["regras_com_sintaxe_snort2"]:
+        principais = ", ".join(list(sintaxe_snort2["marcas"])[:4])
+        print(
+            f"AVISO    {sintaxe_snort2['regras_com_sintaxe_snort2']} regras com sintaxe "
+            f"do Snort 2, que o Snort 3 recusaria ({principais}); a IR delas nao "
+            "e confiavel. Converta com snort2lua. Detalhe em proveniencia.json"
         )
     print(f"saida    {saida}")
     print()
