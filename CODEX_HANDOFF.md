@@ -459,17 +459,26 @@ congelados.
   `SNORT_P4_OUTPUT_DIR`. Sem as variáveis, valem os caminhos de sempre, e o
   pipeline reproduz `output/` byte a byte.
 - **Travas:** um ruleset diferente do padrão com a saída em `output/` é
-  recusado ao importar `paths`, antes de qualquer escrita. O
-  `build_profile.py` recusa as duas variáveis.
+  recusado ao importar `paths`, antes de qualquer escrita. O mesmo vale
+  para outro arquivo de variáveis (`SNORT_P4_VARIABLES`, desde
+  2026-10-01). O `build_profile.py` recusa as três variáveis.
 - **Executor estático (Windows, sem o rig):**
 
-      python compiler/run_static_pipeline.py --ruleset <arquivo.rules> --saida <diretorio> [--limpar]
+      python compiler/run_static_pipeline.py --ruleset <arquivo.rules> --saida <diretorio> [--limpar] [--perfil <nome>]
 
   - Roda as mesmas etapas do `build_profile`, de `PYTHON_STEPS` até
     `generate_p4runtime_install.py`. Copia o programa P4 de `output/`,
     porque ele não depende do ruleset.
-  - Grava `proveniencia.json`: sha256 do ruleset, commit, cada etapa e o
-    sha256 de cada artefato.
+  - Grava `proveniencia.json`: sha256 do ruleset e do arquivo de
+    variáveis, commit, cada etapa e o sha256 de cada artefato.
+  - `--perfil <nome>` usa as variáveis de `config/profiles/<nome>.json`,
+    validadas e gravadas em `--saida` pelas funções do
+    `select_profile.py`, sem reescrever `config/`. Com `--perfil
+    controlled`, as entradas P4 saem byte a byte iguais às do snapshot
+    congelado desse perfil, de 2026-08-25. O manifesto difere dele só no
+    rótulo das variáveis e nas 112 regras das duas correções de IR.
+  - Avisa quando o ruleset tem sintaxe do Snort 2
+    (`compiler/snort2_syntax.py`).
   - `--limpar` compila uma cópia só com as regras ativas. Para `gid:sid`
     repetido segue o Snort 3 (`parse_rule.cc`, `mergeDuplicateOtn`): fica a
     revisão maior e, no empate, a mais recente. Se as ocorrências diferem

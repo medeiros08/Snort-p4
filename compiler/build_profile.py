@@ -812,6 +812,7 @@ def main():
         for nome in (
             "SNORT_P4_RULESET",
             "SNORT_P4_OUTPUT_DIR",
+            "SNORT_P4_VARIABLES",
         )
         if os.environ.get(nome, "").strip()
     ]

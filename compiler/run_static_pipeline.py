@@ -21,13 +21,15 @@ O programa P4 compilado (ids_prefilter.json e .p4info.txt) nao depende do
 ruleset: e copiado de output/, onde o `build_profile` o deixou, porque
 generate_p4runtime_install.py le os ids de tabela e de campo do p4info.
 
-As regras usam as variaveis do perfil ativo (config/snort_variables.json).
-Variavel que o perfil nao define fica sem resolver: o campo sai UNASSESSED,
-e validate_semantic_manifest.py recusa o manifesto inteiro, porque nenhum
-predicado pode chegar ao backend sem decisao de capacidade. Isso vale tambem
-para variaveis que o snort_defaults.lua do Snort define e o perfil nao, como
-$SHELLCODE_PORTS e $AIM_SERVERS, usadas por rulesets antigos: o ruleset
-precisa de um perfil que as defina.
+As regras usam as variaveis do perfil ativo (config/snort_variables.json),
+ou as de outro perfil com --perfil <nome>: config/profiles/<nome>.json e
+validado e gravado em --saida pelas funcoes do select_profile.py, sem
+reescrever config/. Variavel que o perfil nao define fica sem resolver: o
+campo sai UNASSESSED, e validate_semantic_manifest.py recusa o manifesto
+inteiro, porque nenhum predicado pode chegar ao backend sem decisao de
+capacidade. O Snort 3 tambem recusa: $SHELLCODE_PORTS e $AIM_SERVERS, de
+rulesets do Snort 2, nao existem no Snort 3, que para com FATAL: PortVar
+Lookup failed.
 
 A divisao das regras (generate_snort_experiment_rules.py) exige um arquivo
 em que toda linha nao vazia e uma regra ativa com SID, sem SID repetido. O
@@ -196,6 +198,24 @@ def commit_atual() -> dict:
     }
 
 
+def gravar_variaveis_do_perfil(nome: str, saida: Path) -> Path:
+    """Valida config/profiles/<nome>.json e grava as variaveis em --saida.
+
+    Usa validate_profile e write_json do select_profile.py, entao o arquivo e
+    o mesmo que `select_profile.py <nome>` gravaria em config/.
+    """
+
+    from select_profile import validate_profile, write_json  # noqa: PLC0415
+
+    origem = paths.CONFIG_DIR / "profiles" / f"{nome}.json"
+    if not origem.is_file():
+        raise ValueError(f"perfil nao encontrado: {rotulo(origem)}")
+    variaveis, _extras = validate_profile(json.loads(origem.read_text(encoding="utf-8")))
+    destino = saida / f"variaveis_{nome}.json"
+    write_json(destino, variaveis)
+    return destino
+
+
 def perfil_ativo() -> str | None:
     arquivo = paths.CONFIG_DIR / "active_profile.json"
     try:
@@ -244,6 +264,12 @@ def main() -> int:
         "sem linhas sem sid, gid:sid repetido resolvido como o Snort 3); o "
         "que sair fica em proveniencia.json",
     )
+    parser.add_argument(
+        "--perfil",
+        default=None,
+        help="perfil de variaveis (config/profiles/<nome>.json) usado no lugar "
+        "do perfil ativo, sem reescrever config/",
+    )
     argumentos = parser.parse_args()
 
     ruleset = Path(argumentos.ruleset).expanduser().resolve()
@@ -275,6 +301,20 @@ def main() -> int:
     for nome in PROGRAMA_P4:
         shutil.copy2(paths.SAIDA_PADRAO / nome, saida / nome)
 
+    # Perfil de variaveis: o ativo (config/snort_variables.json), ou outro
+    # perfil validado e gravado em --saida pelas mesmas funcoes do
+    # select_profile.py, para que config/ fique como esta.
+    if argumentos.perfil:
+        try:
+            variaveis = gravar_variaveis_do_perfil(argumentos.perfil, saida)
+        except (OSError, ValueError) as erro:
+            print(f"ERRO: perfil {argumentos.perfil}: {erro}")
+            return 1
+        perfil = {"nome": argumentos.perfil, "arquivo": rotulo(variaveis), "sha256": sha256(variaveis)}
+    else:
+        variaveis = paths.VARIAVEIS_PADRAO
+        perfil = {"nome": perfil_ativo(), "arquivo": rotulo(variaveis), "sha256": sha256(variaveis)}
+
     compilado = ruleset
     limpeza = None
     if argumentos.limpar:
@@ -305,7 +345,7 @@ def main() -> int:
         },
         "limpeza": limpeza,
         "sintaxe_snort2": sintaxe_snort2,
-        "perfil_de_variaveis": perfil_ativo(),
+        "perfil_de_variaveis": perfil,
         **commit_atual(),
         "programa_p4": {
             nome: {"copiado_de": f"output/{nome}", "sha256": sha256(saida / nome)}
@@ -316,7 +356,11 @@ def main() -> int:
 
     ambiente = dict(
         os.environ,
-        **{paths.VAR_RULESET: str(compilado), paths.VAR_SAIDA: str(saida)},
+        **{
+            paths.VAR_RULESET: str(compilado),
+            paths.VAR_SAIDA: str(saida),
+            paths.VAR_VARIAVEIS: str(variaveis),
+        },
     )
 
     print(f"ruleset  {rotulo(ruleset)}  ({proveniencia['ruleset']['regras']} regras)")

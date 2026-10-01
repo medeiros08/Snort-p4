@@ -103,6 +103,66 @@ def test_rotulo_de_ruleset_fora_do_projeto_e_so_o_nome(tmp):
     assert json.loads(resultado.stdout)["rotulo"] == "meu_ruleset.rules"
 
 
+def test_outras_variaveis_com_saida_em_output_sao_recusadas():
+    # Mesma trava do ruleset: outro perfil gravaria por cima do congelado.
+    resultado = _paths(SNORT_P4_VARIABLES=RAIZ / "config" / "profiles" / "controlled.json")
+    assert resultado.returncode != 0
+    assert "SNORT_P4_OUTPUT_DIR" in (resultado.stdout + resultado.stderr)
+
+
+def test_rotulo_das_variaveis(tmp):
+    leitura = (
+        "import json, paths; print(json.dumps({'padrao': paths.VARIAVEIS_E_PADRAO, "
+        "'rotulo': paths.variables_label()}))"
+    )
+
+    def ler(**variaveis):
+        resultado = subprocess.run(
+            [sys.executable, "-B", "-c", leitura],
+            cwd=COMPILADOR,
+            env=_ambiente(**variaveis),
+            capture_output=True,
+            text=True,
+        )
+        assert resultado.returncode == 0, resultado.stderr
+        return json.loads(resultado.stdout)
+
+    assert ler() == {"padrao": True, "rotulo": "../config/snort_variables.json"}
+    explicito = ler(
+        SNORT_P4_VARIABLES=RAIZ / "config" / "snort_variables.json",
+        SNORT_P4_OUTPUT_DIR=tmp,
+    )
+    assert explicito == {"padrao": True, "rotulo": "../config/snort_variables.json"}
+    fora = Path(tmp) / "variaveis_x.json"
+    fora.write_text("{}", encoding="utf-8")
+    assert ler(SNORT_P4_VARIABLES=fora, SNORT_P4_OUTPUT_DIR=tmp) == {
+        "padrao": False,
+        "rotulo": "variaveis_x.json",
+    }
+
+
+def test_executor_recusa_perfil_inexistente(tmp):
+    resultado = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            str(COMPILADOR / "run_static_pipeline.py"),
+            "--ruleset",
+            str(RAIZ / "rules" / "test.rules"),
+            "--saida",
+            str(tmp),
+            "--perfil",
+            "perfil_que_nao_existe",
+        ],
+        cwd=RAIZ,
+        env=_ambiente(),
+        capture_output=True,
+        text=True,
+    )
+    assert resultado.returncode == 1
+    assert "perfil nao encontrado" in resultado.stdout
+
+
 def test_executor_recusa_saida_em_output():
     resultado = subprocess.run(
         [
@@ -142,8 +202,11 @@ if __name__ == "__main__":
 
     test_sem_variaveis_e_o_padrao_de_sempre()
     test_outro_ruleset_com_saida_em_output_e_recusado()
+    test_outras_variaveis_com_saida_em_output_sao_recusadas()
     test_executor_recusa_saida_em_output()
     for teste in (
+        test_rotulo_das_variaveis,
+        test_executor_recusa_perfil_inexistente,
         test_ruleset_padrao_explicito_mantem_o_rotulo,
         test_rotulo_de_ruleset_dentro_do_projeto_e_relativo,
         test_rotulo_de_ruleset_fora_do_projeto_e_so_o_nome,
