@@ -122,9 +122,47 @@ has none. All 10 consist of a header with no detection option, for example
 `alert udp any any -> 255.255.255.255 161`.
 
 Equivalence to the header is plausible for such rules, and the manifest
-invariants (EXACT with no delegated or fallback predicate) hold. **It has not
-been verified against Snort.** This document does not claim that any EXACT
-classification has been validated.
+invariants (EXACT with no delegated or fallback predicate) hold.
+
+### 6.1 Checked against Snort (2026-10-01)
+
+`tests/check_exact_rules.py` (rig) checks both directions of the
+equivalence for the 10 rules:
+
+- **Snort alerts ⇒ P4 candidate:** the predicate is necessary.
+- **P4 candidate ⇒ Snort alerts:** the predicate is sufficient.
+
+The frames:
+
+- **Positives:** each rule gets frames that match its header, in both
+  directions where the rule is `<>`. They include loopback, UDP port 0, the
+  limited broadcast address, and UDP, TCP and ICMP for the `ip` rules.
+- **Negatives:** each changes one field only (port, address, protocol or
+  direction).
+- **Domain:** all 34 frames are in D.
+
+The two sides:
+
+- **Snort:** Snort 3.12.2.0 on the rig, with the experiment configuration
+  and only these 10 rules.
+- **P4:** the reference matcher over the entries the compiler generates for
+  each rule, restricted to that rule's own entries. This matcher agreed
+  with the BMv2 counters on every frame of the campaign runs.
+
+| Rules | Frames | (frame, rule) pairs | Snort ≠ P4 | Snort ≠ test design |
+|---:|---:|---:|---:|---:|
+| 10 | 34 | 340 | **0** | **0** |
+
+Report: `output/analysis/exact_rules_check.json`.
+
+This is the first measured evidence for an EXACT classification in the
+project. Its scope is narrow:
+
+- it covers sampled points of each rule's header space, not a proof;
+- it covers frames inside D;
+- the P4 side is the offline matcher, not the BMv2 switch;
+- the rules come from a ruleset outside the evaluation. The evaluated
+  Community ruleset still has no EXACT rule.
 
 ## 7. Parser defect found
 

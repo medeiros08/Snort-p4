@@ -1,0 +1,23 @@
+{
+  "gerado_em": "2026-10-01T18:12:40+00:00",
+  "gerador": "tests/check_exact_rules.py",
+  "regras": 10,
+  "classificacao_nao_exact": {},
+  "entradas_por_regra": {
+    "151": 1,
+    "164": 1,
+    "525": 2,
+    "528": 2,
+    "1415": 1,
+    "1416": 1,
+    "1417": 1,
+    "1419": 1,
+    "1429": 1,
+    "1791": 1
+  },
+  "quadros": 34,
+  "pares_quadro_regra": 340,
+  "discordancias_snort_x_p4": [],
+  "quadros_em_que_o_snort_fugiu_do_esperado": [],
+  "status": "OK"
+}
