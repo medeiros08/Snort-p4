@@ -63,6 +63,11 @@ from simulate_operational_policy import (  # noqa: E402
 from whatif_service_header_semantics import EstagioFalhou, _git, saida_snort3  # noqa: E402
 
 SAIDA = PROJECT_ROOT / "output" / "analysis" / "trace_metrics_by_semantics.json"
+
+# Artefatos do pipeline sob a semantica legacy. Ate 2026-10-05 eram a raiz
+# de output/; desde a troca do padrao para snort3 estao arquivados aqui
+# (paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md).
+LEGADO = PROJECT_ROOT / "output" / "historical" / "legacy_header_semantics"
 HOME_NET = ipaddress.ip_network("192.168.10.0/24")
 RULESET = 4017
 
@@ -262,7 +267,7 @@ def main() -> int:
     }
 
     if argumentos.semantica in ("legacy", "ambas"):
-        conf = configuracao(PROJECT_ROOT / "output")
+        conf = configuracao(LEGADO)
         medidas = {nome: medir(Path(caminho), conf) for nome, caminho in janelas.items()}
         if not argumentos.sem_validacao:
             divergencias = [d for nome, m in medidas.items() for d in reproduz(nome, m)]

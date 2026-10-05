@@ -1,0 +1,37 @@
+{
+  "schema_version": "2.1",
+  "source_file": "p4runtime_entries.json",
+  "source_entries": 6675,
+  "normalized_entries": 6675,
+  "validation_errors": 0,
+  "validation_warnings": 0,
+  "unique_normalized_matches": 327,
+  "duplicate_entries": 6348,
+  "duplicated_match_groups": 157,
+  "maximum_duplicate_multiplicity": 1228,
+  "table_capacity": 8192,
+  "raw_entries_fit_table": true,
+  "unique_entries_fit_table": true,
+  "flag_lowering": {
+    "direct_ternary": 11,
+    "multi_entry_required": 2,
+    "estimated_additional_entries": 4
+  },
+  "estimated_entries_after_dedup_and_flag_lowering": 331,
+  "estimated_entries_fit_table": true,
+  "protocols": {
+    "6": 6283,
+    "17": 230,
+    "1": 128
+  },
+  "semantic_classes": {
+    "NECESSARY": 6675
+  },
+  "orientations": {
+    "forward": 6663,
+    "reverse": 12
+  },
+  "backend_status": "VALID_WITH_FLAG_EXPANSION",
+  "errors": [],
+  "warnings": []
+}

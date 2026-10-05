@@ -227,13 +227,15 @@ an alerting packet therefore contains only the address part of the header.
 The compiler has two modes (`generate_semantic_manifest.py
 --service-header-semantics`):
 
-- `legacy`, the default, reproduces the frozen artifacts. It keeps protocol
-  and ports in $H_r$ for service-based rules, so for those 2,931 `NECESSARY`
-  rules the first implication holds only on traffic whose service Snort has
-  not identified.
-- `snort3` delegates protocol, `src_port`, and `dst_port` of service-based
-  rules, keeping the protocol when the rule has `flags`, which only matches
-  TCP. $H_r$ is then a subset of what Snort requires, and the relation holds.
+- `snort3`, the default since 2026-10-05, delegates protocol, `src_port`,
+  and `dst_port` of service-based rules, keeping the protocol when the rule
+  has `flags`, which only matches TCP. $H_r$ is then a subset of what Snort
+  requires, and the relation holds.
+- `legacy` keeps protocol and ports in $H_r$ for service-based rules, so for
+  those 2,931 `NECESSARY` rules the first implication holds only on traffic
+  whose service Snort has not identified. It reproduces the artifacts
+  archived in `output/historical/legacy_header_semantics/`, which the results
+  frozen before the switch used.
 
 A rule is service-based when it has a service and its header names an IP
 protocol. The service comes from `service:` (2,928 rules) or from an option:

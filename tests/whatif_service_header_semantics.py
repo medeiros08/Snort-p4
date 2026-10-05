@@ -52,6 +52,11 @@ from simulate_operational_policy import (  # noqa: E402
 )
 
 SAIDA = PROJECT_ROOT / "output" / "analysis" / "service_header_semantics_whatif.json"
+
+# Artefatos do pipeline sob a semantica legacy. Ate 2026-10-05 eram a raiz
+# de output/; desde a troca do padrao para snort3 estao arquivados aqui
+# (paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md).
+LEGADO = PROJECT_ROOT / "output" / "historical" / "legacy_header_semantics"
 HOME_NET = ipaddress.ip_network("192.168.10.0/24")
 
 ESTAGIOS = [
@@ -150,7 +155,7 @@ def saida_snort3():
 
 
 def main() -> int:
-    legacy = resumo(PROJECT_ROOT / "output")
+    legacy = resumo(LEGADO)
     if legacy["strong_discriminator"] != CONGELADO_STRONG:
         print(
             "a politica nao reproduz a particao congelada: "

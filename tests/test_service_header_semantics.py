@@ -3,8 +3,9 @@
 No Snort 3.12.2.0, quando o servico identificado no fluxo e um dos da regra,
 porta e protocolo do cabecalho nao sao checados; os enderecos sao
 (paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md). O modo "snort3" de
-assess_rule segue isso; o modo "legacy", padrao, reproduz os artefatos
-congelados e trata o cabecalho como o de uma regra por porta.
+assess_rule, padrao desde 2026-10-05, segue isso; o modo "legacy" reproduz
+os artefatos arquivados em output/historical/legacy_header_semantics/ e
+trata o cabecalho como o de uma regra por porta.
 
 Direcao de seguranca: delegar porta e protocolo so ALARGA o predicado, entao
 o modo snort3 nunca pode excluir um pacote que o legacy incluia.
@@ -52,11 +53,13 @@ def tratamentos(avaliada):
     }
 
 
-def test_padrao_e_legacy():
+def test_padrao_e_snort3():
     ir = build_semantic_ir(parse_rule(COM_SERVICO))
     padrao, _ = assess_rule(ir)
+    snort3, _ = assess_rule(ir, "snort3")
     legacy, _ = assess_rule(ir, "legacy")
-    assert tratamentos(padrao) == tratamentos(legacy)
+    assert tratamentos(padrao) == tratamentos(snort3)
+    assert tratamentos(padrao) != tratamentos(legacy)
 
 
 def test_legacy_preserva_porta_e_protocolo_da_regra_com_servico():
@@ -335,7 +338,7 @@ def test_tetos_de_precisao_de_cabecalho():
 
 if __name__ == "__main__":
 
-    test_padrao_e_legacy()
+    test_padrao_e_snort3()
     test_legacy_preserva_porta_e_protocolo_da_regra_com_servico()
     test_snort3_delega_porta_e_protocolo_e_mantem_enderecos()
     test_snort3_nao_muda_regra_sem_servico()

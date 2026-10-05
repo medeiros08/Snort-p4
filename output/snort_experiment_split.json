@@ -6,17 +6,17 @@
   "manifest_indexed_sids": 4017,
   "source_lines": 4017,
   "source_sids": 4017,
-  "candidate_rules": 4003,
-  "non_candidate_rules": 14,
+  "candidate_rules": 3996,
+  "non_candidate_rules": 21,
   "semantic_counts": {
-    "NECESSARY": 4003,
-    "UNSUPPORTED": 14
+    "NECESSARY": 3996,
+    "UNSUPPORTED": 21
   },
   "candidate_class_counts": {
-    "NECESSARY": 4003
+    "NECESSARY": 3996
   },
   "non_candidate_class_counts": {
-    "UNSUPPORTED": 14
+    "UNSUPPORTED": 21
   },
   "manifest_failures": [],
   "missing_in_manifest": [],

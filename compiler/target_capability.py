@@ -603,10 +603,12 @@ SERVICE_SKIPPED_HEADER_FIELDS = {
     "dst_port",
 }
 
-# "legacy" reproduces the frozen artifacts: the header of a service-based
-# rule is assessed like a port-based one. "snort3" follows Snort 3's
-# evaluation and delegates the fields above. See
-# paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md.
+# "snort3" (the default since 2026-10-05) follows Snort 3's evaluation and
+# delegates the fields above. "legacy" assesses the header of a
+# service-based rule like a port-based one; it reproduces the artifacts
+# archived in output/historical/legacy_header_semantics/. See
+# paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md and
+# paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md.
 SERVICE_HEADER_SEMANTICS = (
     "legacy",
     "snort3",
@@ -737,7 +739,7 @@ def service_skipped_fields(semantic_rule):
 
 def assess_rule(
     semantic_rule,
-    service_header_semantics="legacy",
+    service_header_semantics="snort3",
 ):
     """
     Return a deep copy of the semantic rule with

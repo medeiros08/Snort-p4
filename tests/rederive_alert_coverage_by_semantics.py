@@ -68,6 +68,11 @@ from whatif_service_header_semantics import EstagioFalhou, _git, saida_snort3  #
 
 SAIDA = PROJECT_ROOT / "output" / "analysis" / "alert_coverage_by_semantics.json"
 EXPERIMENTOS = PROJECT_ROOT / "output" / "experiments"
+
+# Artefatos do pipeline sob a semantica legacy. Ate 2026-10-05 eram a raiz
+# de output/; desde a troca do padrao para snort3 estao arquivados aqui
+# (paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md).
+LEGADO = PROJECT_ROOT / "output" / "historical" / "legacy_header_semantics"
 HOME_NET = ipaddress.ip_network("192.168.10.0/24")
 EXPERIMENTO = {
     "sqli": "cicids2017_thursday_sqli",
@@ -223,7 +228,7 @@ def main() -> int:
         ),
     }
 
-    legacy = configuracao(PROJECT_ROOT / "output")
+    legacy = configuracao(LEGADO)
     relatorio["legacy"] = {nome: auditar(eventos[nome], pacotes[nome], legacy) for nome in janelas}
     for nome, esperado in CONGELADO.items():
         if nome not in relatorio["legacy"]:
