@@ -317,6 +317,14 @@ A afiliação do primeiro autor agora traz a cidade (UNIPAMPA, Alegrete,
 Brazil) nos dois manuscritos, e o `main.tex` está datado de outubro de 2026.
 Os builds continuam limpos: 45 e 7 páginas (a 45ª veio em 2026-10-05, com a frase sobre rulesets externos e EXACT em External Validity e em Limitações).
 
+**Versão SBRC (2026-10-05).** `paper/IDS_P4_SBRC/`, em português no modelo
+oficial da SBC (`sbc-template.sty` e `sbc.bst` sem alteração; origem e
+sha256 no README da pasta). O corpo é o do `IDS_P4_PT/artigo.tex`, copiado
+por `montar.py`; só a primeira página (abstract e resumo de até 10 linhas
+cada) é própria. Dá 14 páginas com as referências, o limite da trilha
+principal do SBRC 2026, sem caixa estourada. Cadeia de derivação:
+`main.tex` → `IDS_P4_PT` → `IDS_P4_SBRC`.
+
 ## 15. Pendências que bloqueiam a submissão
 
 **Todas as quatro concluídas** (a última, o item 3, em 2026-09-30). O
