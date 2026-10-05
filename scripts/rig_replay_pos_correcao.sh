@@ -34,10 +34,21 @@
 # os replays congelados em output/analysis/ipv4_packet_domain_correction/
 # nao sao tocados.
 #
+# Plano e saida. Desde 2026-10-05 a raiz de output/ e a compilacao snort3;
+# os resultados ja gravados em replay_pos_correcao/ sao do plano legacy de
+# 331 entradas. Por isso o padrao daqui e o plano legacy arquivado, e quem
+# mede outro plano passa as duas variaveis (scripts/rig_fase_b_snort3.sh):
+#
+#   PLANO   p4runtime_install_plan.json a instalar
+#           (padrao: output/historical/legacy_header_semantics/...)
+#   SAIDA   diretorio das medicoes (padrao: output/analysis/replay_pos_correcao)
+#
 # Uso (no rig, na raiz do repositorio):
 #   sudo ./scripts/rig_replay_pos_correcao.sh alertas
 #   sudo ./scripts/rig_replay_pos_correcao.sh bruteforce
+#   sudo ./scripts/rig_replay_pos_correcao.sh janelas      # SQLi, XSS e Brute Force inteiros
 #   sudo ./scripts/rig_replay_pos_correcao.sh tudo
+#   sudo PLANO=... SAIDA=... ./scripts/rig_replay_pos_correcao.sh alertas
 #
 set -euo pipefail
 
@@ -51,7 +62,9 @@ LAR="$(getent passwd "$USUARIO" | cut -d: -f6)"
 PY="${PY:-$LAR/.venvs/p4runtime/bin/python}"
 [[ -x "$PY" ]] || { echo "ERRO: python do venv nao encontrado em $PY (defina PY=...)." >&2; exit 1; }
 
-SAIDA="$RAIZ/output/analysis/replay_pos_correcao"
+PLANO="${PLANO:-$RAIZ/output/historical/legacy_header_semantics/p4runtime_install_plan.json}"
+SAIDA="${SAIDA:-$RAIZ/output/analysis/replay_pos_correcao}"
+[[ -f "$PLANO" ]] || { echo "ERRO: plano ausente: $PLANO" >&2; exit 1; }
 JANELAS="${JANELAS:-/mnt/c/Users/amede/datasets/cicids2017/windows}"
 TXQUEUELEN=10000
 OCIOSIDADE=10
@@ -66,7 +79,8 @@ registrar_ambiente() {
     echo "pcap_sha256=$(sha256sum "$pcap" | cut -d' ' -f1)"
     echo "programa_sha256=$(sha256sum output/ids_prefilter.json | cut -d' ' -f1)"
     echo "p4info_sha256=$(sha256sum output/ids_prefilter.p4info.txt | cut -d' ' -f1)"
-    echo "plano_sha256=$(sha256sum output/p4runtime_install_plan.json | cut -d' ' -f1)"
+    echo "plano=$PLANO"
+    echo "plano_sha256=$(sha256sum "$PLANO" | cut -d' ' -f1)"
     echo "intervalo_s=$intervalo"
     echo "txqueuelen=$TXQUEUELEN"
     echo "ociosidade_s=$OCIOSIDADE"
@@ -94,7 +108,7 @@ medir() {
     ip link set dev "$iface" txqueuelen "$TXQUEUELEN"
   done
 
-  "$PY" compiler/install_p4runtime.py > "$destino/install.log" 2>&1
+  "$PY" compiler/install_p4runtime.py --plan "$PLANO" > "$destino/install.log" 2>&1
   registrar_ambiente "$destino" "$pcap" "$intervalo"
 
   contadores "$destino/idle_t0.txt"
@@ -122,12 +136,19 @@ bruteforce() {
   medir "bruteforce_janela" "$JANELAS/thursday_web_bruteforce.pcap" 0.002
 }
 
+janelas() {
+  for janela in sqli xss bruteforce; do
+    medir "janela_$janela" "$JANELAS/thursday_web_$janela.pcap" 0.002
+  done
+}
+
 case "${1:-}" in
   alertas)    alertas ;;
   bruteforce) bruteforce ;;
+  janelas)    janelas ;;
   tudo)       alertas; bruteforce ;;
   *)
-    echo "uso: sudo $0 alertas|bruteforce|tudo" >&2
+    echo "uso: sudo [PLANO=...] [SAIDA=...] $0 alertas|bruteforce|janelas|tudo" >&2
     exit 1
     ;;
 esac
