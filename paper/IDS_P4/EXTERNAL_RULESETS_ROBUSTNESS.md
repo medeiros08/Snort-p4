@@ -176,7 +176,10 @@ is split at the escaped `\;`. This produces bogus option names (`EN-US\`,
 
 ## 8. Use in the manuscript
 
-At most, one sentence in the threats to validity: the static pipeline
-compiled two external rulesets, and every refusal coincided with a Snort 3
-refusal. The single evaluated ruleset, profile and dataset remain the
-limitation for every traffic-based result.
+Added on 2026-10-05, two sentences in `main.tex` (Threats, External
+Validity) and their equivalent in `IDS_P4_PT/artigo.tex` (Limitações): the
+Snort 2 ruleset compiled, raw and converted, once the 48 lines with variables
+Snort 3 also rejects were removed, and its 10 header-only EXACT rules agreed
+with Snort on all 340 pairs, with the P4 side evaluated offline. The single
+evaluated ruleset, profile and dataset remain the limitation for every
+traffic-based result.

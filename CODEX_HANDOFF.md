@@ -290,7 +290,7 @@ master arbitration, pipeline configuration e leitura das entradas.
 
 ## 14. Manuscrito
 
-44 páginas, sem overfull nem underfull box. Duas figuras TikZ (pipeline; visão conceitual) e dez tabelas. A
+45 páginas, sem overfull nem underfull box. Duas figuras TikZ (pipeline; visão conceitual) e dez tabelas. A
 revisão pré-submissão de 2026-09-27 fechou os itens C1, C4, C5, H2, H5 e H6 da
 revisão de 2026-09-11, integrou o achado service-based e aplicou uma revisão
 adversarial do manuscrito inteiro (§5 da auditoria abaixo); origem de cada
@@ -315,7 +315,7 @@ detecta) e a avaliação é no BMv2, sem hardware.
 
 A afiliação do primeiro autor agora traz a cidade (UNIPAMPA, Alegrete,
 Brazil) nos dois manuscritos, e o `main.tex` está datado de outubro de 2026.
-Os builds continuam limpos: 44 e 7 páginas.
+Os builds continuam limpos: 45 e 7 páginas (a 45ª veio em 2026-10-05, com a frase sobre rulesets externos e EXACT em External Validity e em Limitações).
 
 ## 15. Pendências que bloqueiam a submissão
 

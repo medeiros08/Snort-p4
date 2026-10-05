@@ -1989,6 +1989,13 @@ encrypted-traffic distributions may change the semantic classification,
 candidate rate, and candidate rule set size. The high \textsc{Necessary}
 rate, the global candidate rate, and the observed reductions should therefore
 not be assumed to hold unchanged outside this configuration.
+Beyond the evaluated ruleset, the compiler was exercised at compile time
+only: it compiled the Snort~2.9.15.1 rules distributed by Ubuntu, both raw
+and converted by \texttt{snort2lua}, once the 48 rule lines using variables
+that Snort~3 does not define, and therefore also rejects, were removed. The
+ten header-only rules of that ruleset are the only \textsc{Exact}
+classifications observed, and they agreed with Snort on all 340 sampled
+frame--rule pairs, with the P4 side evaluated by the offline matcher.
 
 Only selected Thursday CICIDS2017 windows were evaluated for alerts. For the
 packet-level quantities alone, we also measured the entire Thursday capture

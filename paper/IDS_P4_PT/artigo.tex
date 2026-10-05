@@ -689,7 +689,14 @@ modo que não observa a avaliação service-based; as 1.875 regras sem
 testemunha sintetizável não foram testadas. A semântica service-based foi
 estabelecida pela leitura do código-fonte e da documentação do
 Snort~3.12.2.0 e confirmada no BMv2 só para um serviço e uma porta. O alvo é o BMv2 em
-software: não houve medição de vazão, latência ou recursos de hardware. Por
+software: não houve medição de vazão, latência ou recursos de hardware.
+Fora do ruleset avaliado, o compilador só foi exercitado na compilação:
+compilou as regras do Snort~2.9.15.1 distribuídas pelo Ubuntu, brutas e
+convertidas pelo \texttt{snort2lua}, depois de removidas as 48 linhas com
+variáveis que o Snort~3 não define e também recusa; as dez regras só de
+cabeçalho desse ruleset, únicas classificadas como \cls{Exact}, concordaram
+com o Snort nos 340 pares (quadro, regra) amostrados, com o lado P4 avaliado
+pelo casador offline. Por
 fim, algumas condições de cabeçalho representáveis ainda são omitidas, o que
 só alarga os predicados: faixas de porta, tipo e código ICMP e
 \texttt{ip\_proto}. Representá-las elevaria a redução sobre o ruleset do plano
