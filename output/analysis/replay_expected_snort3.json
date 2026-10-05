@@ -1,0 +1,107 @@
+{
+  "gerado_em": "2026-10-05T23:19:14+00:00",
+  "gerador": "tests/expected_replay_counts.py",
+  "semantica_de_cabecalho": "snort3",
+  "planos": {
+    "global": {
+      "entradas": "output/p4_install_entries.json",
+      "sha256": "a9461ef78f1d290b6c035f38ebeed76e885b49ea94c29bd960f946dc9f10cfb9"
+    },
+    "strong": {
+      "entradas": "output/campaign/plano_strong_discriminator_snort3/p4_install_entries.json",
+      "sha256": "f9883383c94f6dd380d115db5f6d26b3e1724c790ead89dba49c9663acbcfcf4"
+    }
+  },
+  "esperado": {
+    "global_janela_bruteforce": {
+      "P4_CANDIDATE": 1101459,
+      "P4_NO_MATCH": 0,
+      "PACKET_DOMAIN_FALLBACK": 7199,
+      "quadros": 1108658,
+      "fonte": "output/analysis/trace_metrics_by_semantics.json"
+    },
+    "global_janela_sqli": {
+      "P4_CANDIDATE": 34924,
+      "P4_NO_MATCH": 0,
+      "PACKET_DOMAIN_FALLBACK": 350,
+      "quadros": 35274,
+      "fonte": "output/analysis/trace_metrics_by_semantics.json"
+    },
+    "global_janela_xss": {
+      "P4_CANDIDATE": 189076,
+      "P4_NO_MATCH": 0,
+      "PACKET_DOMAIN_FALLBACK": 2772,
+      "quadros": 191848,
+      "fonte": "output/analysis/trace_metrics_by_semantics.json"
+    },
+    "strong_janela_bruteforce": {
+      "P4_CANDIDATE": 1045116,
+      "P4_NO_MATCH": 56343,
+      "PACKET_DOMAIN_FALLBACK": 7199,
+      "quadros": 1108658,
+      "fonte": "output/analysis/trace_metrics_by_semantics.json"
+    },
+    "strong_janela_sqli": {
+      "P4_CANDIDATE": 32234,
+      "P4_NO_MATCH": 2690,
+      "PACKET_DOMAIN_FALLBACK": 350,
+      "quadros": 35274,
+      "fonte": "output/analysis/trace_metrics_by_semantics.json"
+    },
+    "strong_janela_xss": {
+      "P4_CANDIDATE": 174277,
+      "P4_NO_MATCH": 14799,
+      "PACKET_DOMAIN_FALLBACK": 2772,
+      "quadros": 191848,
+      "fonte": "output/analysis/trace_metrics_by_semantics.json"
+    },
+    "global_alertas_sqli": {
+      "P4_CANDIDATE": 150,
+      "P4_NO_MATCH": 0,
+      "PACKET_DOMAIN_FALLBACK": 0,
+      "quadros": 150,
+      "pcap_sha256": "c36ded14ad9b04b9c423016681660e10882b027dbca027a2354b5a4aa26d28c0",
+      "fonte": "classificador offline (tests/campaign_matcher.py)"
+    },
+    "global_alertas_xss": {
+      "P4_CANDIDATE": 528,
+      "P4_NO_MATCH": 0,
+      "PACKET_DOMAIN_FALLBACK": 0,
+      "quadros": 528,
+      "pcap_sha256": "f61950609991ebe20bf525981ea987144e02c9893dfe7aeef54b1eb59ef4ab30",
+      "fonte": "classificador offline (tests/campaign_matcher.py)"
+    },
+    "global_alertas_bruteforce": {
+      "P4_CANDIDATE": 2391,
+      "P4_NO_MATCH": 0,
+      "PACKET_DOMAIN_FALLBACK": 0,
+      "quadros": 2391,
+      "pcap_sha256": "ed00df639af5e83d215e20cde9d5d77ddb1b7056884de555fa638856a0ece830",
+      "fonte": "classificador offline (tests/campaign_matcher.py)"
+    },
+    "strong_alertas_sqli": {
+      "P4_CANDIDATE": 0,
+      "P4_NO_MATCH": 150,
+      "PACKET_DOMAIN_FALLBACK": 0,
+      "quadros": 150,
+      "pcap_sha256": "c36ded14ad9b04b9c423016681660e10882b027dbca027a2354b5a4aa26d28c0",
+      "fonte": "classificador offline (tests/campaign_matcher.py)"
+    },
+    "strong_alertas_xss": {
+      "P4_CANDIDATE": 0,
+      "P4_NO_MATCH": 528,
+      "PACKET_DOMAIN_FALLBACK": 0,
+      "quadros": 528,
+      "pcap_sha256": "f61950609991ebe20bf525981ea987144e02c9893dfe7aeef54b1eb59ef4ab30",
+      "fonte": "classificador offline (tests/campaign_matcher.py)"
+    },
+    "strong_alertas_bruteforce": {
+      "P4_CANDIDATE": 3,
+      "P4_NO_MATCH": 2388,
+      "PACKET_DOMAIN_FALLBACK": 0,
+      "quadros": 2391,
+      "pcap_sha256": "ed00df639af5e83d215e20cde9d5d77ddb1b7056884de555fa638856a0ece830",
+      "fonte": "classificador offline (tests/campaign_matcher.py)"
+    }
+  }
+}

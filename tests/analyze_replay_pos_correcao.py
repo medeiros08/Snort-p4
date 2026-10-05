@@ -25,12 +25,22 @@ Esperados:
 Grava output/analysis/replay_pos_correcao/resultado.json. Sai com 0 se toda
 medicao presente for ACCOUNTING_VALID, 1 caso contrario.
 
+Outros planos. As medicoes da Fase B da troca para snort3
+(scripts/rig_fase_b_snort3.sh) ficam em outro diretorio e tem os esperados em
+output/analysis/replay_expected_snort3.json (tests/expected_replay_counts.py),
+com chaves `<plano>_<medicao>`:
+
+    python tests/analyze_replay_pos_correcao.py \
+        --base output/analysis/replay_snort3/global \
+        --esperado output/analysis/replay_expected_snort3.json --plano global
+
 Uso:
     python tests/analyze_replay_pos_correcao.py
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import sys
@@ -100,6 +110,17 @@ def esperados() -> dict[str, dict]:
     return saida
 
 
+def esperados_de(arquivo: Path, plano: str) -> dict[str, dict]:
+    """Esperados de um plano em replay_expected_*.json: `<plano>_<medicao>`."""
+
+    dados = json.loads(arquivo.read_text(encoding="utf-8"))["esperado"]
+    prefixo = f"{plano}_"
+    saida = {chave[len(prefixo):]: valor for chave, valor in dados.items() if chave.startswith(prefixo)}
+    if not saida:
+        raise SystemExit(f"ERRO: nenhum esperado com prefixo {prefixo!r} em {arquivo}")
+    return saida
+
+
 def avaliar(nome: str, diretorio: Path, esperado: dict) -> dict:
     ambiente = ler_ambiente(diretorio / "ambiente.txt")
     ociosidade = delta(ler_contadores(diretorio / "idle_t1.txt"), ler_contadores(diretorio / "idle_t0.txt"))
@@ -141,11 +162,25 @@ def avaliar(nome: str, diretorio: Path, esperado: dict) -> dict:
 
 
 def main() -> int:
-    if not BASE.is_dir():
-        print(f"ERRO: {BASE} nao existe; rode antes scripts/rig_replay_pos_correcao.sh no rig")
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("--base", type=Path, default=None, help="diretorio das medicoes")
+    parser.add_argument("--esperado", type=Path, default=None, help="replay_expected_*.json")
+    parser.add_argument("--plano", default=None, help="prefixo das chaves no --esperado")
+    argumentos = parser.parse_args()
+
+    base = (PROJECT_ROOT / argumentos.base).resolve() if argumentos.base else BASE
+    if bool(argumentos.esperado) != bool(argumentos.plano):
+        print("ERRO: --esperado e --plano andam juntos")
+        return 1
+    if not base.is_dir():
+        print(f"ERRO: {base} nao existe; rode antes as medicoes no rig")
         return 1
 
-    alvo = esperados()
+    alvo = (
+        esperados_de((PROJECT_ROOT / argumentos.esperado).resolve(), argumentos.plano)
+        if argumentos.esperado
+        else esperados()
+    )
     resultado = {
         "analise": "replay_pos_correcao",
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -154,7 +189,7 @@ def main() -> int:
     }
 
     for nome in sorted(alvo):
-        diretorio = BASE / nome
+        diretorio = base / nome
         if not (diretorio / "after.txt").exists():
             print(f"  {nome:22s} ausente")
             continue
@@ -173,10 +208,10 @@ def main() -> int:
         for problema in avaliacao["problemas"]:
             print(f"      ! {problema}")
 
-    (BASE / "resultado.json").write_text(
+    (base / "resultado.json").write_text(
         json.dumps(resultado, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
-    print(f"\n  {BASE / 'resultado.json'}")
+    print(f"\n  {base / 'resultado.json'}")
 
     medidas = resultado["medicoes"].values()
     return 0 if medidas and all(m["status"] == "ACCOUNTING_VALID" for m in medidas) else 1

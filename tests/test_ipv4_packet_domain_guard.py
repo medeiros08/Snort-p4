@@ -41,7 +41,10 @@ from send_prefilter_test_packets import (
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 ENTRIES_FILE = PROJECT_ROOT / "output" / "p4_install_entries.json"
 P4INFO_FILE = PROJECT_ROOT / "output" / "ids_prefilter.p4info.txt"
-OUTPUT_FILE = PROJECT_ROOT / "output" / "analysis" / "ipv4_packet_domain_guard_test.json"
+# The cases are built from the root entries, which are the snort3 compilation
+# since 2026-10-05. The frozen 11/11 result in ipv4_packet_domain_guard_test.json
+# was measured with the legacy plan of 331 entries and is not overwritten.
+OUTPUT_FILE = PROJECT_ROOT / "output" / "analysis" / "ipv4_packet_domain_guard_test_snort3.json"
 INTERFACE = "veth1"
 GRPC_ADDRESS = "127.0.0.1:9559"
 DEVICE_ID = 0
