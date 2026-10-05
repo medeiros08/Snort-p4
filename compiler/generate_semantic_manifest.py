@@ -74,12 +74,14 @@ def parse_arguments():
     parser.add_argument(
         "--service-header-semantics",
         choices=SERVICE_HEADER_SEMANTICS,
-        default="legacy",
+        default="snort3",
         help=(
-            "legacy (default) reproduces the frozen artifacts; snort3 "
-            "delegates protocol and ports of service-based rules, which "
-            "Snort 3 does not check once the flow's service matches "
-            "(paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md)"
+            "snort3 (default) delegates protocol and ports of "
+            "service-based rules, which Snort 3 does not check once the "
+            "flow's service matches "
+            "(paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md); legacy "
+            "reproduces the artifacts archived in "
+            "output/historical/legacy_header_semantics/"
         ),
     )
     return parser.parse_args()
@@ -350,8 +352,8 @@ def main():
         "rules": records,
     }
 
-    # Recorded only off the default, so the legacy manifest stays
-    # byte-identical to the frozen one.
+    # Recorded only for snort3, so a legacy run stays byte-identical to the
+    # manifest archived in output/historical/legacy_header_semantics/.
     if service_header_semantics != "legacy":
         manifest["summary"][
             "service_header_semantics"

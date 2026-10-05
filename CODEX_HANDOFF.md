@@ -1,5 +1,20 @@
 # Codex Handoff
 
+**2026-10-05: o padrão do compilador passou a ser `snort3`** (decisão do
+usuário, com o artigo relatando `snort3` como resultado e `legacy` como
+histórico). A raiz de `output/` agora é a compilação `snort3`: 3.996 /
+21 / 0 e 235 entradas; o strong fica com 739 elegíveis, 3.257 em fallback e
+225 entradas.
+
+- Os artefatos `legacy` estão arquivados byte a byte em
+  `output/historical/legacy_header_semantics/`.
+- Tudo o que foi medido antes da troca continua válido como resultado
+  `legacy`. As seções abaixo descrevem esse estado congelado, salvo onde
+  dizem o contrário.
+- Documento: `paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md`.
+- Pendências novas: as medições no rig sob `snort3` e o manuscrito (§15,
+  item 5).
+
 Atualizado em 2026-10-01: as quatro pendências que bloqueavam a submissão
 estão concluídas (§15). Desde 2026-09-29 também entraram:
 
@@ -377,7 +392,7 @@ registro de cada uma fica abaixo.
    planos corrigidos no BMv2.
 
    **Decisão do usuário (2026-09-28): o padrão continua `legacy` por
-   enquanto.** O artigo segue relatando o congelado e a medição offline
+   enquanto. Revista em 2026-10-05: o padrão passou a ser `snort3` (item 5).** O artigo segue relatando o congelado e a medição offline
    `snort3` da §7.2. Se a troca voltar à mesa, isto é o que ela muda:
    - Regenera os artefatos do pipeline em `output/` (manifesto, entradas P4,
      plano P4Runtime, `backend_validation.json`): 3.996 NECESSARY / 21
@@ -407,6 +422,25 @@ registro de cada uma fica abaixo.
    57,34 / 55,10 / 54,10%; protocolo+serviço 89,54 / 92,24 / 81,12%;
    protocolo+direção+serviço a menos de 0,01 ponto do nível de entrada. No
    manuscrito: Tabela `tab:grouped`, §RQ4 e Discussão.
+
+5. **Troca do padrão para `snort3` (2026-10-05).** Feito na máquina
+   Windows:
+   - padrão trocado;
+   - `legacy` arquivado e reproduzível;
+   - raiz de `output/` regenerada;
+   - simulação strong `snort3` em
+     `output/analysis/operational_policy_simulation_snort3.json`;
+   - plano strong `snort3` em
+     `output/campaign/plano_strong_discriminator_snort3/`.
+
+   Falta:
+   - **Rig:** refazer sob os planos `snort3` (global 235, strong 225) os 11
+     casos controlados, a contabilidade de replay das três janelas, a
+     preservação dos pacotes de alerta, a campanha end-to-end e o teste de
+     serviço fora da porta.
+   - **Manuscrito:** `snort3` como resultado e `legacy` como histórico.
+
+   Detalhes em `paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md`.
 
 ## 16. Pendências de reforço científico
 

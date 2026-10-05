@@ -28,7 +28,13 @@ policy. This conservative rule-level decision avoids dropping one branch of
 an expanded predicate while retaining another.
 
 Outputs:
-  output/analysis/operational_policy_simulation.json
+  output/analysis/operational_policy_simulation_snort3.json (default)
+
+The default inputs are the root pipeline artifacts, compiled with the
+snort3 header semantics since 2026-10-05. The frozen legacy simulation,
+output/analysis/operational_policy_simulation.json, is reproduced with
+--manifest and --entries from output/historical/legacy_header_semantics/
+and --output pointing elsewhere; it is never overwritten by default.
 """
 
 import argparse
@@ -58,7 +64,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 DEFAULT_MANIFEST = PROJECT_ROOT / "output" / "semantic_manifest.json"
 DEFAULT_ENTRIES = PROJECT_ROOT / "output" / "p4_install_entries.json"
-DEFAULT_OUTPUT = PROJECT_ROOT / "output" / "analysis" / "operational_policy_simulation.json"
+DEFAULT_OUTPUT = PROJECT_ROOT / "output" / "analysis" / "operational_policy_simulation_snort3.json"
 
 DEFAULT_SQLI = Path("/home/arthur/datasets/cicids2017/windows/thursday_web_sqli.pcap")
 DEFAULT_XSS = Path("/home/arthur/datasets/cicids2017/windows/thursday_web_xss.pcap")

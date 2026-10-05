@@ -31,12 +31,22 @@ Saida em output/campaign/plano_strong_discriminator/:
     particao.json                  sids mantidos no prefilter e sids em
                                    fallback operacional, com a procedencia
 
+Semantica de cabecalho. Desde 2026-10-05 o pipeline da raiz usa a semantica
+snort3, e o plano strong dela vai para plano_strong_discriminator_snort3/. O
+plano legacy, em plano_strong_discriminator/, e o das campanhas e2e_1000_v2
+a v4; --semantica legacy o reproduz a partir de
+output/historical/legacy_header_semantics/. Os ids de entrada (p4-N) sao
+posicionais: o p4-106 de uma semantica nao e o da outra, e por isso
+simulacao, entradas e plano vem sempre da mesma semantica.
+
 Uso:
     python tests/build_strong_plan.py
+    python tests/build_strong_plan.py --semantica legacy
 """
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import sys
@@ -46,11 +56,22 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-SIMULACAO = PROJECT_ROOT / "output" / "analysis" / "operational_policy_simulation.json"
-ENTRADAS = PROJECT_ROOT / "output" / "p4_install_entries.json"
-PLANO = PROJECT_ROOT / "output" / "p4runtime_install_plan.json"
+LEGADO = PROJECT_ROOT / "output" / "historical" / "legacy_header_semantics"
 
-DESTINO = PROJECT_ROOT / "output" / "campaign" / "plano_strong_discriminator"
+FONTES = {
+    "snort3": {
+        "simulacao": PROJECT_ROOT / "output" / "analysis" / "operational_policy_simulation_snort3.json",
+        "entradas": PROJECT_ROOT / "output" / "p4_install_entries.json",
+        "plano": PROJECT_ROOT / "output" / "p4runtime_install_plan.json",
+        "destino": PROJECT_ROOT / "output" / "campaign" / "plano_strong_discriminator_snort3",
+    },
+    "legacy": {
+        "simulacao": PROJECT_ROOT / "output" / "analysis" / "operational_policy_simulation.json",
+        "entradas": LEGADO / "p4_install_entries.json",
+        "plano": LEGADO / "p4runtime_install_plan.json",
+        "destino": PROJECT_ROOT / "output" / "campaign" / "plano_strong_discriminator",
+    },
+}
 
 POLITICA = "strong_discriminator"
 
@@ -68,6 +89,16 @@ def _escreve(caminho: Path, dados: dict) -> None:
 
 
 def main() -> int:
+    global SIMULACAO, ENTRADAS, PLANO, DESTINO
+
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("--semantica", choices=tuple(FONTES), default="snort3")
+    argumentos = parser.parse_args()
+    fontes = FONTES[argumentos.semantica]
+    SIMULACAO, ENTRADAS, PLANO, DESTINO = (
+        fontes["simulacao"], fontes["entradas"], fontes["plano"], fontes["destino"]
+    )
+
     for exigido in (SIMULACAO, ENTRADAS, PLANO):
         if not exigido.exists():
             print(f"artefato ausente: {exigido}", file=sys.stderr)
@@ -132,6 +163,7 @@ def main() -> int:
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "gerador": "tests/build_strong_plan.py",
         "politica": POLITICA,
+        "semantica_de_cabecalho": argumentos.semantica,
         "definicao": politica.get("definition"),
         "fontes": {
             str(SIMULACAO.relative_to(PROJECT_ROOT)).replace("\\", "/"): _sha256(SIMULACAO),

@@ -120,8 +120,8 @@ NECESSARY rules without `service:` (529, 3238, 3239): `dce_iface` and
 
 | Compiler mode | Header of a service-based rule | Rules affected |
 |---|---|---:|
-| `legacy` (default; frozen artifacts) | assessed as for a port-based rule: protocol and ports PRESERVED/EXPANDED | 2,931 NECESSARY rules (2,928 with `service:`, 3 DCE) |
-| `snort3` (`generate_semantic_manifest.py --service-header-semantics snort3`) | protocol, `src_port`, `dst_port` DELEGATED (`service_based_header_not_checked_on_service_match`); protocol kept when the rule has `flags`, which only matches TCP (`src/ips_options/ips_flags.cc`) | same |
+| `snort3` (default since 2026-10-05) | protocol, `src_port`, `dst_port` DELEGATED (`service_based_header_not_checked_on_service_match`); protocol kept when the rule has `flags`, which only matches TCP (`src/ips_options/ips_flags.cc`) | 2,931 NECESSARY rules under `legacy` (2,928 with `service:`, 3 DCE) |
+| `legacy` (`--service-header-semantics legacy`; artifacts archived in `output/historical/legacy_header_semantics/`) | assessed as for a port-based rule: protocol and ports PRESERVED/EXPANDED | same |
 
 Under `legacy`, the predicate of these rules is a necessary condition only on
 traffic whose service Snort has not identified.

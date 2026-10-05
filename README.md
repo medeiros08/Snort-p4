@@ -152,15 +152,18 @@ No Snort 3, quando o serviço identificado no fluxo é um dos da regra, porta
 e protocolo do cabeçalho não são checados (os endereços são). O manifesto
 tem dois modos:
 
-    python compiler/generate_semantic_manifest.py                                   # legacy, padrão
-    python compiler/generate_semantic_manifest.py --service-header-semantics snort3
+    python compiler/generate_semantic_manifest.py                                   # snort3, padrão
+    python compiler/generate_semantic_manifest.py --service-header-semantics legacy
 
-O `legacy` reproduz os artefatos congelados e trata o cabeçalho de uma regra
-service-based (com `service:` ou com serviço dado por opção, como as DCE)
-como o de uma regra por porta; o `snort3` delega porta e protocolo dessas
-regras. O efeito sem tráfego fica em
-`python tests/whatif_service_header_semantics.py`. Detalhes:
-`paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md`.
+O `snort3`, padrão desde 2026-10-05, delega porta e protocolo das regras
+service-based (com `service:` ou com serviço dado por opção, como as DCE),
+como o Snort 3 faz. O `legacy` trata o cabeçalho delas como o de uma regra
+por porta e reproduz byte a byte os artefatos arquivados em
+`output/historical/legacy_header_semantics/`, de que dependem os resultados
+congelados anteriores à troca. No executor estático:
+`python compiler/run_static_pipeline.py ... --semantica legacy`. Detalhes:
+`paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md` e
+`paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md`.
 
 ### Campanha end-to-end
 
@@ -187,8 +190,8 @@ e sha256). Sem scapy e sem editcap:
     python tests/rederive_alert_coverage_by_semantics.py --janela sqli=... --janela xss=... --janela bruteforce=...
 
 O corte só é aceito se pacotes, bytes e extremos de cada janela baterem com o
-registro. Os dois estágios seguintes só gravam se o `legacy` reproduzir o
-congelado.
+registro. Os dois estágios seguintes só gravam se o `legacy`, lido de
+`output/historical/legacy_header_semantics/`, reproduzir o congelado.
 
 ## Reprodutibilidade
 

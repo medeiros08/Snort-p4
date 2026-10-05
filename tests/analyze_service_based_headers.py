@@ -76,9 +76,14 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-MANIFESTO = PROJECT_ROOT / "output" / "semantic_manifest.json"
+# Artefatos do pipeline sob a semantica legacy. Ate 2026-10-05 eram a raiz
+# de output/; desde a troca do padrao para snort3 estao arquivados aqui
+# (paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md).
+LEGADO = PROJECT_ROOT / "output" / "historical" / "legacy_header_semantics"
+
+MANIFESTO = LEGADO / "semantic_manifest.json"
 PLANOS = {
-    "global": PROJECT_ROOT / "output" / "p4_install_entries.json",
+    "global": LEGADO / "p4_install_entries.json",
     "strong_discriminator": PROJECT_ROOT
     / "output"
     / "campaign"

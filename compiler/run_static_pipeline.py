@@ -270,6 +270,14 @@ def main() -> int:
         help="perfil de variaveis (config/profiles/<nome>.json) usado no lugar "
         "do perfil ativo, sem reescrever config/",
     )
+    parser.add_argument(
+        "--semantica",
+        choices=("snort3", "legacy"),
+        default="snort3",
+        help="semantica de cabecalho das regras service-based "
+        "(--service-header-semantics da geracao do manifesto); legacy "
+        "reproduz output/historical/legacy_header_semantics/",
+    )
     argumentos = parser.parse_args()
 
     ruleset = Path(argumentos.ruleset).expanduser().resolve()
@@ -346,6 +354,7 @@ def main() -> int:
         "limpeza": limpeza,
         "sintaxe_snort2": sintaxe_snort2,
         "perfil_de_variaveis": perfil,
+        "semantica_de_cabecalho": argumentos.semantica,
         **commit_atual(),
         "programa_p4": {
             nome: {"copiado_de": f"output/{nome}", "sha256": sha256(saida / nome)}
@@ -387,7 +396,12 @@ def main() -> int:
         log = logs / f"{numero:02d}_{Path(etapa).stem}.log"
         with open(log, "w", encoding="utf-8") as destino:
             resultado = subprocess.run(
-                [sys.executable, str(COMPILER_DIR / etapa)],
+                [sys.executable, str(COMPILER_DIR / etapa)]
+                + (
+                    ["--service-header-semantics", argumentos.semantica]
+                    if etapa == "generate_semantic_manifest.py"
+                    else []
+                ),
                 cwd=COMPILER_DIR,
                 env=ambiente,
                 stdout=destino,
