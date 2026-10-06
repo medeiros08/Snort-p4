@@ -1,0 +1,17 @@
+
+Interfaces
+  criado o par veth0 <-> veth1
+  criado o par veth2 <-> veth3
+
+Switch
+  programa    /mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/ids_prefilter.json
+  device-id   0
+  P4Runtime   127.0.0.1:9559
+  porta 0     veth0   (o replay escreve em veth1)
+  porta 1     veth2
+
+  no ar em 127.0.0.1:9559 (pid 1054)
+
+Proximo passo: instalar as entradas na tabela
+    python3 compiler/install_p4runtime.py
+

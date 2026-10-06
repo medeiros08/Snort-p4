@@ -1,0 +1,27 @@
+
+=== Prefilter Counters ===
+
+Counter ID       : 313982712
+
+Candidate / table hit
+---------------------------------------------
+Packets          : 0
+Bytes            : 0
+
+No prefilter match
+---------------------------------------------
+Packets          : 150
+Bytes            : 20834
+
+Packet-domain fallback
+---------------------------------------------
+Packets          : 0
+Bytes            : 0
+
+Totals
+---------------------------------------------
+Packets          : 150
+Bytes            : 20834
+
+Candidate rate (supported domain): 0.00%
+No-match rate (supported domain): 100.00%

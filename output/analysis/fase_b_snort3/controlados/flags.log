@@ -1,0 +1,44 @@
+
+=== TCP Flag Lowering Functional Test ===
+
+Normalized entries     : 4040
+Final install entries  : 235
+Distinct '*' cases     : 2
+
+'*' case 1
+  effective mask : 0x07
+  accepted flags : ['R', 'S', 'F']
+  branches       : 3
+
+'*' case 2
+  effective mask : 0x07
+  accepted flags : ['R', 'S', 'F']
+  branches       : 3
+
+Counters before
+-------------------------------------------------------
+Candidate packets : 0
+No-match packets  : 0
+
+Sending '*' branch packets
+-------------------------------------------------------
+ 1. case=1 flag=R (0x04) local_matches=['p4-3', 'p4-10', 'p4-88', 'p4-130', 'p4-132']
+ 2. case=1 flag=S (0x02) local_matches=['p4-3', 'p4-10', 'p4-72', 'p4-88', 'p4-130']
+ 3. case=1 flag=F (0x01) local_matches=['p4-3', 'p4-10', 'p4-88', 'p4-130', 'p4-132']
+ 4. case=2 flag=R (0x04) local_matches=['p4-5', 'p4-51', 'p4-88', 'p4-131', 'p4-133']
+ 5. case=2 flag=S (0x02) local_matches=['p4-5', 'p4-51', 'p4-88', 'p4-131', 'p4-133']
+ 6. case=2 flag=F (0x01) local_matches=['p4-5', 'p4-51', 'p4-88', 'p4-131', 'p4-133']
+
+Counters after
+-------------------------------------------------------
+Candidate packets : 6
+No-match packets  : 0
+
+Observed delta
+-------------------------------------------------------
+Candidate delta   : +6
+No-match delta    : +0
+
+Expected candidate delta: +6
+
+TCP flag '*' lowering status: VALID

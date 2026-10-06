@@ -12,8 +12,9 @@ histórico). A raiz de `output/` agora é a compilação `snort3`: 3.996 /
   `legacy`. As seções abaixo descrevem esse estado congelado, salvo onde
   dizem o contrário.
 - Documento: `paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md`.
-- Pendências novas: as medições no rig sob `snort3` e o manuscrito (§15,
-  item 5).
+- 2026-10-06: as medições no rig sob `snort3` (Fase B) estão feitas e
+  batem exatamente com as previsões offline, sem VIOLAÇÃO (documento acima,
+  §6). Pendência: o manuscrito (§15, item 5).
 
 Atualizado em 2026-10-01: as quatro pendências que bloqueavam a submissão
 estão concluídas (§15). Desde 2026-09-29 também entraram:
@@ -433,12 +434,21 @@ registro de cada uma fica abaixo.
    - plano strong `snort3` em
      `output/campaign/plano_strong_discriminator_snort3/`.
 
+   **Rig (Fase B), feito em 2026-10-05/06** com
+   `scripts/rig_fase_b_snort3.sh tudo`, planos global 235 e strong 225:
+   - casos controlados: domínio de pacotes 11/11 e flags TCP `VALID`;
+   - réplicas: as 12 medições (pacotes de alerta e janelas inteiras, nos
+     dois planos) são `ACCOUNTING_VALID`, sem quadro perdido e com cada
+     categoria igual à prevista;
+   - campanhas: v4 global 958 / 2 / 40 e strong 134 / 826 / 40;
+     serviço fora da porta global 190 CONFIRMADO e strong 190 FALLBACK, onde
+     o `legacy` dava 190 VIOLAÇÃO. Nenhuma VIOLAÇÃO nem DEPENDÊNCIA DE
+     ESTADO. Caso a caso, tudo igual ao precheque
+     (`tests/compare_campaign_snort3.py`).
+
    Falta:
-   - **Rig:** refazer sob os planos `snort3` (global 235, strong 225) os 11
-     casos controlados, a contabilidade de replay das três janelas, a
-     preservação dos pacotes de alerta, a campanha end-to-end e o teste de
-     serviço fora da porta.
-   - **Manuscrito:** `snort3` como resultado e `legacy` como histórico.
+   - **Manuscrito:** `snort3` como resultado e `legacy` como histórico, nos
+     três manuscritos (`IDS_P4`, `IDS_P4_PT`, `IDS_P4_SBRC`).
 
    Detalhes em `paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md`.
 
