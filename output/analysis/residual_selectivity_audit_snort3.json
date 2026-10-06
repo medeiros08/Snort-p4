@@ -1,0 +1,1774 @@
+{
+  "schema_version": "1.0",
+  "analysis": "residual_selectivity_audit",
+  "simulation_only": true,
+  "policy": "strong_discriminator",
+  "inputs": {
+    "p4_install_entries": "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/p4_install_entries.json",
+    "operational_policy_simulation": "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/analysis/operational_policy_simulation_snort3.json",
+    "sql_injection_pcap": "/mnt/c/Users/amede/datasets/cicids2017/windows/thursday_web_sqli.pcap",
+    "xss_pcap": "/mnt/c/Users/amede/datasets/cicids2017/windows/thursday_web_xss.pcap"
+  },
+  "entry_set": {
+    "original_entries": 235,
+    "removed_entries": 10,
+    "retained_entries": 225,
+    "removed_entry_ids": [
+      "p4-10",
+      "p4-20",
+      "p4-210",
+      "p4-211",
+      "p4-24",
+      "p4-3",
+      "p4-5",
+      "p4-51",
+      "p4-67",
+      "p4-88"
+    ]
+  },
+  "sql_injection": {
+    "pcap": "/mnt/c/Users/amede/datasets/cicids2017/windows/thursday_web_sqli.pcap",
+    "total_packets": 35274,
+    "parser_eligible": 34924,
+    "parser_ineligible": 350,
+    "parser_ineligible_reasons": {
+      "ethertype_0x01bb": 17,
+      "ethertype_0x01bc": 13,
+      "ethertype_0x0806": 125,
+      "ethertype_0x86dd": 195
+    },
+    "protocol_counts": {
+      "6:TCP": 29639,
+      "17:UDP": 5285
+    },
+    "candidate": 32234,
+    "no_match": 2690,
+    "candidate_percentage_of_parser_eligible": 92.29756041690528,
+    "no_match_percentage_of_parser_eligible": 7.702439583094719,
+    "matching_entries_per_packet": {
+      "average": 1.3115336158515634,
+      "median": 1.0,
+      "p90": 3,
+      "p95": 3,
+      "p99": 3,
+      "maximum": 4,
+      "minimum": 0
+    },
+    "top_entries": [
+      {
+        "rank": 1,
+        "install_entry_id": "p4-47",
+        "shape": "protocol+dst_ip+tcp_flags",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "tcp_flags": {
+            "value": 16,
+            "mask": 16
+          }
+        },
+        "packets_covered": 16346,
+        "percentage_of_parser_eligible": 46.804489749169626,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "309"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 2,
+        "install_entry_id": "p4-208",
+        "shape": "protocol+src_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "src_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 443
+        },
+        "packets_covered": 7776,
+        "percentage_of_parser_eligible": 22.265490779979384,
+        "source_rule_count": 8,
+        "source_rule_ids": [
+          "34366",
+          "42225",
+          "42398",
+          "46137",
+          "47556",
+          "47557",
+          "47567",
+          "49664"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 3,
+        "install_entry_id": "p4-157",
+        "shape": "dst_ip+src_port",
+        "match": {
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 80
+        },
+        "packets_covered": 6258,
+        "percentage_of_parser_eligible": 17.91890963234452,
+        "source_rule_count": 4,
+        "source_rule_ids": [
+          "2589",
+          "58615",
+          "58616",
+          "58617"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 4,
+        "install_entry_id": "p4-41",
+        "shape": "protocol+dst_ip+src_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 80
+        },
+        "packets_covered": 6258,
+        "percentage_of_parser_eligible": 17.91890963234452,
+        "source_rule_count": 2,
+        "source_rule_ids": [
+          "283",
+          "1832"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 5,
+        "install_entry_id": "p4-48",
+        "shape": "protocol+src_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "src_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 80
+        },
+        "packets_covered": 5368,
+        "percentage_of_parser_eligible": 15.370518840911693,
+        "source_rule_count": 3,
+        "source_rule_ids": [
+          "311",
+          "42225",
+          "42398"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 6,
+        "install_entry_id": "p4-182",
+        "shape": "protocol+src_ip+dst_port",
+        "match": {
+          "protocol": 17,
+          "src_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 53
+        },
+        "packets_covered": 2669,
+        "percentage_of_parser_eligible": 7.6423090138586645,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "23492"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 7,
+        "install_entry_id": "p4-229",
+        "shape": "protocol+dst_ip+tcp_flags",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "tcp_flags": {
+            "value": 17,
+            "mask": 255
+          }
+        },
+        "packets_covered": 517,
+        "percentage_of_parser_eligible": 1.4803573473828886,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "45983"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 8,
+        "install_entry_id": "p4-103",
+        "shape": "protocol+src_ip+src_port",
+        "match": {
+          "protocol": 6,
+          "src_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 22
+        },
+        "packets_covered": 88,
+        "percentage_of_parser_eligible": 0.25197571870347035,
+        "source_rule_count": 2,
+        "source_rule_ids": [
+          "1810",
+          "1811"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 9,
+        "install_entry_id": "p4-105",
+        "shape": "protocol+dst_ip+src_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 22
+        },
+        "packets_covered": 88,
+        "percentage_of_parser_eligible": 0.25197571870347035,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "1838"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 10,
+        "install_entry_id": "p4-87",
+        "shape": "protocol+dst_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 22
+        },
+        "packets_covered": 88,
+        "percentage_of_parser_eligible": 0.25197571870347035,
+        "source_rule_count": 6,
+        "source_rule_ids": [
+          "1324",
+          "1325",
+          "1326",
+          "1327",
+          "1638",
+          "1812"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 11,
+        "install_entry_id": "p4-42",
+        "shape": "protocol+dst_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 139
+        },
+        "packets_covered": 52,
+        "percentage_of_parser_eligible": 0.1488947428702325,
+        "source_rule_count": 41,
+        "source_rule_ids": [
+          "292",
+          "530",
+          "534",
+          "535",
+          "676",
+          "677",
+          "678",
+          "679",
+          "681",
+          "689",
+          "692",
+          "694",
+          "695",
+          "1239",
+          "1295",
+          "1386",
+          "2101",
+          "2103",
+          "2177",
+          "2401",
+          "2403",
+          "3018",
+          "3019",
+          "3020",
+          "3021",
+          "3026",
+          "3027",
+          "3028",
+          "3029",
+          "3034",
+          "3035",
+          "3036",
+          "3037",
+          "3042",
+          "3043",
+          "3044",
+          "3045",
+          "3050",
+          "3051",
+          "3052",
+          "3053"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 12,
+        "install_entry_id": "p4-71",
+        "shape": "protocol+dst_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 80
+        },
+        "packets_covered": 50,
+        "percentage_of_parser_eligible": 0.14316802199060816,
+        "source_rule_count": 3,
+        "source_rule_ids": [
+          "619",
+          "2489",
+          "2490"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 13,
+        "install_entry_id": "p4-72",
+        "shape": "protocol+dst_ip+tcp_flags",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "tcp_flags": {
+            "value": 2,
+            "mask": 255
+          }
+        },
+        "packets_covered": 39,
+        "percentage_of_parser_eligible": 0.11167105715267438,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "622"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 14,
+        "install_entry_id": "p4-100",
+        "shape": "protocol+dst_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 445
+        },
+        "packets_covered": 37,
+        "percentage_of_parser_eligible": 0.10594433627305005,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "1759"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 15,
+        "install_entry_id": "p4-223",
+        "shape": "protocol+dst_ip+src_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 445
+        },
+        "packets_covered": 30,
+        "percentage_of_parser_eligible": 0.0859008131943649,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "41499"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 16,
+        "install_entry_id": "p4-134",
+        "shape": "protocol+dst_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 135
+        },
+        "packets_covered": 28,
+        "percentage_of_parser_eligible": 0.08017409231474057,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "2190"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 17,
+        "install_entry_id": "p4-159",
+        "shape": "protocol+src_ip+src_port",
+        "match": {
+          "protocol": 6,
+          "src_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 139
+        },
+        "packets_covered": 28,
+        "percentage_of_parser_eligible": 0.08017409231474057,
+        "source_rule_count": 3,
+        "source_rule_ids": [
+          "2923",
+          "3143",
+          "3144"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 18,
+        "install_entry_id": "p4-222",
+        "shape": "protocol+dst_ip+src_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 139
+        },
+        "packets_covered": 28,
+        "percentage_of_parser_eligible": 0.08017409231474057,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "41499"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 19,
+        "install_entry_id": "p4-213",
+        "shape": "protocol+dst_ip+tcp_flags",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "tcp_flags": {
+            "value": 4,
+            "mask": 255
+          }
+        },
+        "packets_covered": 26,
+        "percentage_of_parser_eligible": 0.07444737143511625,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "40063"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 20,
+        "install_entry_id": "p4-158",
+        "shape": "dst_ip+src_port",
+        "match": {
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 8080
+        },
+        "packets_covered": 10,
+        "percentage_of_parser_eligible": 0.028633604398121633,
+        "source_rule_count": 4,
+        "source_rule_ids": [
+          "2589",
+          "58615",
+          "58616",
+          "58617"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      }
+    ],
+    "greedy_cover": {
+      "selected_entries": [
+        {
+          "rank": 1,
+          "install_entry_id": "p4-47",
+          "match": {
+            "protocol": 6,
+            "dst_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "tcp_flags": {
+              "value": 16,
+              "mask": 16
+            }
+          },
+          "newly_covered_packets": 16346,
+          "cumulative_covered_packets": 16346,
+          "cumulative_coverage_percentage": 46.804489749169626,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "309"
+          ]
+        },
+        {
+          "rank": 2,
+          "install_entry_id": "p4-208",
+          "match": {
+            "protocol": 6,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 443
+          },
+          "newly_covered_packets": 7776,
+          "cumulative_covered_packets": 24122,
+          "cumulative_coverage_percentage": 69.069980529149,
+          "source_rule_count": 8,
+          "source_rule_ids": [
+            "34366",
+            "42225",
+            "42398",
+            "46137",
+            "47556",
+            "47557",
+            "47567",
+            "49664"
+          ]
+        },
+        {
+          "rank": 3,
+          "install_entry_id": "p4-48",
+          "match": {
+            "protocol": 6,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 80
+          },
+          "newly_covered_packets": 5368,
+          "cumulative_covered_packets": 29490,
+          "cumulative_coverage_percentage": 84.4404993700607,
+          "source_rule_count": 3,
+          "source_rule_ids": [
+            "311",
+            "42225",
+            "42398"
+          ]
+        },
+        {
+          "rank": 4,
+          "install_entry_id": "p4-182",
+          "match": {
+            "protocol": 17,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 53
+          },
+          "newly_covered_packets": 2669,
+          "cumulative_covered_packets": 32159,
+          "cumulative_coverage_percentage": 92.08280838391937,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "23492"
+          ]
+        },
+        {
+          "rank": 5,
+          "install_entry_id": "p4-72",
+          "match": {
+            "protocol": 6,
+            "dst_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "tcp_flags": {
+              "value": 2,
+              "mask": 255
+            }
+          },
+          "newly_covered_packets": 39,
+          "cumulative_covered_packets": 32198,
+          "cumulative_coverage_percentage": 92.19447944107205,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "622"
+          ]
+        },
+        {
+          "rank": 6,
+          "install_entry_id": "p4-213",
+          "match": {
+            "protocol": 6,
+            "dst_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "tcp_flags": {
+              "value": 4,
+              "mask": 255
+            }
+          },
+          "newly_covered_packets": 26,
+          "cumulative_covered_packets": 32224,
+          "cumulative_coverage_percentage": 92.26892681250716,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "40063"
+          ]
+        },
+        {
+          "rank": 7,
+          "install_entry_id": "p4-198",
+          "match": {
+            "protocol": 6,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 8080
+          },
+          "newly_covered_packets": 10,
+          "cumulative_covered_packets": 32234,
+          "cumulative_coverage_percentage": 92.29756041690528,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "32674"
+          ]
+        }
+      ],
+      "entries_for_50_percent": 2,
+      "entries_for_90_percent": 4,
+      "entries_for_95_percent": null,
+      "entries_for_99_percent": null,
+      "entries_for_100_percent": null,
+      "final_coverage_percentage": 92.29756041690528
+    },
+    "known_result_validation": null,
+    "simulation_reproduction": {
+      "status": "VALID",
+      "expected": {
+        "parser_eligible": 34924,
+        "candidate": 32234,
+        "no_match": 2690
+      },
+      "actual": {
+        "parser_eligible": 34924,
+        "candidate": 32234,
+        "no_match": 2690
+      },
+      "differences": {}
+    },
+    "greedy_summary": {
+      "entries_for_50_percent": 2,
+      "entries_for_90_percent": 4,
+      "entries_for_95_percent": null,
+      "entries_for_99_percent": null,
+      "entries_for_100_percent": null,
+      "final_coverage_percentage": 92.29756041690528,
+      "first_10_selected_entries": [
+        {
+          "rank": 1,
+          "install_entry_id": "p4-47",
+          "match": {
+            "protocol": 6,
+            "dst_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "tcp_flags": {
+              "value": 16,
+              "mask": 16
+            }
+          },
+          "newly_covered_packets": 16346,
+          "cumulative_covered_packets": 16346,
+          "cumulative_coverage_percentage": 46.804489749169626,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "309"
+          ]
+        },
+        {
+          "rank": 2,
+          "install_entry_id": "p4-208",
+          "match": {
+            "protocol": 6,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 443
+          },
+          "newly_covered_packets": 7776,
+          "cumulative_covered_packets": 24122,
+          "cumulative_coverage_percentage": 69.069980529149,
+          "source_rule_count": 8,
+          "source_rule_ids": [
+            "34366",
+            "42225",
+            "42398",
+            "46137",
+            "47556",
+            "47557",
+            "47567",
+            "49664"
+          ]
+        },
+        {
+          "rank": 3,
+          "install_entry_id": "p4-48",
+          "match": {
+            "protocol": 6,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 80
+          },
+          "newly_covered_packets": 5368,
+          "cumulative_covered_packets": 29490,
+          "cumulative_coverage_percentage": 84.4404993700607,
+          "source_rule_count": 3,
+          "source_rule_ids": [
+            "311",
+            "42225",
+            "42398"
+          ]
+        },
+        {
+          "rank": 4,
+          "install_entry_id": "p4-182",
+          "match": {
+            "protocol": 17,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 53
+          },
+          "newly_covered_packets": 2669,
+          "cumulative_covered_packets": 32159,
+          "cumulative_coverage_percentage": 92.08280838391937,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "23492"
+          ]
+        },
+        {
+          "rank": 5,
+          "install_entry_id": "p4-72",
+          "match": {
+            "protocol": 6,
+            "dst_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "tcp_flags": {
+              "value": 2,
+              "mask": 255
+            }
+          },
+          "newly_covered_packets": 39,
+          "cumulative_covered_packets": 32198,
+          "cumulative_coverage_percentage": 92.19447944107205,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "622"
+          ]
+        },
+        {
+          "rank": 6,
+          "install_entry_id": "p4-213",
+          "match": {
+            "protocol": 6,
+            "dst_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "tcp_flags": {
+              "value": 4,
+              "mask": 255
+            }
+          },
+          "newly_covered_packets": 26,
+          "cumulative_covered_packets": 32224,
+          "cumulative_coverage_percentage": 92.26892681250716,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "40063"
+          ]
+        },
+        {
+          "rank": 7,
+          "install_entry_id": "p4-198",
+          "match": {
+            "protocol": 6,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 8080
+          },
+          "newly_covered_packets": 10,
+          "cumulative_covered_packets": 32234,
+          "cumulative_coverage_percentage": 92.29756041690528,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "32674"
+          ]
+        }
+      ]
+    },
+    "residual_pattern": {
+      "category": "BELOW_99_PERCENT_FINAL_UNION",
+      "reason": "The retained union reaches only 92.297560% of parser-eligible packets."
+    }
+  },
+  "xss": {
+    "pcap": "/mnt/c/Users/amede/datasets/cicids2017/windows/thursday_web_xss.pcap",
+    "total_packets": 191848,
+    "parser_eligible": 189076,
+    "parser_ineligible": 2772,
+    "parser_ineligible_reasons": {
+      "ethertype_0x01bb": 179,
+      "ethertype_0x01bc": 110,
+      "ethertype_0x0806": 1660,
+      "ethertype_0x86dd": 820,
+      "ethertype_0x88cc": 3
+    },
+    "protocol_counts": {
+      "1:ICMP": 7,
+      "6:TCP": 167408,
+      "17:UDP": 21661
+    },
+    "candidate": 174277,
+    "no_match": 14799,
+    "candidate_percentage_of_parser_eligible": 92.17298863948888,
+    "no_match_percentage_of_parser_eligible": 7.827011360511118,
+    "matching_entries_per_packet": {
+      "average": 1.1909285155175697,
+      "median": 1.0,
+      "p90": 3,
+      "p95": 3,
+      "p99": 3,
+      "maximum": 5,
+      "minimum": 0
+    },
+    "top_entries": [
+      {
+        "rank": 1,
+        "install_entry_id": "p4-47",
+        "shape": "protocol+dst_ip+tcp_flags",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "tcp_flags": {
+            "value": 16,
+            "mask": 16
+          }
+        },
+        "packets_covered": 92401,
+        "percentage_of_parser_eligible": 48.86976665467854,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "309"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 2,
+        "install_entry_id": "p4-208",
+        "shape": "protocol+src_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "src_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 443
+        },
+        "packets_covered": 55027,
+        "percentage_of_parser_eligible": 29.10311197613658,
+        "source_rule_count": 8,
+        "source_rule_ids": [
+          "34366",
+          "42225",
+          "42398",
+          "46137",
+          "47556",
+          "47557",
+          "47567",
+          "49664"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 3,
+        "install_entry_id": "p4-157",
+        "shape": "dst_ip+src_port",
+        "match": {
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 80
+        },
+        "packets_covered": 16294,
+        "percentage_of_parser_eligible": 8.61769870316698,
+        "source_rule_count": 4,
+        "source_rule_ids": [
+          "2589",
+          "58615",
+          "58616",
+          "58617"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 4,
+        "install_entry_id": "p4-41",
+        "shape": "protocol+dst_ip+src_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 80
+        },
+        "packets_covered": 16294,
+        "percentage_of_parser_eligible": 8.61769870316698,
+        "source_rule_count": 2,
+        "source_rule_ids": [
+          "283",
+          "1832"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 5,
+        "install_entry_id": "p4-48",
+        "shape": "protocol+src_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "src_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 80
+        },
+        "packets_covered": 15521,
+        "percentage_of_parser_eligible": 8.208868391546256,
+        "source_rule_count": 3,
+        "source_rule_ids": [
+          "311",
+          "42225",
+          "42398"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 6,
+        "install_entry_id": "p4-182",
+        "shape": "protocol+src_ip+dst_port",
+        "match": {
+          "protocol": 17,
+          "src_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 53
+        },
+        "packets_covered": 10353,
+        "percentage_of_parser_eligible": 5.47557595887368,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "23492"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 7,
+        "install_entry_id": "p4-71",
+        "shape": "protocol+dst_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 80
+        },
+        "packets_covered": 6194,
+        "percentage_of_parser_eligible": 3.275931371511984,
+        "source_rule_count": 3,
+        "source_rule_ids": [
+          "619",
+          "2489",
+          "2490"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 8,
+        "install_entry_id": "p4-229",
+        "shape": "protocol+dst_ip+tcp_flags",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "tcp_flags": {
+            "value": 17,
+            "mask": 255
+          }
+        },
+        "packets_covered": 3637,
+        "percentage_of_parser_eligible": 1.9235651272504177,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "45983"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 9,
+        "install_entry_id": "p4-103",
+        "shape": "protocol+src_ip+src_port",
+        "match": {
+          "protocol": 6,
+          "src_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 22
+        },
+        "packets_covered": 2412,
+        "percentage_of_parser_eligible": 1.2756775053417673,
+        "source_rule_count": 2,
+        "source_rule_ids": [
+          "1810",
+          "1811"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 10,
+        "install_entry_id": "p4-105",
+        "shape": "protocol+dst_ip+src_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 22
+        },
+        "packets_covered": 2412,
+        "percentage_of_parser_eligible": 1.2756775053417673,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "1838"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 11,
+        "install_entry_id": "p4-87",
+        "shape": "protocol+dst_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 22
+        },
+        "packets_covered": 2288,
+        "percentage_of_parser_eligible": 1.2100954113689733,
+        "source_rule_count": 6,
+        "source_rule_ids": [
+          "1324",
+          "1325",
+          "1326",
+          "1327",
+          "1638",
+          "1812"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 12,
+        "install_entry_id": "p4-72",
+        "shape": "protocol+dst_ip+tcp_flags",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "tcp_flags": {
+            "value": 2,
+            "mask": 255
+          }
+        },
+        "packets_covered": 863,
+        "percentage_of_parser_eligible": 0.45643021853646154,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "622"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 13,
+        "install_entry_id": "p4-42",
+        "shape": "protocol+dst_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 139
+        },
+        "packets_covered": 312,
+        "percentage_of_parser_eligible": 0.16501301064122365,
+        "source_rule_count": 41,
+        "source_rule_ids": [
+          "292",
+          "530",
+          "534",
+          "535",
+          "676",
+          "677",
+          "678",
+          "679",
+          "681",
+          "689",
+          "692",
+          "694",
+          "695",
+          "1239",
+          "1295",
+          "1386",
+          "2101",
+          "2103",
+          "2177",
+          "2401",
+          "2403",
+          "3018",
+          "3019",
+          "3020",
+          "3021",
+          "3026",
+          "3027",
+          "3028",
+          "3029",
+          "3034",
+          "3035",
+          "3036",
+          "3037",
+          "3042",
+          "3043",
+          "3044",
+          "3045",
+          "3050",
+          "3051",
+          "3052",
+          "3053"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 14,
+        "install_entry_id": "p4-100",
+        "shape": "protocol+dst_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 445
+        },
+        "packets_covered": 303,
+        "percentage_of_parser_eligible": 0.16025301994964988,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "1759"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 15,
+        "install_entry_id": "p4-223",
+        "shape": "protocol+dst_ip+src_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 445
+        },
+        "packets_covered": 250,
+        "percentage_of_parser_eligible": 0.13222196365482664,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "41499"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 16,
+        "install_entry_id": "p4-159",
+        "shape": "protocol+src_ip+src_port",
+        "match": {
+          "protocol": 6,
+          "src_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 139
+        },
+        "packets_covered": 168,
+        "percentage_of_parser_eligible": 0.08885315957604349,
+        "source_rule_count": 3,
+        "source_rule_ids": [
+          "2923",
+          "3143",
+          "3144"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 17,
+        "install_entry_id": "p4-222",
+        "shape": "protocol+dst_ip+src_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "src_port": 139
+        },
+        "packets_covered": 168,
+        "percentage_of_parser_eligible": 0.08885315957604349,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "41499"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 18,
+        "install_entry_id": "p4-213",
+        "shape": "protocol+dst_ip+tcp_flags",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "tcp_flags": {
+            "value": 4,
+            "mask": 255
+          }
+        },
+        "packets_covered": 112,
+        "percentage_of_parser_eligible": 0.05923543971736233,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "40063"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 19,
+        "install_entry_id": "p4-104",
+        "shape": "protocol+dst_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 2533
+        },
+        "packets_covered": 91,
+        "percentage_of_parser_eligible": 0.04812879477035689,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "1819"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      },
+      {
+        "rank": 20,
+        "install_entry_id": "p4-43",
+        "shape": "protocol+dst_ip+dst_port",
+        "match": {
+          "protocol": 6,
+          "dst_ip": {
+            "value": "192.168.10.0",
+            "prefix_len": 24
+          },
+          "dst_port": 2766
+        },
+        "packets_covered": 17,
+        "percentage_of_parser_eligible": 0.008991093528528211,
+        "source_rule_count": 1,
+        "source_rule_ids": [
+          "300"
+        ],
+        "semantic_classes": [
+          "NECESSARY"
+        ]
+      }
+    ],
+    "greedy_cover": {
+      "selected_entries": [
+        {
+          "rank": 1,
+          "install_entry_id": "p4-47",
+          "match": {
+            "protocol": 6,
+            "dst_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "tcp_flags": {
+              "value": 16,
+              "mask": 16
+            }
+          },
+          "newly_covered_packets": 92401,
+          "cumulative_covered_packets": 92401,
+          "cumulative_coverage_percentage": 48.86976665467854,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "309"
+          ]
+        },
+        {
+          "rank": 2,
+          "install_entry_id": "p4-208",
+          "match": {
+            "protocol": 6,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 443
+          },
+          "newly_covered_packets": 55027,
+          "cumulative_covered_packets": 147428,
+          "cumulative_coverage_percentage": 77.97287863081512,
+          "source_rule_count": 8,
+          "source_rule_ids": [
+            "34366",
+            "42225",
+            "42398",
+            "46137",
+            "47556",
+            "47557",
+            "47567",
+            "49664"
+          ]
+        },
+        {
+          "rank": 3,
+          "install_entry_id": "p4-48",
+          "match": {
+            "protocol": 6,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 80
+          },
+          "newly_covered_packets": 15521,
+          "cumulative_covered_packets": 162949,
+          "cumulative_coverage_percentage": 86.18174702236138,
+          "source_rule_count": 3,
+          "source_rule_ids": [
+            "311",
+            "42225",
+            "42398"
+          ]
+        },
+        {
+          "rank": 4,
+          "install_entry_id": "p4-182",
+          "match": {
+            "protocol": 17,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 53
+          },
+          "newly_covered_packets": 10353,
+          "cumulative_covered_packets": 173302,
+          "cumulative_coverage_percentage": 91.65732298123505,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "23492"
+          ]
+        },
+        {
+          "rank": 5,
+          "install_entry_id": "p4-72",
+          "match": {
+            "protocol": 6,
+            "dst_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "tcp_flags": {
+              "value": 2,
+              "mask": 255
+            }
+          },
+          "newly_covered_packets": 863,
+          "cumulative_covered_packets": 174165,
+          "cumulative_coverage_percentage": 92.11375319977152,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "622"
+          ]
+        },
+        {
+          "rank": 6,
+          "install_entry_id": "p4-213",
+          "match": {
+            "protocol": 6,
+            "dst_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "tcp_flags": {
+              "value": 4,
+              "mask": 255
+            }
+          },
+          "newly_covered_packets": 112,
+          "cumulative_covered_packets": 174277,
+          "cumulative_coverage_percentage": 92.17298863948888,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "40063"
+          ]
+        }
+      ],
+      "entries_for_50_percent": 2,
+      "entries_for_90_percent": 4,
+      "entries_for_95_percent": null,
+      "entries_for_99_percent": null,
+      "entries_for_100_percent": null,
+      "final_coverage_percentage": 92.17298863948888
+    },
+    "known_result_validation": null,
+    "simulation_reproduction": {
+      "status": "VALID",
+      "expected": {
+        "parser_eligible": 189076,
+        "candidate": 174277,
+        "no_match": 14799
+      },
+      "actual": {
+        "parser_eligible": 189076,
+        "candidate": 174277,
+        "no_match": 14799
+      },
+      "differences": {}
+    },
+    "greedy_summary": {
+      "entries_for_50_percent": 2,
+      "entries_for_90_percent": 4,
+      "entries_for_95_percent": null,
+      "entries_for_99_percent": null,
+      "entries_for_100_percent": null,
+      "final_coverage_percentage": 92.17298863948888,
+      "first_10_selected_entries": [
+        {
+          "rank": 1,
+          "install_entry_id": "p4-47",
+          "match": {
+            "protocol": 6,
+            "dst_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "tcp_flags": {
+              "value": 16,
+              "mask": 16
+            }
+          },
+          "newly_covered_packets": 92401,
+          "cumulative_covered_packets": 92401,
+          "cumulative_coverage_percentage": 48.86976665467854,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "309"
+          ]
+        },
+        {
+          "rank": 2,
+          "install_entry_id": "p4-208",
+          "match": {
+            "protocol": 6,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 443
+          },
+          "newly_covered_packets": 55027,
+          "cumulative_covered_packets": 147428,
+          "cumulative_coverage_percentage": 77.97287863081512,
+          "source_rule_count": 8,
+          "source_rule_ids": [
+            "34366",
+            "42225",
+            "42398",
+            "46137",
+            "47556",
+            "47557",
+            "47567",
+            "49664"
+          ]
+        },
+        {
+          "rank": 3,
+          "install_entry_id": "p4-48",
+          "match": {
+            "protocol": 6,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 80
+          },
+          "newly_covered_packets": 15521,
+          "cumulative_covered_packets": 162949,
+          "cumulative_coverage_percentage": 86.18174702236138,
+          "source_rule_count": 3,
+          "source_rule_ids": [
+            "311",
+            "42225",
+            "42398"
+          ]
+        },
+        {
+          "rank": 4,
+          "install_entry_id": "p4-182",
+          "match": {
+            "protocol": 17,
+            "src_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "dst_port": 53
+          },
+          "newly_covered_packets": 10353,
+          "cumulative_covered_packets": 173302,
+          "cumulative_coverage_percentage": 91.65732298123505,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "23492"
+          ]
+        },
+        {
+          "rank": 5,
+          "install_entry_id": "p4-72",
+          "match": {
+            "protocol": 6,
+            "dst_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "tcp_flags": {
+              "value": 2,
+              "mask": 255
+            }
+          },
+          "newly_covered_packets": 863,
+          "cumulative_covered_packets": 174165,
+          "cumulative_coverage_percentage": 92.11375319977152,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "622"
+          ]
+        },
+        {
+          "rank": 6,
+          "install_entry_id": "p4-213",
+          "match": {
+            "protocol": 6,
+            "dst_ip": {
+              "value": "192.168.10.0",
+              "prefix_len": 24
+            },
+            "tcp_flags": {
+              "value": 4,
+              "mask": 255
+            }
+          },
+          "newly_covered_packets": 112,
+          "cumulative_covered_packets": 174277,
+          "cumulative_coverage_percentage": 92.17298863948888,
+          "source_rule_count": 1,
+          "source_rule_ids": [
+            "40063"
+          ]
+        }
+      ]
+    },
+    "residual_pattern": {
+      "category": "BELOW_99_PERCENT_FINAL_UNION",
+      "reason": "The retained union reaches only 92.172989% of parser-eligible packets."
+    }
+  },
+  "interpretation_rule": {
+    "few_remaining_entries_dominate": "entries_for_99_percent <= 5",
+    "small_residual_set_dominates": "6 <= entries_for_99_percent <= 20",
+    "distributed_union_coverage": "entries_for_99_percent > 20",
+    "below_99_percent_final_union": "the retained union never reaches 99%"
+  },
+  "next_step": "Use the residual coverage structure to decide whether another structural policy refinement is justified or whether the binary global P4_CANDIDATE abstraction itself is the main selectivity limitation. Do not execute Brute Force or modify the compiler yet."
+}

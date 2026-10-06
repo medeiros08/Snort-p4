@@ -14,8 +14,18 @@ Purpose:
 
 Output:
   output/analysis/residual_selectivity_audit.json
+
+Semantics. The frozen output above is the legacy strong plan (331 -> 322
+entries). Since 2026-10-05 the root of output/ is the snort3 compilation, so
+--semantica legacy reads the archived entries and --semantica snort3 (235 ->
+225 entries) writes residual_selectivity_audit_snort3.json:
+
+  python tests/analyze_residual_selectivity.py --semantica legacy
+  python tests/analyze_residual_selectivity.py --semantica snort3 \
+      --sqli .../thursday_web_sqli.pcap --xss .../thursday_web_xss.pcap
 """
 
+import argparse
 import json
 from pathlib import Path
 
@@ -23,25 +33,32 @@ import analyze_prefilter_selectivity as aps
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-ENTRIES_FILE = PROJECT_ROOT / "output" / "p4_install_entries.json"
-SIMULATION_FILE = PROJECT_ROOT / "output" / "analysis" / "operational_policy_simulation.json"
-OUTPUT_FILE = PROJECT_ROOT / "output" / "analysis" / "residual_selectivity_audit.json"
-
-SQLI_PCAP = Path("/home/arthur/datasets/cicids2017/windows/thursday_web_sqli.pcap")
-XSS_PCAP = Path("/home/arthur/datasets/cicids2017/windows/thursday_web_xss.pcap")
-
-EXPECTED = {
-    "sql_injection": {
-        "parser_eligible": 34924,
-        "candidate": 34580,
-        "no_match": 344,
+ANALYSIS = PROJECT_ROOT / "output" / "analysis"
+SOURCES = {
+    "legacy": {
+        "entries": PROJECT_ROOT / "output" / "historical" / "legacy_header_semantics" / "p4_install_entries.json",
+        "simulation": ANALYSIS / "operational_policy_simulation.json",
+        "output": ANALYSIS / "residual_selectivity_audit.json",
+        "expected": {
+            "sql_injection": {"parser_eligible": 34924, "candidate": 34580, "no_match": 344},
+            "xss": {"parser_eligible": 189076, "candidate": 186938, "no_match": 2138},
+        },
     },
-    "xss": {
-        "parser_eligible": 189076,
-        "candidate": 186938,
-        "no_match": 2138,
+    "snort3": {
+        "entries": PROJECT_ROOT / "output" / "p4_install_entries.json",
+        "simulation": ANALYSIS / "operational_policy_simulation_snort3.json",
+        "output": ANALYSIS / "residual_selectivity_audit_snort3.json",
+        "expected": {
+            "sql_injection": {"parser_eligible": 34924, "candidate": 32234, "no_match": 2690},
+            "xss": {"parser_eligible": 189076, "candidate": 174277, "no_match": 14799},
+        },
     },
 }
+
+DEFAULT_SQLI_PCAP = Path("/home/arthur/datasets/cicids2017/windows/thursday_web_sqli.pcap")
+DEFAULT_XSS_PCAP = Path("/home/arthur/datasets/cicids2017/windows/thursday_web_xss.pcap")
+
+EXPECTED = SOURCES["legacy"]["expected"]
 
 
 def load_json(path):
@@ -148,6 +165,17 @@ def print_top(label, report):
 
 
 def main():
+    global EXPECTED
+    parser = argparse.ArgumentParser(description="Residual selectivity audit for the strong_discriminator policy.")
+    parser.add_argument("--semantica", choices=sorted(SOURCES), default="snort3")
+    parser.add_argument("--sqli", type=Path, default=DEFAULT_SQLI_PCAP)
+    parser.add_argument("--xss", type=Path, default=DEFAULT_XSS_PCAP)
+    args = parser.parse_args()
+    source = SOURCES[args.semantica]
+    ENTRIES_FILE, SIMULATION_FILE, OUTPUT_FILE = source["entries"], source["simulation"], source["output"]
+    SQLI_PCAP, XSS_PCAP = args.sqli, args.xss
+    EXPECTED = source["expected"]
+
     for path in (ENTRIES_FILE, SIMULATION_FILE, SQLI_PCAP, XSS_PCAP):
         if not path.exists():
             raise SystemExit(f"ERROR: required file not found: {path}")

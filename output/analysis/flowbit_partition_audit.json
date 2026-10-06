@@ -1,0 +1,241 @@
+{
+  "analise": "flowbit_partition_audit",
+  "gerado_em": "2026-10-06T18:02:51+00:00",
+  "gerador": "tests/audit_flowbit_partition.py",
+  "semanticas": {
+    "legacy": {
+      "semantica": {
+        "partition": {
+          "candidate": 4003,
+          "unsupported": 14
+        },
+        "flowbit_edges": {
+          "candidate_to_candidate": 636,
+          "candidate_to_unsupported": 0,
+          "unsupported_to_candidate": 0,
+          "unsupported_to_unsupported": 0,
+          "cross_partition": 0
+        },
+        "cross_partition_edges": [],
+        "status": "SAFE_FOR_INDEPENDENT_RULESET_SPLIT"
+      },
+      "strong": {
+        "partition": {
+          "eligible": 3611,
+          "fallback": 406
+        },
+        "flowbit_edges": {
+          "eligible_to_eligible": 636,
+          "eligible_to_fallback": 0,
+          "fallback_to_eligible": 0,
+          "fallback_to_fallback": 0,
+          "cross_partition": 0
+        },
+        "cross_partition_edges": [],
+        "status": "SAFE_FOR_INDEPENDENT_RULESET_SPLIT"
+      }
+    },
+    "snort3": {
+      "semantica": {
+        "partition": {
+          "candidate": 3996,
+          "unsupported": 21
+        },
+        "flowbit_edges": {
+          "candidate_to_candidate": 636,
+          "candidate_to_unsupported": 0,
+          "unsupported_to_candidate": 0,
+          "unsupported_to_unsupported": 0,
+          "cross_partition": 0
+        },
+        "cross_partition_edges": [],
+        "status": "SAFE_FOR_INDEPENDENT_RULESET_SPLIT"
+      },
+      "strong": {
+        "partition": {
+          "eligible": 739,
+          "fallback": 3278
+        },
+        "flowbit_edges": {
+          "eligible_to_eligible": 9,
+          "eligible_to_fallback": 4,
+          "fallback_to_eligible": 20,
+          "fallback_to_fallback": 603,
+          "cross_partition": 24
+        },
+        "cross_partition_edges": [
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3135",
+            "lado_produtor": "fallback",
+            "consumidor": "3143",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3135",
+            "lado_produtor": "fallback",
+            "consumidor": "3144",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3136",
+            "lado_produtor": "fallback",
+            "consumidor": "3143",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3136",
+            "lado_produtor": "fallback",
+            "consumidor": "3144",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3137",
+            "lado_produtor": "fallback",
+            "consumidor": "3143",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3137",
+            "lado_produtor": "fallback",
+            "consumidor": "3144",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3138",
+            "lado_produtor": "fallback",
+            "consumidor": "3143",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3138",
+            "lado_produtor": "fallback",
+            "consumidor": "3144",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3139",
+            "lado_produtor": "fallback",
+            "consumidor": "3143",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3139",
+            "lado_produtor": "fallback",
+            "consumidor": "3144",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3140",
+            "lado_produtor": "fallback",
+            "consumidor": "3143",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3140",
+            "lado_produtor": "fallback",
+            "consumidor": "3144",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3141",
+            "lado_produtor": "fallback",
+            "consumidor": "3143",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3141",
+            "lado_produtor": "fallback",
+            "consumidor": "3144",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3142",
+            "lado_produtor": "fallback",
+            "consumidor": "3143",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3142",
+            "lado_produtor": "fallback",
+            "consumidor": "3144",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3143",
+            "lado_produtor": "eligible",
+            "consumidor": "3145",
+            "lado_consumidor": "fallback"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3143",
+            "lado_produtor": "eligible",
+            "consumidor": "3146",
+            "lado_consumidor": "fallback"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3144",
+            "lado_produtor": "eligible",
+            "consumidor": "3145",
+            "lado_consumidor": "fallback"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3144",
+            "lado_produtor": "eligible",
+            "consumidor": "3146",
+            "lado_consumidor": "fallback"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3145",
+            "lado_produtor": "fallback",
+            "consumidor": "3143",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3145",
+            "lado_produtor": "fallback",
+            "consumidor": "3144",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3146",
+            "lado_produtor": "fallback",
+            "consumidor": "3143",
+            "lado_consumidor": "eligible"
+          },
+          {
+            "variavel": "smb.trans2",
+            "produtor": "3146",
+            "lado_produtor": "fallback",
+            "consumidor": "3144",
+            "lado_consumidor": "eligible"
+          }
+        ],
+        "status": "CROSS_PARTITION_DEPENDENCY"
+      }
+    }
+  },
+  "legacy_reproduz_congelados": true
+}
