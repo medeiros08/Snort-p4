@@ -1,0 +1,2908 @@
+{
+  "analise": "manuscript_number_audit",
+  "gerado_em": "2026-10-06T19:04:42+00:00",
+  "gerador": "tests/check_manuscript_numbers.py",
+  "fatos": [
+    {
+      "nome": "snort3.EXACT",
+      "valor": 0,
+      "fonte": "output\\semantic_manifest.json"
+    },
+    {
+      "nome": "snort3.NECESSARY",
+      "valor": 3996,
+      "fonte": "output\\semantic_manifest.json"
+    },
+    {
+      "nome": "snort3.UNSUPPORTED",
+      "valor": 21,
+      "fonte": "output\\semantic_manifest.json"
+    },
+    {
+      "nome": "snort3.cobertura_pct",
+      "valor": 99.4772218073189,
+      "fonte": "output\\semantic_manifest.json"
+    },
+    {
+      "nome": "snort3.regras",
+      "valor": 4017,
+      "fonte": "output\\semantic_manifest.json"
+    },
+    {
+      "nome": "snort3.predicados.preserved",
+      "valor": 14866,
+      "fonte": "output\\semantic_manifest.json"
+    },
+    {
+      "nome": "snort3.predicados.delegated",
+      "valor": 29411,
+      "fonte": "output\\semantic_manifest.json"
+    },
+    {
+      "nome": "snort3.predicados.expanded",
+      "valor": 323,
+      "fonte": "output\\semantic_manifest.json"
+    },
+    {
+      "nome": "snort3.predicados.fallback",
+      "valor": 65,
+      "fonte": "output\\semantic_manifest.json"
+    },
+    {
+      "nome": "snort3.predicados.unassessed",
+      "valor": 0,
+      "fonte": "output\\semantic_manifest.json"
+    },
+    {
+      "nome": "snort3.fonte",
+      "valor": 4040,
+      "fonte": "output\\p4_install_entries.json"
+    },
+    {
+      "nome": "snort3.unicas",
+      "valor": 231,
+      "fonte": "output\\p4_install_entries.json"
+    },
+    {
+      "nome": "snort3.finais",
+      "valor": 235,
+      "fonte": "output\\p4_install_entries.json"
+    },
+    {
+      "nome": "snort3.isr_pct",
+      "valor": 94.18316831683168,
+      "fonte": "output\\p4_install_entries.json"
+    },
+    {
+      "nome": "snort3.max_por_entrada",
+      "valor": 2043,
+      "fonte": "output\\p4_install_entries.json"
+    },
+    {
+      "nome": "snort3.flag_extra",
+      "valor": 4,
+      "fonte": "output\\p4_install_entries.json"
+    },
+    {
+      "nome": "snort3.flag_grupos",
+      "valor": 2,
+      "fonte": "output\\p4_install_entries.json"
+    },
+    {
+      "nome": "legacy.EXACT",
+      "valor": 0,
+      "fonte": "output\\historical\\legacy_header_semantics\\semantic_manifest.json"
+    },
+    {
+      "nome": "legacy.NECESSARY",
+      "valor": 4003,
+      "fonte": "output\\historical\\legacy_header_semantics\\semantic_manifest.json"
+    },
+    {
+      "nome": "legacy.UNSUPPORTED",
+      "valor": 14,
+      "fonte": "output\\historical\\legacy_header_semantics\\semantic_manifest.json"
+    },
+    {
+      "nome": "legacy.cobertura_pct",
+      "valor": 99.65148120487926,
+      "fonte": "output\\historical\\legacy_header_semantics\\semantic_manifest.json"
+    },
+    {
+      "nome": "legacy.regras",
+      "valor": 4017,
+      "fonte": "output\\historical\\legacy_header_semantics\\semantic_manifest.json"
+    },
+    {
+      "nome": "legacy.predicados.preserved",
+      "valor": 21300,
+      "fonte": "output\\historical\\legacy_header_semantics\\semantic_manifest.json"
+    },
+    {
+      "nome": "legacy.predicados.delegated",
+      "valor": 20621,
+      "fonte": "output\\historical\\legacy_header_semantics\\semantic_manifest.json"
+    },
+    {
+      "nome": "legacy.predicados.expanded",
+      "valor": 2662,
+      "fonte": "output\\historical\\legacy_header_semantics\\semantic_manifest.json"
+    },
+    {
+      "nome": "legacy.predicados.fallback",
+      "valor": 82,
+      "fonte": "output\\historical\\legacy_header_semantics\\semantic_manifest.json"
+    },
+    {
+      "nome": "legacy.predicados.unassessed",
+      "valor": 0,
+      "fonte": "output\\historical\\legacy_header_semantics\\semantic_manifest.json"
+    },
+    {
+      "nome": "legacy.fonte",
+      "valor": 6675,
+      "fonte": "output\\historical\\legacy_header_semantics\\p4_install_entries.json"
+    },
+    {
+      "nome": "legacy.unicas",
+      "valor": 327,
+      "fonte": "output\\historical\\legacy_header_semantics\\p4_install_entries.json"
+    },
+    {
+      "nome": "legacy.finais",
+      "valor": 331,
+      "fonte": "output\\historical\\legacy_header_semantics\\p4_install_entries.json"
+    },
+    {
+      "nome": "legacy.isr_pct",
+      "valor": 95.04119850187266,
+      "fonte": "output\\historical\\legacy_header_semantics\\p4_install_entries.json"
+    },
+    {
+      "nome": "legacy.max_por_entrada",
+      "valor": 1228,
+      "fonte": "output\\historical\\legacy_header_semantics\\p4_install_entries.json"
+    },
+    {
+      "nome": "legacy.flag_extra",
+      "valor": 4,
+      "fonte": "output\\historical\\legacy_header_semantics\\p4_install_entries.json"
+    },
+    {
+      "nome": "legacy.flag_grupos",
+      "valor": 2,
+      "fonte": "output\\historical\\legacy_header_semantics\\p4_install_entries.json"
+    },
+    {
+      "nome": "capacidade",
+      "valor": 8192,
+      "fonte": "output\\backend_validation.json"
+    },
+    {
+      "nome": "snort3.strong.elegiveis",
+      "valor": 739,
+      "fonte": "output\\analysis\\operational_policy_simulation_snort3.json"
+    },
+    {
+      "nome": "snort3.strong.fallback_op",
+      "valor": 3257,
+      "fonte": "output\\analysis\\operational_policy_simulation_snort3.json"
+    },
+    {
+      "nome": "snort3.strong.fallback_total",
+      "valor": 3278,
+      "fonte": "output\\analysis\\operational_policy_simulation_snort3.json"
+    },
+    {
+      "nome": "snort3.strong.retidas",
+      "valor": 225,
+      "fonte": "output\\analysis\\operational_policy_simulation_snort3.json"
+    },
+    {
+      "nome": "snort3.strong.removidas",
+      "valor": 10,
+      "fonte": "output\\analysis\\operational_policy_simulation_snort3.json"
+    },
+    {
+      "nome": "snort3.teto_full_pct",
+      "valor": 18.39681354244461,
+      "fonte": "output\\analysis\\operational_policy_simulation_snort3.json"
+    },
+    {
+      "nome": "legacy.strong.elegiveis",
+      "valor": 3611,
+      "fonte": "output\\analysis\\operational_policy_simulation.json"
+    },
+    {
+      "nome": "legacy.strong.fallback_op",
+      "valor": 392,
+      "fonte": "output\\analysis\\operational_policy_simulation.json"
+    },
+    {
+      "nome": "legacy.strong.fallback_total",
+      "valor": 406,
+      "fonte": "output\\analysis\\operational_policy_simulation.json"
+    },
+    {
+      "nome": "legacy.strong.retidas",
+      "valor": 322,
+      "fonte": "output\\analysis\\operational_policy_simulation.json"
+    },
+    {
+      "nome": "legacy.strong.removidas",
+      "valor": 9,
+      "fonte": "output\\analysis\\operational_policy_simulation.json"
+    },
+    {
+      "nome": "legacy.teto_full_pct",
+      "valor": 89.89295494149863,
+      "fonte": "output\\analysis\\operational_policy_simulation.json"
+    },
+    {
+      "nome": "snort3.bruteforce.quadros",
+      "valor": 1108658,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.elegiveis",
+      "valor": 1101459,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.global_candidatos",
+      "valor": 1101459,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.strong_candidatos",
+      "valor": 1045116,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.strong_no_match",
+      "valor": 56343,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.fora_D",
+      "valor": 7199,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.strong_pct",
+      "valor": 94.88469384697933,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.strong_nomatch_pct",
+      "valor": 5.1153061530206685,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.cs.mean",
+      "valor": 4.484329421249452,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.cs.median",
+      "valor": 3,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.cs.p90",
+      "valor": 8,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.cs.p95",
+      "valor": 8,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.cs.p99",
+      "valor": 8,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.cs.max",
+      "valor": 293,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.cs.red",
+      "valor": 99.39318952351157,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.cs.red_full",
+      "valor": 18.28517975052901,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol.mean",
+      "valor": 590.4708282378191,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol.median",
+      "valor": 642,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol.red",
+      "valor": 20.09867006254139,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol.red_full",
+      "valor": 3.6975148559168725,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol_direction.mean",
+      "valor": 317.7723001945601,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol_direction.median",
+      "valor": 548,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol_direction.red",
+      "valor": 56.99968874227874,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol_direction.red_full",
+      "valor": 10.486126457690814,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol_direction_service.mean",
+      "valor": 7.516237100064551,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol_direction_service.median",
+      "valor": 7,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol_direction_service.red",
+      "valor": 98.98291784843511,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol_direction_service.red_full",
+      "valor": 18.20970283544773,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol_service.mean",
+      "valor": 8.894459984438821,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol_service.median",
+      "valor": 8,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol_service.red",
+      "valor": 98.79641948789731,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.bruteforce.grupo.protocol_service.red_full",
+      "valor": 18.175393079799875,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.quadros",
+      "valor": 35274,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.elegiveis",
+      "valor": 34924,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.global_candidatos",
+      "valor": 34924,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.strong_candidatos",
+      "valor": 32234,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.strong_no_match",
+      "valor": 2690,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.fora_D",
+      "valor": 350,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.strong_pct",
+      "valor": 92.29756041690528,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.strong_nomatch_pct",
+      "valor": 7.702439583094716,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.cs.mean",
+      "valor": 3.9742870232504868,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.cs.median",
+      "valor": 3.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.cs.p90",
+      "valor": 8,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.cs.p95",
+      "valor": 8,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.cs.p99",
+      "valor": 8,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.cs.max",
+      "valor": 43,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.cs.red",
+      "valor": 99.46220743934364,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.cs.red_full",
+      "valor": 18.29787684781553,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol.mean",
+      "valor": 551.4416447142366,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol.median",
+      "valor": 642.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol.red",
+      "valor": 25.380021012958508,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol.red_full",
+      "valor": 4.6691151427872395,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol_direction.mean",
+      "valor": 294.7741094949032,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol_direction.median",
+      "valor": 94.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol_direction.red",
+      "valor": 60.11175784913353,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol_direction.red_full",
+      "valor": 11.058648008590911,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol_direction_service.mean",
+      "valor": 6.778919940442103,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol_direction_service.median",
+      "valor": 7.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol_direction_service.red",
+      "valor": 99.08269012984545,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol_direction_service.red_full",
+      "valor": 18.22805775602584,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol_service.mean",
+      "valor": 7.714809300194709,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol_service.median",
+      "valor": 8.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol_service.red",
+      "valor": 98.9560474559953,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.sqli.grupo.protocol_service.red_full",
+      "valor": 18.204759539452464,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.quadros",
+      "valor": 191848,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.elegiveis",
+      "valor": 189076,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.global_candidatos",
+      "valor": 189076,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.strong_candidatos",
+      "valor": 174277,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.strong_no_match",
+      "valor": 14799,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.fora_D",
+      "valor": 2772,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.strong_pct",
+      "valor": 92.17298863948888,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.strong_nomatch_pct",
+      "valor": 7.827011360511122,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.cs.mean",
+      "valor": 3.944112420402378,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.cs.median",
+      "valor": 3.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.cs.p90",
+      "valor": 8,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.cs.p95",
+      "valor": 8,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.cs.p99",
+      "valor": 8,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.cs.max",
+      "valor": 43,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.cs.red",
+      "valor": 99.46629060617018,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.cs.red_full",
+      "valor": 18.29862802040323,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol.mean",
+      "valor": 562.0424696947259,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol.median",
+      "valor": 642.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol.red",
+      "valor": 23.94553860693831,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol.red_full",
+      "valor": 4.405216089252539,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol_direction.mean",
+      "valor": 307.89417482916923,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol_direction.median",
+      "valor": 94.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol_direction.red",
+      "valor": 58.336376883738936,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol_direction.red_full",
+      "valor": 10.732034482719222,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol_direction_service.mean",
+      "valor": 6.888002707905816,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol_direction_service.median",
+      "valor": 7.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol_direction_service.red",
+      "valor": 99.06792926821302,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol_direction_service.red_full",
+      "valor": 18.225342227834062,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol_service.mean",
+      "valor": 7.726401023926886,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol_service.median",
+      "valor": 8.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol_service.red",
+      "valor": 98.95447888715468,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.xss.grupo.protocol_service.red_full",
+      "valor": 18.20447097276756,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.grupo_servico.distancia_max_particao",
+      "valor": 0.6,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.grupo_servico.distancia_max_ruleset",
+      "valor": 0.11,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.quadros",
+      "valor": 1108658,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.elegiveis",
+      "valor": 1101459,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.global_candidatos",
+      "valor": 1101459,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.strong_candidatos",
+      "valor": 1089805,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.strong_no_match",
+      "valor": 11654,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.fora_D",
+      "valor": 7199,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.strong_pct",
+      "valor": 98.94194881516243,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.strong_nomatch_pct",
+      "valor": 1.0580511848375664,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.cs.mean",
+      "valor": 324.5227720686834,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.cs.median",
+      "valor": 241,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.cs.p90",
+      "valor": 799,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.cs.p95",
+      "valor": 799,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.cs.p99",
+      "valor": 1227,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.cs.max",
+      "valor": 1228,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.cs.red",
+      "valor": 91.01293901776009,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.cs.red_full",
+      "valor": 81.81422026216869,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol.mean",
+      "valor": 3166.9518002939735,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol.median",
+      "valor": 3439,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol.red",
+      "valor": 12.297097748713004,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol.red_full",
+      "valor": 11.054224538362622,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol_direction.mean",
+      "valor": 1657.5050065413238,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol_direction.median",
+      "valor": 2468,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol_direction.red",
+      "valor": 54.09844900190186,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol_direction.red_full",
+      "valor": 48.63069438532926,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol_direction_service.mean",
+      "valor": 324.86848716111996,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol_direction_service.median",
+      "valor": 242,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol_direction_service.red",
+      "valor": 91.00336507446359,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol_direction_service.red_full",
+      "valor": 81.80561396163506,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol_service.mean",
+      "valor": 681.9044603566724,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol_service.median",
+      "valor": 251,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol_service.red",
+      "valor": 81.11591081814808,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.bruteforce.grupo.protocol_service.red_full",
+      "valor": 72.91748916214408,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.quadros",
+      "valor": 35274,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.elegiveis",
+      "valor": 34924,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.global_candidatos",
+      "valor": 34924,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.strong_candidatos",
+      "valor": 34580,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.strong_no_match",
+      "valor": 344,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.fora_D",
+      "valor": 350,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.strong_pct",
+      "valor": 99.01500400870462,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.strong_nomatch_pct",
+      "valor": 0.9849959912953778,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.cs.mean",
+      "valor": 179.2847898293437,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.cs.median",
+      "valor": 27.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.cs.p90",
+      "valor": 799,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.cs.p95",
+      "valor": 799,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.cs.p99",
+      "valor": 799,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.cs.max",
+      "valor": 1228,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.cs.red",
+      "valor": 95.03503766742332,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.cs.red_full",
+      "valor": 85.4298035890131,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol.mean",
+      "valor": 2921.283587217959,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol.median",
+      "valor": 3439.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol.red",
+      "valor": 19.100426828635864,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol.red_full",
+      "valor": 17.169938082699552,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol_direction.mean",
+      "valor": 1540.4665845836673,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol_direction.median",
+      "valor": 971.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol_direction.red",
+      "valor": 57.33961272268991,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol_direction.red_full",
+      "valor": 51.54427222843746,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol_direction_service.mean",
+      "valor": 179.46561104111785,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol_direction_service.median",
+      "valor": 27.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol_direction_service.red",
+      "valor": 95.03003015671233,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol_direction_service.red_full",
+      "valor": 85.42530218966597,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol_service.mean",
+      "valor": 377.7061619516665,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol_service.median",
+      "valor": 37.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol_service.red",
+      "valor": 89.54012290358165,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.sqli.grupo.protocol_service.red_full",
+      "valor": 80.49026233627914,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.quadros",
+      "valor": 191848,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.elegiveis",
+      "valor": 189076,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.global_candidatos",
+      "valor": 189076,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.strong_candidatos",
+      "valor": 186938,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.strong_no_match",
+      "valor": 2138,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.fora_D",
+      "valor": 2772,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.strong_pct",
+      "valor": 98.86923776682393,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.strong_nomatch_pct",
+      "valor": 1.1307622331760712,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.cs.mean",
+      "valor": 140.48995641964078,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.cs.median",
+      "valor": 13.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.cs.p90",
+      "valor": 799,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.cs.p95",
+      "valor": 799,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.cs.p99",
+      "valor": 1227,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.cs.max",
+      "valor": 1228,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.cs.red",
+      "valor": 96.1093891880465,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.cs.red_full",
+      "valor": 86.3955699173602,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol.mean",
+      "valor": 3046.029776386215,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol.median",
+      "valor": 3439.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol.red",
+      "valor": 15.64581067886417,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol.red_full",
+      "valor": 14.064481543783547,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol_direction.mean",
+      "valor": 1621.3709778078655,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol_direction.median",
+      "valor": 971.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol_direction.red",
+      "valor": 55.09911443345706,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol_direction.red_full",
+      "valor": 49.53022211083232,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol_direction_service.mean",
+      "valor": 140.6196132772007,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol_direction_service.median",
+      "valor": 13.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol_direction_service.red",
+      "valor": 96.10579857997229,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol_direction_service.red_full",
+      "valor": 86.39234221366192,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol_service.mean",
+      "valor": 280.33335801476653,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol_service.median",
+      "valor": 37.0,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol_service.red",
+      "valor": 92.23668352216099,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "legacy.xss.grupo.protocol_service.red_full",
+      "valor": 82.91428035810887,
+      "fonte": "output\\analysis\\trace_metrics_by_semantics.json"
+    },
+    {
+      "nome": "snort3.quinta.quadros",
+      "valor": 9322025,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "snort3.quinta.elegiveis",
+      "valor": 9240405,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "snort3.quinta.strong_pct",
+      "valor": 95.33518281936776,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "snort3.quinta.cs_mean",
+      "valor": 4.2657743897588905,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "snort3.quinta.cs_red",
+      "valor": 99.42276395267132,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "snort3.quinta.cs_red_full",
+      "valor": 18.290620503117772,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "snort3.quinta.prot_red",
+      "valor": 19.68481918528636,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "legacy.quinta.quadros",
+      "valor": 9322025,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "legacy.quinta.elegiveis",
+      "valor": 9240405,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "legacy.quinta.strong_pct",
+      "valor": 97.53397172526529,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "legacy.quinta.cs_mean",
+      "valor": 226.5302169114882,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "legacy.quinta.cs_red",
+      "valor": 93.72666250591281,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "legacy.quinta.cs_red_full",
+      "valor": 84.2536664946107,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "legacy.quinta.prot_red",
+      "valor": 13.655155173107458,
+      "fonte": "output\\analysis\\trace_metrics_full_thursday.json"
+    },
+    {
+      "nome": "replay.txqueuelen",
+      "valor": 10000,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.alertas_bruteforce.enviados",
+      "valor": 2391,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.alertas_bruteforce.P4_CANDIDATE",
+      "valor": 2391,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.alertas_bruteforce.P4_NO_MATCH",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.alertas_bruteforce.PACKET_DOMAIN_FALLBACK",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.txqueuelen",
+      "valor": 10000,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.alertas_sqli.enviados",
+      "valor": 150,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.alertas_sqli.P4_CANDIDATE",
+      "valor": 150,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.alertas_sqli.P4_NO_MATCH",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.alertas_sqli.PACKET_DOMAIN_FALLBACK",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.txqueuelen",
+      "valor": 10000,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.alertas_xss.enviados",
+      "valor": 528,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.alertas_xss.P4_CANDIDATE",
+      "valor": 528,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.alertas_xss.P4_NO_MATCH",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.alertas_xss.PACKET_DOMAIN_FALLBACK",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.txqueuelen",
+      "valor": 10000,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.janela_bruteforce.enviados",
+      "valor": 1108658,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.janela_bruteforce.P4_CANDIDATE",
+      "valor": 1101459,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.janela_bruteforce.P4_NO_MATCH",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.janela_bruteforce.PACKET_DOMAIN_FALLBACK",
+      "valor": 7199,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.txqueuelen",
+      "valor": 10000,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.janela_sqli.enviados",
+      "valor": 35274,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.janela_sqli.P4_CANDIDATE",
+      "valor": 34924,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.janela_sqli.P4_NO_MATCH",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.janela_sqli.PACKET_DOMAIN_FALLBACK",
+      "valor": 350,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.txqueuelen",
+      "valor": 10000,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.janela_xss.enviados",
+      "valor": 191848,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.janela_xss.P4_CANDIDATE",
+      "valor": 189076,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.janela_xss.P4_NO_MATCH",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.global.janela_xss.PACKET_DOMAIN_FALLBACK",
+      "valor": 2772,
+      "fonte": "output\\analysis\\replay_snort3\\global\\resultado.json"
+    },
+    {
+      "nome": "replay.txqueuelen",
+      "valor": 10000,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.alertas_bruteforce.enviados",
+      "valor": 2391,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.alertas_bruteforce.P4_CANDIDATE",
+      "valor": 3,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.alertas_bruteforce.P4_NO_MATCH",
+      "valor": 2388,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.alertas_bruteforce.PACKET_DOMAIN_FALLBACK",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.txqueuelen",
+      "valor": 10000,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.alertas_sqli.enviados",
+      "valor": 150,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.alertas_sqli.P4_CANDIDATE",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.alertas_sqli.P4_NO_MATCH",
+      "valor": 150,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.alertas_sqli.PACKET_DOMAIN_FALLBACK",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.txqueuelen",
+      "valor": 10000,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.alertas_xss.enviados",
+      "valor": 528,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.alertas_xss.P4_CANDIDATE",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.alertas_xss.P4_NO_MATCH",
+      "valor": 528,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.alertas_xss.PACKET_DOMAIN_FALLBACK",
+      "valor": 0,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.txqueuelen",
+      "valor": 10000,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.janela_bruteforce.enviados",
+      "valor": 1108658,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.janela_bruteforce.P4_CANDIDATE",
+      "valor": 1045116,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.janela_bruteforce.P4_NO_MATCH",
+      "valor": 56343,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.janela_bruteforce.PACKET_DOMAIN_FALLBACK",
+      "valor": 7199,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.txqueuelen",
+      "valor": 10000,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.janela_sqli.enviados",
+      "valor": 35274,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.janela_sqli.P4_CANDIDATE",
+      "valor": 32234,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.janela_sqli.P4_NO_MATCH",
+      "valor": 2690,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.janela_sqli.PACKET_DOMAIN_FALLBACK",
+      "valor": 350,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.txqueuelen",
+      "valor": 10000,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.janela_xss.enviados",
+      "valor": 191848,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.janela_xss.P4_CANDIDATE",
+      "valor": 174277,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.janela_xss.P4_NO_MATCH",
+      "valor": 14799,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "replay.strong.janela_xss.PACKET_DOMAIN_FALLBACK",
+      "valor": 2772,
+      "fonte": "output\\analysis\\replay_snort3\\strong\\resultado.json"
+    },
+    {
+      "nome": "amplas.p4-88.subsume",
+      "valor": 162,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "amplas.p4-88.subsume_pct",
+      "valor": 68.93617021276596,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "amplas.p4-88.regras",
+      "valor": 3,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "amplas.p4-10.subsume",
+      "valor": 154,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "amplas.p4-10.subsume_pct",
+      "valor": 65.53191489361701,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "amplas.p4-10.regras",
+      "valor": 2043,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "amplas.p4-51.subsume",
+      "valor": 71,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "amplas.p4-51.subsume_pct",
+      "valor": 30.21276595744681,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "amplas.p4-51.regras",
+      "valor": 900,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "amplas.p4-92.subsume",
+      "valor": 2,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "amplas.p4-92.subsume_pct",
+      "valor": 0.851063829787234,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "amplas.p4-92.regras",
+      "valor": 2,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "amplas.sql_injection.p4-88.pct",
+      "valor": 84.86714007559272,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "amplas.xss.p4-88.pct",
+      "valor": 88.54005796610886,
+      "fonte": "output\\analysis\\prefilter_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "residual.snort3.sql_injection.top_pct",
+      "valor": 46.804489749169626,
+      "fonte": "output\\analysis\\residual_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "residual.snort3.sql_injection.entries_for_50_percent",
+      "valor": 2,
+      "fonte": "output\\analysis\\residual_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "residual.snort3.sql_injection.entries_for_90_percent",
+      "valor": 4,
+      "fonte": "output\\analysis\\residual_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "residual.snort3.sql_injection.final_coverage_percentage",
+      "valor": 92.29756041690528,
+      "fonte": "output\\analysis\\residual_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "residual.snort3.xss.top_pct",
+      "valor": 48.86976665467854,
+      "fonte": "output\\analysis\\residual_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "residual.snort3.xss.entries_for_50_percent",
+      "valor": 2,
+      "fonte": "output\\analysis\\residual_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "residual.snort3.xss.entries_for_90_percent",
+      "valor": 4,
+      "fonte": "output\\analysis\\residual_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "residual.snort3.xss.final_coverage_percentage",
+      "valor": 92.17298863948888,
+      "fonte": "output\\analysis\\residual_selectivity_audit_snort3.json"
+    },
+    {
+      "nome": "residual.legacy.sql_injection.top_pct",
+      "valor": 26.958538540831523,
+      "fonte": "output\\analysis\\residual_selectivity_audit.json"
+    },
+    {
+      "nome": "residual.legacy.sql_injection.entries_for_50_percent",
+      "valor": 3,
+      "fonte": "output\\analysis\\residual_selectivity_audit.json"
+    },
+    {
+      "nome": "residual.legacy.sql_injection.entries_for_90_percent",
+      "valor": 5,
+      "fonte": "output\\analysis\\residual_selectivity_audit.json"
+    },
+    {
+      "nome": "residual.legacy.sql_injection.entries_for_95_percent",
+      "valor": 6,
+      "fonte": "output\\analysis\\residual_selectivity_audit.json"
+    },
+    {
+      "nome": "residual.legacy.sql_injection.entries_for_99_percent",
+      "valor": 22,
+      "fonte": "output\\analysis\\residual_selectivity_audit.json"
+    },
+    {
+      "nome": "residual.legacy.sql_injection.final_coverage_percentage",
+      "valor": 99.01500400870462,
+      "fonte": "output\\analysis\\residual_selectivity_audit.json"
+    },
+    {
+      "nome": "residual.legacy.xss.top_pct",
+      "valor": 33.59284097399987,
+      "fonte": "output\\analysis\\residual_selectivity_audit.json"
+    },
+    {
+      "nome": "residual.legacy.xss.entries_for_50_percent",
+      "valor": 2,
+      "fonte": "output\\analysis\\residual_selectivity_audit.json"
+    },
+    {
+      "nome": "residual.legacy.xss.entries_for_90_percent",
+      "valor": 6,
+      "fonte": "output\\analysis\\residual_selectivity_audit.json"
+    },
+    {
+      "nome": "residual.legacy.xss.entries_for_95_percent",
+      "valor": 8,
+      "fonte": "output\\analysis\\residual_selectivity_audit.json"
+    },
+    {
+      "nome": "residual.legacy.xss.final_coverage_percentage",
+      "valor": 98.86923776682393,
+      "fonte": "output\\analysis\\residual_selectivity_audit.json"
+    },
+    {
+      "nome": "grupos.legacy.protocol.n",
+      "valor": 4,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.legacy.protocol.maior",
+      "valor": 3439,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.legacy.protocol.multi",
+      "valor": 0,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.legacy.protocol_direction.n",
+      "valor": 12,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.legacy.protocol_direction.maior",
+      "valor": 2468,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.legacy.protocol_direction.multi",
+      "valor": 4,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.legacy.protocol_service.n",
+      "valor": 268,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.legacy.protocol_service.maior",
+      "valor": 2024,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.legacy.protocol_service.multi",
+      "valor": 2358,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.legacy.protocol_direction_service.n",
+      "valor": 308,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.legacy.protocol_direction_service.maior",
+      "valor": 1229,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.legacy.protocol_direction_service.multi",
+      "valor": 2358,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.snort3.protocol.n",
+      "valor": 4,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.snort3.protocol.maior",
+      "valor": 642,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.snort3.protocol.multi",
+      "valor": 0,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.snort3.protocol_direction.n",
+      "valor": 12,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.snort3.protocol_direction.maior",
+      "valor": 548,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.snort3.protocol_direction.multi",
+      "valor": 3,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.snort3.protocol_service.n",
+      "valor": 203,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.snort3.protocol_service.maior",
+      "valor": 291,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.snort3.protocol_service.multi",
+      "valor": 23,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.snort3.protocol_direction_service.n",
+      "valor": 213,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.snort3.protocol_direction_service.maior",
+      "valor": 291,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "grupos.snort3.protocol_direction_service.multi",
+      "valor": 23,
+      "fonte": "output\\analysis\\grouping_structure_by_semantics.json"
+    },
+    {
+      "nome": "alertas.bruteforce",
+      "valor": 2391,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.sid.1394",
+      "valor": 1394,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.sid.254",
+      "valor": 254,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.sid.399",
+      "valor": 399,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.sid.402",
+      "valor": 402,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.sid.650",
+      "valor": 650,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.sqli",
+      "valor": 150,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.sid.254",
+      "valor": 254,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.xss",
+      "valor": 528,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.sid.254",
+      "valor": 254,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.sid.402",
+      "valor": 402,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.total",
+      "valor": 3069,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.sid254",
+      "valor": 2960,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.legacy.bf.cobertos",
+      "valor": 2289,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "alertas.legacy.bf.fallback",
+      "valor": 102,
+      "fonte": "output\\analysis\\alert_coverage_by_semantics.json"
+    },
+    {
+      "nome": "camp.utilizaveis",
+      "valor": 2142,
+      "fonte": "output\\campaign\\e2e_1000_v4\\proveniencia.json"
+    },
+    {
+      "nome": "camp.excluidas",
+      "valor": 1875,
+      "fonte": "output\\campaign\\e2e_1000_v4\\proveniencia.json"
+    },
+    {
+      "nome": "camp.nao_sintetizavel",
+      "valor": 1654,
+      "fonte": "output\\campaign\\e2e_1000_v4\\proveniencia.json"
+    },
+    {
+      "nome": "camp.quadros",
+      "valor": 6684,
+      "fonte": "output\\campaign\\e2e_1000_v4\\proveniencia.json"
+    },
+    {
+      "nome": "camp.casos",
+      "valor": 1000,
+      "fonte": "output\\campaign\\e2e_1000_v4\\proveniencia.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_snort3.CONFIRMADO",
+      "valor": 958,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_snort3.FALLBACK_OPERACIONAL",
+      "valor": 2,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_snort3.VACUO",
+      "valor": 40,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_snort3.testemunha.P4_CANDIDATE",
+      "valor": 1000,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_snort3.negativo_payload.P4_CANDIDATE",
+      "valor": 1000,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_snort3.negativo_header.P4_NO_MATCH",
+      "valor": 101,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.CONFIRMADO",
+      "valor": 134,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.FALLBACK_OPERACIONAL",
+      "valor": 826,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.VACUO",
+      "valor": 40,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.testemunha.P4_CANDIDATE",
+      "valor": 922,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.testemunha.P4_NO_MATCH",
+      "valor": 78,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.negativo_payload.P4_CANDIDATE",
+      "valor": 922,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.negativo_payload.P4_NO_MATCH",
+      "valor": 78,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.negativo_header.P4_NO_MATCH",
+      "valor": 101,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.CONFIRMADO",
+      "valor": 851,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.DEPENDENCIA_DE_ESTADO",
+      "valor": 2,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.FALLBACK_OPERACIONAL",
+      "valor": 107,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.VACUO",
+      "valor": 40,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.testemunha.P4_CANDIDATE",
+      "valor": 934,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.testemunha.P4_NO_MATCH",
+      "valor": 66,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.negativo_payload.P4_CANDIDATE",
+      "valor": 934,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.negativo_payload.P4_NO_MATCH",
+      "valor": 66,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.negativo_header.P4_NO_MATCH",
+      "valor": 101,
+      "fonte": "output\\campaign\\e2e_1000_v4\\relatorio_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_snort3.so_propria",
+      "valor": {
+        "sids": [],
+        "total": 0
+      },
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_snort3.concordancia",
+      "valor": 2101,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_snort3.CONFIRMADO.propria_e_outras",
+      "valor": 958,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_snort3.FALLBACK_OPERACIONAL.so_outras",
+      "valor": 2,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_snort3.VACUO.propria_e_outras",
+      "valor": 40,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.so_propria",
+      "valor": {
+        "sids": [
+          "162",
+          "195",
+          "232",
+          "243",
+          "244",
+          "245",
+          "246",
+          "317",
+          "517",
+          "540",
+          "566",
+          "1281",
+          "1415",
+          "1441",
+          "1442",
+          "1443",
+          "1504",
+          "1853",
+          "1867",
+          "1889",
+          "1984",
+          "2004",
+          "2039",
+          "2041",
+          "2452",
+          "2455",
+          "2457",
+          "3459",
+          "28446",
+          "32912",
+          "32916",
+          "39801",
+          "46137",
+          "46318",
+          "47556",
+          "50811"
+        ],
+        "total": 36
+      },
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.concordancia",
+      "valor": 2101,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.CONFIRMADO.propria_e_outras",
+      "valor": 98,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.CONFIRMADO.so_propria",
+      "valor": 36,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.FALLBACK_OPERACIONAL.nenhuma",
+      "valor": 78,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.FALLBACK_OPERACIONAL.so_outras",
+      "valor": 748,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong_snort3.VACUO.so_outras",
+      "valor": 40,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong_snort3.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.so_propria",
+      "valor": {
+        "sids": [
+          "162",
+          "195",
+          "210",
+          "212",
+          "216",
+          "219",
+          "220",
+          "232",
+          "243",
+          "244",
+          "245",
+          "246",
+          "253",
+          "276",
+          "287",
+          "289",
+          "290",
+          "292",
+          "304",
+          "314",
+          "317",
+          "321",
+          "326",
+          "327",
+          "328",
+          "330",
+          "331",
+          "357",
+          "507",
+          "516",
+          "517",
+          "534",
+          "540",
+          "543",
+          "545",
+          "554",
+          "566",
+          "601",
+          "603",
+          "604",
+          "608",
+          "676",
+          "678",
+          "679",
+          "681",
+          "687",
+          "692",
+          "693",
+          "694",
+          "695",
+          "704",
+          "712",
+          "713",
+          "1132",
+          "1225",
+          "1232",
+          "1280",
+          "1281",
+          "1324",
+          "1378",
+          "1387",
+          "1413",
+          "1415",
+          "1417",
+          "1420",
+          "1421",
+          "1427",
+          "1441",
+          "1442",
+          "1443",
+          "1445",
+          "1504",
+          "1518",
+          "1541",
+          "1605",
+          "1616",
+          "1622",
+          "1638",
+          "1675",
+          "1677",
+          "1682",
+          "1685",
+          "1688",
+          "1691",
+          "1692",
+          "1694",
+          "1696",
+          "1697",
+          "1759",
+          "1775",
+          "1776",
+          "1812",
+          "1819",
+          "1853",
+          "1867",
+          "1887",
+          "1889",
+          "1894",
+          "1895",
+          "1897",
+          "1898",
+          "1923",
+          "1946",
+          "1947",
+          "1950",
+          "1966",
+          "1984",
+          "2004",
+          "2039",
+          "2041",
+          "2044",
+          "2047",
+          "2113",
+          "2114",
+          "2394",
+          "2452",
+          "2455",
+          "2457",
+          "3010",
+          "3011",
+          "3012",
+          "3061",
+          "3155",
+          "3456",
+          "3459",
+          "26411",
+          "26413",
+          "26522",
+          "28446",
+          "28557",
+          "28913",
+          "29459",
+          "32912",
+          "32916",
+          "37814",
+          "37815",
+          "38386",
+          "38891",
+          "39801",
+          "39911",
+          "41723",
+          "41724",
+          "46137",
+          "46317",
+          "46318",
+          "46487",
+          "46885",
+          "47556",
+          "50137",
+          "50811",
+          "56583",
+          "56584",
+          "56891"
+        ],
+        "total": 153
+      },
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.concordancia",
+      "valor": 2101,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.CONFIRMADO.propria_e_outras",
+      "valor": 698,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.CONFIRMADO.so_propria",
+      "valor": 153,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.DEPENDENCIA_DE_ESTADO.so_propria",
+      "valor": 2,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.FALLBACK_OPERACIONAL.nenhuma",
+      "valor": 66,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.FALLBACK_OPERACIONAL.so_outras",
+      "valor": 41,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.VACUO.propria_e_outras",
+      "valor": 30,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.VACUO.so_outras",
+      "valor": 2,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong.json"
+    },
+    {
+      "nome": "camp.e2e_1000_v4_strong.VACUO.so_propria",
+      "valor": 8,
+      "fonte": "output\\campaign\\e2e_1000_v4\\atribuicao_strong.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_snort3.CONFIRMADO",
+      "valor": 190,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_snort3.VACUO",
+      "valor": 10,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_snort3.testemunha.P4_CANDIDATE",
+      "valor": 200,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_snort3.negativo_payload.P4_CANDIDATE",
+      "valor": 200,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong_snort3.FALLBACK_OPERACIONAL",
+      "valor": 190,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong_snort3.VACUO",
+      "valor": 10,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong_snort3.testemunha.P4_CANDIDATE",
+      "valor": 136,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong_snort3.testemunha.P4_NO_MATCH",
+      "valor": 64,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong_snort3.negativo_payload.P4_CANDIDATE",
+      "valor": 136,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong_snort3.negativo_payload.P4_NO_MATCH",
+      "valor": 64,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_strong_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong.VACUO",
+      "valor": 10,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_strong.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong.VIOLACAO",
+      "valor": 190,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_strong.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong.testemunha.P4_NO_MATCH",
+      "valor": 200,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_strong.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong.negativo_payload.P4_NO_MATCH",
+      "valor": 200,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio_strong.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho.CONFIRMADO",
+      "valor": 190,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho.VACUO",
+      "valor": 10,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho.testemunha.P4_CANDIDATE",
+      "valor": 200,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho.negativo_payload.P4_CANDIDATE",
+      "valor": 200,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\relatorio.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_snort3.so_propria",
+      "valor": {
+        "sids": [],
+        "total": 0
+      },
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\atribuicao_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_snort3.concordancia",
+      "valor": 400,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\atribuicao_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_snort3.CONFIRMADO.propria_e_outras",
+      "valor": 190,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\atribuicao_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_snort3.VACUO.propria_e_outras",
+      "valor": 10,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\atribuicao_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong_snort3.so_propria",
+      "valor": {
+        "sids": [],
+        "total": 0
+      },
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\atribuicao_strong_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong_snort3.concordancia",
+      "valor": 400,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\atribuicao_strong_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong_snort3.FALLBACK_OPERACIONAL.nenhuma",
+      "valor": 60,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\atribuicao_strong_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong_snort3.FALLBACK_OPERACIONAL.so_outras",
+      "valor": 130,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\atribuicao_strong_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong_snort3.VACUO.nenhuma",
+      "valor": 4,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\atribuicao_strong_snort3.json"
+    },
+    {
+      "nome": "camp.servico_fora_do_cabecalho_strong_snort3.VACUO.so_outras",
+      "valor": 6,
+      "fonte": "output\\campaign\\servico_fora_do_cabecalho\\atribuicao_strong_snort3.json"
+    },
+    {
+      "nome": "camp.flush.regras",
+      "valor": 606,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.flush.nomatch",
+      "valor": 445,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.cand_sem_alerta",
+      "valor": 915,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.cand_com_alerta",
+      "valor": 7,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.prefiltradas.casos",
+      "valor": 134,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.prefiltradas.P4_CANDIDATE",
+      "valor": 134,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.prefiltradas.P4_CANDIDATE.alerta_False",
+      "valor": 130,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.prefiltradas.P4_CANDIDATE.alerta_True",
+      "valor": 4,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.prefiltradas.P4_NO_MATCH",
+      "valor": 0,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.prefiltradas.P4_NO_MATCH.alerta_False",
+      "valor": 0,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.prefiltradas.P4_NO_MATCH.alerta_True",
+      "valor": 0,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.fallback.casos",
+      "valor": 866,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.fallback.P4_CANDIDATE",
+      "valor": 788,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.fallback.P4_CANDIDATE.alerta_False",
+      "valor": 785,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.fallback.P4_CANDIDATE.alerta_True",
+      "valor": 3,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.fallback.P4_NO_MATCH",
+      "valor": 78,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.fallback.P4_NO_MATCH.alerta_False",
+      "valor": 43,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "camp.negpay.fallback.P4_NO_MATCH.alerta_True",
+      "valor": 35,
+      "fonte": "output\\campaign\\e2e_1000_v4\\resultado_strong_snort3.jsonl"
+    },
+    {
+      "nome": "sid.56583",
+      "valor": 56583,
+      "fonte": "texto (SID citada)"
+    },
+    {
+      "nome": "sid.56584",
+      "valor": 56584,
+      "fonte": "texto (SID citada)"
+    },
+    {
+      "nome": "sid.43809",
+      "valor": 43809,
+      "fonte": "texto (SID citada)"
+    },
+    {
+      "nome": "sid.47386",
+      "valor": 47386,
+      "fonte": "texto (SID citada)"
+    },
+    {
+      "nome": "sid.28982",
+      "valor": 28982,
+      "fonte": "texto (SID citada)"
+    },
+    {
+      "nome": "sid.309",
+      "valor": 309,
+      "fonte": "texto (SID citada)"
+    },
+    {
+      "nome": "svc.total",
+      "valor": 2931,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "svc.service_option",
+      "valor": 2928,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "svc.http",
+      "valor": 2314,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "svc.imap",
+      "valor": 150,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "svc.pop3",
+      "valor": 138,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "svc.smtp",
+      "valor": 131,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "svc.user_mode",
+      "valor": 12,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "svc.porta",
+      "valor": 2877,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "svc.ip_seletivo",
+      "valor": 2924,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "svc.global_qualquer",
+      "valor": 2922,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "svc.global_so_tcp",
+      "valor": 9,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "svc.porta_based",
+      "valor": 1060,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "svc.full_header",
+      "valor": 1072,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "sid.529",
+      "valor": 529,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "sid.3238",
+      "valor": 3238,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "sid.3239",
+      "valor": 3239,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "sid.1415",
+      "valor": 1415,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "sid.1416",
+      "valor": 1416,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "sid.1941",
+      "valor": 1941,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "sid.28852",
+      "valor": 28852,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "sid.29174",
+      "valor": 29174,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "sid.38993",
+      "valor": 38993,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "sid.56585",
+      "valor": 56585,
+      "fonte": "output\\analysis\\service_based_header_exposure.json"
+    },
+    {
+      "nome": "flowbits.semantica",
+      "valor": 636,
+      "fonte": "output\\analysis\\flowbit_partition_audit.json"
+    },
+    {
+      "nome": "flowbits.cruzadas",
+      "valor": 24,
+      "fonte": "output\\analysis\\flowbit_partition_audit.json"
+    },
+    {
+      "nome": "sid.3143",
+      "valor": 3143,
+      "fonte": "output\\analysis\\flowbit_partition_audit.json"
+    },
+    {
+      "nome": "sid.3144",
+      "valor": 3144,
+      "fonte": "output\\analysis\\flowbit_partition_audit.json"
+    },
+    {
+      "nome": "sid.3135",
+      "valor": 3135,
+      "fonte": "output\\analysis\\flowbit_partition_audit.json"
+    },
+    {
+      "nome": "sid.3142",
+      "valor": 3142,
+      "fonte": "output\\analysis\\flowbit_partition_audit.json"
+    },
+    {
+      "nome": "sid.3145",
+      "valor": 3145,
+      "fonte": "output\\analysis\\flowbit_partition_audit.json"
+    },
+    {
+      "nome": "sid.3146",
+      "valor": 3146,
+      "fonte": "output\\analysis\\flowbit_partition_audit.json"
+    },
+    {
+      "nome": "tetos.h12_faixas_de_porta.regras",
+      "valor": 54,
+      "fonte": "output\\analysis\\header_precision_bounds_snort3.json"
+    },
+    {
+      "nome": "tetos.h12_faixas_de_porta.pontos",
+      "valor": 1.3443,
+      "fonte": "output\\analysis\\header_precision_bounds_snort3.json"
+    },
+    {
+      "nome": "tetos.m1_itype_icode.regras",
+      "valor": 123,
+      "fonte": "output\\analysis\\header_precision_bounds_snort3.json"
+    },
+    {
+      "nome": "tetos.m1_itype_icode.pontos",
+      "valor": 3.062,
+      "fonte": "output\\analysis\\header_precision_bounds_snort3.json"
+    },
+    {
+      "nome": "tetos.m2_ip_proto.regras",
+      "valor": 3,
+      "fonte": "output\\analysis\\header_precision_bounds_snort3.json"
+    },
+    {
+      "nome": "tetos.m2_ip_proto.pontos",
+      "valor": 0.0747,
+      "fonte": "output\\analysis\\header_precision_bounds_snort3.json"
+    },
+    {
+      "nome": "exatas.regras",
+      "valor": 10,
+      "fonte": "output\\analysis\\exact_rules_check.json"
+    },
+    {
+      "nome": "exatas.pares",
+      "valor": 340,
+      "fonte": "output\\analysis\\exact_rules_check.json"
+    },
+    {
+      "nome": "hist.perda_bf",
+      "valor": 87,
+      "fonte": "output\\analysis\\ipv4_packet_domain_correction\\REPLAY_ACCOUNTING_VALIDATION_XSS_BRUTEFORCE.md"
+    },
+    {
+      "nome": "hist.perda_bf_pct",
+      "valor": 0.008,
+      "fonte": "output\\analysis\\ipv4_packet_domain_correction\\REPLAY_ACCOUNTING_VALIDATION_XSS_BRUTEFORCE.md"
+    },
+    {
+      "nome": "hist.bf_sem_gate",
+      "valor": 1101475,
+      "fonte": "output\\analysis\\ipv4_packet_domain_correction\\REPLAY_ACCOUNTING_VALIDATION_XSS_BRUTEFORCE.md"
+    },
+    {
+      "nome": "hist.arp_sqli",
+      "valor": 125,
+      "fonte": "output\\analysis\\ipv4_packet_domain_correction\\REPLAY_ACCOUNTING_VALIDATION_XSS_BRUTEFORCE.md"
+    },
+    {
+      "nome": "hist.arp_xss",
+      "valor": 1660,
+      "fonte": "output\\analysis\\ipv4_packet_domain_correction\\REPLAY_ACCOUNTING_VALIDATION_XSS_BRUTEFORCE.md"
+    },
+    {
+      "nome": "hist.arp_bf",
+      "valor": 4074,
+      "fonte": "output\\analysis\\ipv4_packet_domain_correction\\REPLAY_ACCOUNTING_VALIDATION_XSS_BRUTEFORCE.md"
+    },
+    {
+      "nome": "hist.ipv6_sqli",
+      "valor": 195,
+      "fonte": "output\\analysis\\ipv4_packet_domain_correction\\REPLAY_ACCOUNTING_VALIDATION_XSS_BRUTEFORCE.md"
+    },
+    {
+      "nome": "hist.ipv6_xss",
+      "valor": 820,
+      "fonte": "output\\analysis\\ipv4_packet_domain_correction\\REPLAY_ACCOUNTING_VALIDATION_XSS_BRUTEFORCE.md"
+    },
+    {
+      "nome": "hist.ipv6_bf",
+      "valor": 2523,
+      "fonte": "output\\analysis\\ipv4_packet_domain_correction\\REPLAY_ACCOUNTING_VALIDATION_XSS_BRUTEFORCE.md"
+    },
+    {
+      "nome": "hist.legacy.residual_22",
+      "valor": 22,
+      "fonte": "output\\analysis\\ipv4_packet_domain_correction\\REPLAY_ACCOUNTING_VALIDATION_XSS_BRUTEFORCE.md"
+    }
+  ],
+  "sem_fato": {
+    "IDS_P4": [],
+    "IDS_P4_PT": [],
+    "IDS_P4_SBRC": []
+  }
+}

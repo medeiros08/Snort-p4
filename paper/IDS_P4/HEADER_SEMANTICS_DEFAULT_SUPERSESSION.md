@@ -163,7 +163,8 @@ VIOLATION and no STATE DEPENDENCY.
 ### 6.2 Replay accounting
 
 Protocol of the handoff §11: fresh switch, `txqueuelen` 10000, exact-bytes
-AF_PACKET sender at 2 ms, 10 s idle audit and 10 s drain. Results are in
+AF_PACKET sender at 2 ms for the whole windows and 20 ms for the alert
+packets, 10 s idle audit and 10 s drain. Results are in
 `output/analysis/replay_snort3/{global,strong}/`, each with a
 `resultado.json` from `tests/analyze_replay_pos_correcao.py`.
 
