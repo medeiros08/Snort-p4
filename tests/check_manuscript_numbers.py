@@ -241,6 +241,9 @@ def coletar() -> Fatos:
     f.add("camp.utilizaveis", prov["regras_utilizaveis"], CAMP / "e2e_1000_v4" / "proveniencia.json")
     f.add("camp.excluidas", 4017 - prov["regras_utilizaveis"], CAMP / "e2e_1000_v4" / "proveniencia.json")
     f.add("camp.nao_sintetizavel", prov["recusas"]["opcao nao sintetizavel"], CAMP / "e2e_1000_v4" / "proveniencia.json")
+    # os motivos de recusa se sobrepoem; "as outras" e o complemento, nao a soma
+    f.add("camp.excluidas_outras", 4017 - prov["regras_utilizaveis"] - prov["recusas"]["opcao nao sintetizavel"],
+          CAMP / "e2e_1000_v4" / "proveniencia.json")
     f.add("camp.quadros", prov["quadros"], CAMP / "e2e_1000_v4" / "proveniencia.json")
     f.add("camp.casos", prov["casos"], CAMP / "e2e_1000_v4" / "proveniencia.json")
     for campanha in ("e2e_1000_v4", "servico_fora_do_cabecalho"):

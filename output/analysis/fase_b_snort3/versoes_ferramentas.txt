@@ -1,0 +1,20 @@
+registrado_em=2026-10-06T19:05:59Z
+usuario=arthur
+--- snort3 (~/snort3-install, usado por tests/run_campaign_bmv2.py)
+  o"  )~   Version 3.12.2.0
+           Using DAQ version 3.0.27
+           Using libpcap version 1.10.1 (with TPACKET_V3)
+           Using LuaJIT version 2.1.0-beta3
+           Using LZMA version 5.2.5
+           Using PCRE2 version 10.39 2021-10-29
+           Using ZLIB version 1.2.11
+--- p4c
+p4c 1.2.4.2 (SHA: 624c6be80 BUILD: RELEASE)
+--- simple_switch_grpc
+1.15.0-68f4a978
+--- python do venv
+Python 3.10.12
+--- sistema
+Ubuntu 22.04.5 LTS
+6.18.33.1-microsoft-standard-WSL2
+nota=registrado depois das rodadas da Fase B (2026-10-05/06), no mesmo rig WSL (distro Ubuntu-22.04, usuario arthur, repositorio em /mnt/c/...) que as rodou; os ambiente.txt das medicoes nao gravavam as versoes
