@@ -19,12 +19,25 @@ Codigos de saida:
     0   artefato gravado
     1   entrada ausente
 
+Semantica. O resultado congelado (header_precision_bounds.json) e do plano
+strong legacy. Desde 2026-10-05 a raiz de output/ e a compilacao snort3, entao
+o legacy le o manifesto arquivado e o snort3 grava em outro arquivo:
+
+    legacy   output/historical/legacy_header_semantics/semantic_manifest.json
+             + plano_strong_discriminator/particao.json
+             -> header_precision_bounds.json
+    snort3   output/semantic_manifest.json
+             + plano_strong_discriminator_snort3/particao.json
+             -> header_precision_bounds_snort3.json
+
 Uso:
-    python tests/analyze_header_precision_bounds.py
+    python tests/analyze_header_precision_bounds.py --semantica legacy
+    python tests/analyze_header_precision_bounds.py --semantica snort3
 """
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import sys
@@ -32,10 +45,22 @@ import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-MANIFESTO = PROJECT_ROOT / "output" / "semantic_manifest.json"
-PARTICAO = PROJECT_ROOT / "output" / "campaign" / "plano_strong_discriminator" / "particao.json"
-EXPOSICAO = PROJECT_ROOT / "output" / "analysis" / "service_based_header_exposure.json"
-SAIDA = PROJECT_ROOT / "output" / "analysis" / "header_precision_bounds.json"
+CAMPANHA = PROJECT_ROOT / "output" / "campaign"
+ANALISE = PROJECT_ROOT / "output" / "analysis"
+FONTES = {
+    "legacy": {
+        "manifesto": PROJECT_ROOT / "output" / "historical" / "legacy_header_semantics" / "semantic_manifest.json",
+        "particao": CAMPANHA / "plano_strong_discriminator" / "particao.json",
+        "saida": ANALISE / "header_precision_bounds.json",
+    },
+    "snort3": {
+        "manifesto": PROJECT_ROOT / "output" / "semantic_manifest.json",
+        "particao": CAMPANHA / "plano_strong_discriminator_snort3" / "particao.json",
+        "saida": ANALISE / "header_precision_bounds_snort3.json",
+    },
+}
+# Regras service-based contadas sobre o ruleset; nao depende da semantica.
+EXPOSICAO = ANALISE / "service_based_header_exposure.json"
 RULESET = 4017
 
 
@@ -77,6 +102,13 @@ def _sha256(caminho: Path) -> str:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("--semantica", choices=sorted(FONTES), default="snort3")
+    argumentos = parser.parse_args()
+    MANIFESTO = FONTES[argumentos.semantica]["manifesto"]
+    PARTICAO = FONTES[argumentos.semantica]["particao"]
+    SAIDA = FONTES[argumentos.semantica]["saida"]
+
     for caminho in (MANIFESTO, PARTICAO, EXPOSICAO):
         if not caminho.exists():
             print(f"entrada ausente: {caminho}", file=sys.stderr)

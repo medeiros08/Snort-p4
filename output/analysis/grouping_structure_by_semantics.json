@@ -1,0 +1,91 @@
+{
+  "analise": "grouping_structure_by_semantics",
+  "gerado_em": "2026-10-06T18:07:10+00:00",
+  "gerador": "tests/analyze_grouping_structure.py",
+  "semanticas": {
+    "legacy": {
+      "entradas_retidas": 322,
+      "regras_elegiveis": 3611,
+      "estrategias": {
+        "protocol": {
+          "grupos": 4,
+          "maior_grupo": {
+            "rotulo": "protocol=6",
+            "regras": 3439
+          },
+          "regras_em_mais_de_um_grupo": 0,
+          "multiplicidade_maxima": 1
+        },
+        "protocol_direction": {
+          "grupos": 12,
+          "maior_grupo": {
+            "rotulo": "protocol=6|direction=TO_HOME_NET",
+            "regras": 2468
+          },
+          "regras_em_mais_de_um_grupo": 4,
+          "multiplicidade_maxima": 2
+        },
+        "protocol_service": {
+          "grupos": 268,
+          "maior_grupo": {
+            "rotulo": "protocol=6|service=dst_port=80",
+            "regras": 2024
+          },
+          "regras_em_mais_de_um_grupo": 2358,
+          "multiplicidade_maxima": 9
+        },
+        "protocol_direction_service": {
+          "grupos": 308,
+          "maior_grupo": {
+            "rotulo": "protocol=6|direction=TO_HOME_NET|service=dst_port=8080",
+            "regras": 1229
+          },
+          "regras_em_mais_de_um_grupo": 2358,
+          "multiplicidade_maxima": 9
+        }
+      }
+    },
+    "snort3": {
+      "entradas_retidas": 225,
+      "regras_elegiveis": 739,
+      "estrategias": {
+        "protocol": {
+          "grupos": 4,
+          "maior_grupo": {
+            "rotulo": "protocol=6",
+            "regras": 642
+          },
+          "regras_em_mais_de_um_grupo": 0,
+          "multiplicidade_maxima": 1
+        },
+        "protocol_direction": {
+          "grupos": 12,
+          "maior_grupo": {
+            "rotulo": "protocol=6|direction=TO_HOME_NET",
+            "regras": 548
+          },
+          "regras_em_mais_de_um_grupo": 3,
+          "multiplicidade_maxima": 2
+        },
+        "protocol_service": {
+          "grupos": 203,
+          "maior_grupo": {
+            "rotulo": "protocol=6|service=dst_port=1521",
+            "regras": 291
+          },
+          "regras_em_mais_de_um_grupo": 23,
+          "multiplicidade_maxima": 6
+        },
+        "protocol_direction_service": {
+          "grupos": 213,
+          "maior_grupo": {
+            "rotulo": "protocol=6|direction=TO_HOME_NET|service=dst_port=1521",
+            "regras": 291
+          },
+          "regras_em_mais_de_um_grupo": 23,
+          "multiplicidade_maxima": 6
+        }
+      }
+    }
+  }
+}

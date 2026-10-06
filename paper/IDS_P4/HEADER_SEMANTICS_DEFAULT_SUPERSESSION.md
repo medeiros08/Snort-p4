@@ -244,6 +244,26 @@ directory.
 - **`servico_fora_do_cabecalho`, global plan.** The 190 CONFIRMED and 10
   VACUOUS cases are unchanged.
 
+### 6.4 Offline analyses re-derived for the manuscript
+
+Each of the following was run under both semantics. The `legacy` run
+reproduces its frozen result, apart from recorded paths and timestamps; the
+`snort3` run writes to a new file.
+
+| Analysis | `legacy` (frozen) | `snort3` |
+|---|---|---|
+| Broad entries of the global plan (`analyze_prefilter_selectivity.py`) | `p4-106` TCP only, 246 of 331 entries (74.32%); `p4-40` dst `HOME_NET`, 210 (63.44%), 25 rules; `p4-138` src `HOME_NET`, 107 (32.33%), 1 rule | `p4-88` TCP only, 162 of 235 (68.94%); `p4-10` dst `HOME_NET`, 154 (65.53%), 2,043 rules; `p4-51` src `HOME_NET`, 71 (30.21%), 900 rules. Three entries cover 100% of SQLi and XSS (`prefilter_selectivity_audit_snort3.json`) |
+| Strong plan, residual union (`analyze_residual_selectivity.py`) | 22 entries for 99% of SQLi; distributed union | 4 entries reach 90%: `p4-47` (TCP to `HOME_NET` with ACK, sid 309) alone 46.8% / 48.9%, then 443, 80 and 53 from `HOME_NET`; final 92.30% / 92.17% (`residual_selectivity_audit_snort3.json`) |
+| Campaign attribution, own-only (`analyze_campaign_attribution.py`) | strong 153 of 851 | global 0 of 958; strong 36 of 134; offline prediction = BMv2 counter on 2,101/2,101 frames in both (`atribuicao_snort3.json`, `atribuicao_strong_snort3.json`) |
+| Flowbit audit (`tests/audit_flowbit_partition.py`, new) | 636 edges, all inside the candidate side, in both partitions | Semantic partition: same 636, none crossing. Strong partition: **24 edges cross it**, all on `smb.trans2`, between sids 3143 and 3144 (port-based, eligible) and ten `netbios-ssn` rules in fallback (3135–3142, 3145, 3146) |
+| Header-precision bounds (`analyze_header_precision_bounds.py`) | H12 71, M1 123, M2 3 rules; ≤ 1.77 / 3.06 / 0.07 points | H12 54, M1 123, M2 3; ≤ 1.34 / 3.06 / 0.07 points (`header_precision_bounds_snort3.json`) |
+| Grouping structure (`tests/analyze_grouping_structure.py`, new) | 4 / 12 / 268 / 308 groups; TCP group 3,439 rules; 2,358 rules in more than one group | 4 / 12 / 203 / 213 groups; TCP group 642 of 739; 23 rules in more than one group (`grouping_structure_by_semantics.json`) |
+
+Two scripts still read the root of `output/` as if it were `legacy`, which
+Phase A missed: `analyze_header_precision_bounds.py` and
+`analyze_residual_selectivity.py`. Both now take `--semantica`, and their
+`legacy` mode reads the archive.
+
 ## 7. Pending
 
 - **Manuscript.** Report the `snort3` numbers as results and the `legacy`

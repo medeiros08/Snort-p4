@@ -1,0 +1,34 @@
+{
+  "campanha": "servico_fora_do_cabecalho",
+  "casos": 200,
+  "cobertura_da_testemunha_por_veredito": {
+    "FALLBACK_OPERACIONAL": {
+      "nenhuma": 60,
+      "so_outras": 130
+    },
+    "VACUO": {
+      "nenhuma": 4,
+      "so_outras": 6
+    }
+  },
+  "concordancia_predicao_medicao": {
+    "concordam": 400,
+    "divergem": 0,
+    "divergencias": [],
+    "nota": "papeis de andaime ficam fora: o resultado nao registra categoria para eles",
+    "quadros_comparados": 400
+  },
+  "confirmados_so_propria": {
+    "sids": [],
+    "total": 0
+  },
+  "entradas": {
+    "caminho": "output/campaign/plano_strong_discriminator_snort3/p4_install_entries.json",
+    "sha256": "f9883383c94f6dd380d115db5f6d26b3e1724c790ead89dba49c9663acbcfcf4",
+    "total": 225
+  },
+  "gerado_em": "2026-10-06T18:03:26+00:00",
+  "gerador": "tests/analyze_campaign_attribution.py",
+  "pcap_sha256": "b150423d1ba6002df294d670e085ec237486f25591814a146bed710175392b30",
+  "resultado": "output/campaign/servico_fora_do_cabecalho/resultado_strong_snort3.jsonl"
+}

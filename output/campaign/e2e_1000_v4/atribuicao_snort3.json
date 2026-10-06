@@ -1,0 +1,35 @@
+{
+  "campanha": "e2e_1000_v4",
+  "casos": 1000,
+  "cobertura_da_testemunha_por_veredito": {
+    "CONFIRMADO": {
+      "propria_e_outras": 958
+    },
+    "FALLBACK_OPERACIONAL": {
+      "so_outras": 2
+    },
+    "VACUO": {
+      "propria_e_outras": 40
+    }
+  },
+  "concordancia_predicao_medicao": {
+    "concordam": 2101,
+    "divergem": 0,
+    "divergencias": [],
+    "nota": "papeis de andaime ficam fora: o resultado nao registra categoria para eles",
+    "quadros_comparados": 2101
+  },
+  "confirmados_so_propria": {
+    "sids": [],
+    "total": 0
+  },
+  "entradas": {
+    "caminho": "output/p4_install_entries.json",
+    "sha256": "a9461ef78f1d290b6c035f38ebeed76e885b49ea94c29bd960f946dc9f10cfb9",
+    "total": 235
+  },
+  "gerado_em": "2026-10-06T18:00:02+00:00",
+  "gerador": "tests/analyze_campaign_attribution.py",
+  "pcap_sha256": "ca5486f0e7ef3168c579e29c6801c7edb4cb6f51f0210d1ae574bf2599205534",
+  "resultado": "output/campaign/e2e_1000_v4/resultado_snort3.jsonl"
+}

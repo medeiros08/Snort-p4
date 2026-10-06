@@ -1,0 +1,74 @@
+{
+  "campanha": "e2e_1000_v4",
+  "casos": 1000,
+  "cobertura_da_testemunha_por_veredito": {
+    "CONFIRMADO": {
+      "propria_e_outras": 98,
+      "so_propria": 36
+    },
+    "FALLBACK_OPERACIONAL": {
+      "nenhuma": 78,
+      "so_outras": 748
+    },
+    "VACUO": {
+      "so_outras": 40
+    }
+  },
+  "concordancia_predicao_medicao": {
+    "concordam": 2101,
+    "divergem": 0,
+    "divergencias": [],
+    "nota": "papeis de andaime ficam fora: o resultado nao registra categoria para eles",
+    "quadros_comparados": 2101
+  },
+  "confirmados_so_propria": {
+    "sids": [
+      "162",
+      "195",
+      "232",
+      "243",
+      "244",
+      "245",
+      "246",
+      "317",
+      "517",
+      "540",
+      "566",
+      "1281",
+      "1415",
+      "1441",
+      "1442",
+      "1443",
+      "1504",
+      "1853",
+      "1867",
+      "1889",
+      "1984",
+      "2004",
+      "2039",
+      "2041",
+      "2452",
+      "2455",
+      "2457",
+      "3459",
+      "28446",
+      "32912",
+      "32916",
+      "39801",
+      "46137",
+      "46318",
+      "47556",
+      "50811"
+    ],
+    "total": 36
+  },
+  "entradas": {
+    "caminho": "output/campaign/plano_strong_discriminator_snort3/p4_install_entries.json",
+    "sha256": "f9883383c94f6dd380d115db5f6d26b3e1724c790ead89dba49c9663acbcfcf4",
+    "total": 225
+  },
+  "gerado_em": "2026-10-06T18:00:02+00:00",
+  "gerador": "tests/analyze_campaign_attribution.py",
+  "pcap_sha256": "ca5486f0e7ef3168c579e29c6801c7edb4cb6f51f0210d1ae574bf2599205534",
+  "resultado": "output/campaign/e2e_1000_v4/resultado_strong_snort3.jsonl"
+}
