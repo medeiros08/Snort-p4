@@ -22,7 +22,9 @@ The manuscript will report the `snort3` numbers as its results and the
   with them stays valid as a `legacy` result (§5).
 - The data-plane measurements were redone under the `snort3` plans on the
   rig on 2026-10-05/06. Every one matches its offline prediction exactly,
-  with no VIOLATION (§6). Only the manuscript is pending (§7).
+  with no VIOLATION (§6).
+- The three manuscripts now report `snort3` as their results and `legacy` as
+  the earlier compilation (§7).
 
 ## 2. What changed in the code
 
@@ -264,7 +266,37 @@ Phase A missed: `analyze_header_precision_bounds.py` and
 `analyze_residual_selectivity.py`. Both now take `--semantica`, and their
 `legacy` mode reads the archive.
 
-## 7. Pending
+## 7. Manuscripts
 
-- **Manuscript.** Report the `snort3` numbers as results and the `legacy`
-  ones as history.
+Done on 2026-10-06 in all three versions:
+
+- `paper/IDS_P4/main.tex`, 45 pages;
+- `paper/IDS_P4_PT/artigo.tex`, 7 pages;
+- `paper/IDS_P4_SBRC/artigo.tex`, 14 pages, rebuilt from the PT body by
+  `montar.py`.
+
+None has an overfull box. In each, every result is the `snort3` one. The
+`legacy` compilation appears as "the earlier compilation", only where it
+shows what the correction changed:
+
+- the service-based section, with a table comparing the two compilations;
+- the candidate-set and grouping history (81.81% → 18.29%);
+- the two STATE DEPENDENCE cases;
+- the replay that lost 87 frames, which motivated the replay protocol.
+
+**Changes in `main.tex`:**
+
+- Abstract, introduction, contributions and conclusion use the `snort3`
+  numbers.
+- §4.5 now states that the compiler keeps $H_r^{addr}$ for service-based
+  rules, plus TCP when `flags` requires it.
+- RQ1 lists the seven new UNSUPPORTED rules.
+- RQ2 reports 4,040 → 235 entries (94.18%).
+- RQ3 reports the snort3 broad entries and the residual audit.
+- RQ4 reports the candidate sets, the grouping, alert preservation through
+  fallback, and the campaign (958 / 134, own-only 36, the 606 HTTP flush
+  alerts).
+- Threats cover the flowbit edges crossing the strong partition and the
+  snort3 header-precision bounds.
+- The compilation-semantics table now uses `\footnotesize`. This also
+  removes a "Float too large" warning that the committed version already had.
