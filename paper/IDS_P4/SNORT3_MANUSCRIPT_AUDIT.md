@@ -84,6 +84,13 @@ re-verified against the data before being applied.
 | 14b | The 14 Unsupported rules were excluded by the generator, not "admit no witness" | Corrected. The text now also notes that SIDs 56583 and 56584, newly Unsupported, alerted in the campaign. |
 | 15 | User-mode `alert http` rules were said to be compiled "with their full header", but their service protocol is delegated | "From their header with its ports". Applied in `main.tex` and the PT version. |
 
+Two more points came from another session working on the same repository:
+
+| # | Issue | Correction |
+|---|---|---|
+| 16 | The environment paragraph named no rig, and no Phase B file recorded the tool versions | Versions recorded in `output/analysis/fase_b_snort3/versoes_ferramentas.txt`, captured after the runs on the same WSL rig. The paragraph now says Ubuntu 22.04 "under WSL 2". |
+| 17 | The campaign's refusal reasons overlap: 14 + 193 + 44 + 1,654 = 1,905 > 1,875. "The rest" had listed only content and header reasons. | Now "each of the other 221 is Unsupported, has content the generator cannot place, or has a header it cannot resolve; a rule can have more than one of these reasons". |
+
 The PT version also had two issues of its own:
 
 - Its abstract attributed the off-port misses to the whole earlier

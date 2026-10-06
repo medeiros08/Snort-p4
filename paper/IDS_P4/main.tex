@@ -863,7 +863,7 @@ All data-plane and Snort results were produced with Snort~3 version 3.12.2.0, th
 compiler \texttt{p4c} version 1.2.4.2 (build SHA \texttt{624c6be80}) invoked
 through its \texttt{p4c-bm2-ss} backend, and BMv2
 \texttt{simple\_switch\_grpc} version 1.15.0 (build \texttt{68f4a978}), on
-Ubuntu 22.04 LTS with Python 3.10. The P4Runtime endpoint is
+Ubuntu 22.04 LTS under WSL~2, with Python 3.10. The P4Runtime endpoint is
 \texttt{127.0.0.1:9559} with device identifier 0. The data-plane interfaces
 are \texttt{veth} pairs configured with an MTU of 65535, because the replay
 path writes frames larger than the default MTU, and with IPv6 disabled on
@@ -1083,8 +1083,10 @@ A witness could be synthesized for 2,142 of the 4,017 rules. The other 1,875,
 including the 14 rules that both compilations classify as
 \textsc{Unsupported}, were excluded: 1,654 of them
 carry options such as \texttt{pcre}, \texttt{byte\_test}, \texttt{byte\_jump},
-or \texttt{flowbits} that cannot be satisfied by choosing bytes, and the rest
-have content the generator cannot place or a header it cannot resolve. A
+or \texttt{flowbits} that cannot be satisfied by choosing bytes, and each of
+the other 221 is \textsc{Unsupported}, has content the generator cannot
+place, or has a header it cannot resolve; a rule can have more than one of
+these reasons. A
 sample of 1,000 rules, stratified proportionally by protocol, service, and
 direction with a fixed seed, was written to a trace in which each case
 occupies its own second: 6,684 frames, all inside $D$. The same sample was
