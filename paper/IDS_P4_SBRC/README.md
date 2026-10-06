@@ -52,5 +52,6 @@ Estado em 2026-10-06, depois de o texto passar a relatar a compilação
 `snort3` (`paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md`): 14 páginas
 com as referências, sem caixa estourada; *abstract* e resumo com 10 linhas
 cada. Restam dois `Underfull \hbox` de espaçamento entre palavras (parágrafos
-"Contexto mais amplo" e "Resolução de variáveis") e três `Underfull \vbox`,
-nas páginas 7, 9 e 12, do `\flushbottom` do modelo.
+"Contexto mais amplo" e "Resolução de variáveis") e dois `Underfull \vbox`,
+nas páginas 7 e 9, do `\flushbottom` do modelo (depois da auditoria de
+`paper/IDS_P4/SNORT3_MANUSCRIPT_AUDIT.md`).
