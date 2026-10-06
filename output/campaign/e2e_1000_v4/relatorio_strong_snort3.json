@@ -1,0 +1,47 @@
+{
+  "campanha": "e2e_1000_v4",
+  "casos": 1000,
+  "dependencia_de_estado": 0,
+  "divergencia_de_atribuicao": 0,
+  "efetivos": 134,
+  "fallback_operacional": 826,
+  "gerado_em": "2026-10-06T17:29:20+00:00",
+  "negativo_header": {
+    "categorias": {
+      "P4_NO_MATCH": 101
+    },
+    "taxa_no_match_dominio_suportado": 1.0
+  },
+  "negativo_payload": {
+    "categorias": {
+      "P4_CANDIDATE": 922,
+      "P4_NO_MATCH": 78
+    },
+    "nota": "candidate sem alerta e o excesso conservador do prefilter",
+    "taxa_candidato_dominio_suportado": 0.922
+  },
+  "parametros": {
+    "bmv2_executado": true,
+    "device_id": 0,
+    "endereco": "127.0.0.1:9559",
+    "interface": "veth1",
+    "intervalo": 0.1,
+    "snort_executado": true
+  },
+  "particao": "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/campaign/particoes_snort3/strong.json",
+  "plano": "output/campaign/plano_strong_discriminator_snort3/p4runtime_install_plan.json",
+  "quadros": 6684,
+  "testemunha": {
+    "categorias": {
+      "P4_CANDIDATE": 922,
+      "P4_NO_MATCH": 78
+    },
+    "taxa_candidato_dominio_suportado": 0.922
+  },
+  "vacuos": 40,
+  "vereditos": {
+    "CONFIRMADO": 134,
+    "FALLBACK_OPERACIONAL": 826,
+    "VACUO": 40
+  }
+}

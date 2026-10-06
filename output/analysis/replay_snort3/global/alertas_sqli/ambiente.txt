@@ -1,0 +1,12 @@
+gerado_em=2026-10-05T23:24:05Z
+commit=14c2042a62aa8c3fc9745aa412346cd06dc40da7
+pcap=output/experiments/cicids2017_thursday_sqli/candidate_alert_packets.pcap
+pcap_sha256=c36ded14ad9b04b9c423016681660e10882b027dbca027a2354b5a4aa26d28c0
+programa_sha256=f5167adc69e8ae053d4496a7b3a17715aff0e483c6d7aa27aadd13c99f005992
+p4info_sha256=0d60057afb6f34e904f7b8fb2f0a1d6af3e8b2959fedfdadeea9b6916acdf6f4
+plano=/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/p4runtime_install_plan.json
+plano_sha256=b11a25104c8127a699481b139140ef953da8bfe418577c47e43b2cf8a3678d3e
+intervalo_s=0.02
+txqueuelen=10000
+ociosidade_s=10
+drenagem_s=10

@@ -1,0 +1,166 @@
+{
+  "status": "VALID",
+  "counter_layout": {
+    "0": "p4_candidate",
+    "1": "p4_no_match",
+    "2": "packet_domain_fallback"
+  },
+  "entries_used": 235,
+  "cases": [
+    {
+      "case": "tcp_candidate",
+      "offline_expected": "p4_candidate",
+      "offline_reason": "supported_packet_domain",
+      "counter_delta": {
+        "p4_candidate": 1,
+        "p4_no_match": 0,
+        "packet_domain_fallback": 0
+      },
+      "observed_categories": [
+        "p4_candidate"
+      ],
+      "status": "PASS"
+    },
+    {
+      "case": "udp_candidate",
+      "offline_expected": "p4_candidate",
+      "offline_reason": "supported_packet_domain",
+      "counter_delta": {
+        "p4_candidate": 1,
+        "p4_no_match": 0,
+        "packet_domain_fallback": 0
+      },
+      "observed_categories": [
+        "p4_candidate"
+      ],
+      "status": "PASS"
+    },
+    {
+      "case": "icmp_candidate",
+      "offline_expected": "p4_candidate",
+      "offline_reason": "supported_packet_domain",
+      "counter_delta": {
+        "p4_candidate": 1,
+        "p4_no_match": 0,
+        "packet_domain_fallback": 0
+      },
+      "observed_categories": [
+        "p4_candidate"
+      ],
+      "status": "PASS"
+    },
+    {
+      "case": "guaranteed_no_match",
+      "offline_expected": "p4_no_match",
+      "offline_reason": "supported_packet_domain",
+      "counter_delta": {
+        "p4_candidate": 0,
+        "p4_no_match": 1,
+        "packet_domain_fallback": 0
+      },
+      "observed_categories": [
+        "p4_no_match"
+      ],
+      "status": "PASS"
+    },
+    {
+      "case": "tcp_exact_flags_candidate",
+      "offline_expected": "p4_candidate",
+      "offline_reason": "supported_packet_domain",
+      "counter_delta": {
+        "p4_candidate": 1,
+        "p4_no_match": 0,
+        "packet_domain_fallback": 0
+      },
+      "observed_categories": [
+        "p4_candidate"
+      ],
+      "status": "PASS"
+    },
+    {
+      "case": "tcp_masked_flags_candidate",
+      "offline_expected": "p4_candidate",
+      "offline_reason": "supported_packet_domain",
+      "counter_delta": {
+        "p4_candidate": 1,
+        "p4_no_match": 0,
+        "packet_domain_fallback": 0
+      },
+      "observed_categories": [
+        "p4_candidate"
+      ],
+      "status": "PASS"
+    },
+    {
+      "case": "ipv4_options",
+      "offline_expected": "packet_domain_fallback",
+      "offline_reason": "ipv4_ihl_not_5",
+      "counter_delta": {
+        "p4_candidate": 0,
+        "p4_no_match": 0,
+        "packet_domain_fallback": 1
+      },
+      "observed_categories": [
+        "packet_domain_fallback"
+      ],
+      "status": "PASS"
+    },
+    {
+      "case": "first_fragment_mf",
+      "offline_expected": "packet_domain_fallback",
+      "offline_reason": "ipv4_fragmented_or_reserved_flags",
+      "counter_delta": {
+        "p4_candidate": 0,
+        "p4_no_match": 0,
+        "packet_domain_fallback": 1
+      },
+      "observed_categories": [
+        "packet_domain_fallback"
+      ],
+      "status": "PASS"
+    },
+    {
+      "case": "noninitial_fragment",
+      "offline_expected": "packet_domain_fallback",
+      "offline_reason": "ipv4_fragmented_or_reserved_flags",
+      "counter_delta": {
+        "p4_candidate": 0,
+        "p4_no_match": 0,
+        "packet_domain_fallback": 1
+      },
+      "observed_categories": [
+        "packet_domain_fallback"
+      ],
+      "status": "PASS"
+    },
+    {
+      "case": "truncated_ipv4",
+      "offline_expected": "packet_domain_fallback",
+      "offline_reason": "truncated_ipv4",
+      "counter_delta": {
+        "p4_candidate": 0,
+        "p4_no_match": 0,
+        "packet_domain_fallback": 1
+      },
+      "observed_categories": [
+        "packet_domain_fallback"
+      ],
+      "status": "PASS"
+    },
+    {
+      "case": "truncated_tcp",
+      "offline_expected": "packet_domain_fallback",
+      "offline_reason": "truncated_tcp",
+      "counter_delta": {
+        "p4_candidate": 0,
+        "p4_no_match": 0,
+        "packet_domain_fallback": 1
+      },
+      "observed_categories": [
+        "packet_domain_fallback"
+      ],
+      "status": "PASS"
+    }
+  ],
+  "failures": []
+}

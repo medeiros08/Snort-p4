@@ -1,0 +1,18 @@
+
+=== P4Runtime BMv2 Installation ===
+
+Plan                   : output/p4runtime_install_plan.json
+Target                 : 127.0.0.1:9559
+Device ID              : 0
+Planned entries        : 235
+Table ID               : 43167662
+
+gRPC connection         : OK
+Master arbitration      : OK
+Pipeline configuration  : OK
+WriteRequest entries    : 235
+Entries read back       : 235
+
+Installation status     : VALID
+
+P4Runtime installation complete.

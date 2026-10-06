@@ -1,0 +1,50 @@
+campanha             e2e_1000_v4
+casos                1000
+quadros              6684
+
+[1/3] Snort sobre o pcap da campanha
+  snort: /home/arthur/snort3-install/bin/snort -q -c /mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/config/snort3_experiment.lua -R /mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/rules/snort3-community.rules ...
+  alertas indexados: 1149 em 1023 pacote(s)
+
+[2/3] BMv2: um quadro por vez, com leitura de contador
+  tabela confere com p4runtime_install_plan.json: 235 entradas
+  250/6684 quadros classificados
+  500/6684 quadros classificados
+  750/6684 quadros classificados
+  1000/6684 quadros classificados
+  1250/6684 quadros classificados
+  1500/6684 quadros classificados
+  1750/6684 quadros classificados
+  2000/6684 quadros classificados
+  2250/6684 quadros classificados
+  2500/6684 quadros classificados
+  2750/6684 quadros classificados
+  3000/6684 quadros classificados
+  3250/6684 quadros classificados
+  3500/6684 quadros classificados
+  3750/6684 quadros classificados
+  4000/6684 quadros classificados
+  4250/6684 quadros classificados
+  4500/6684 quadros classificados
+  4750/6684 quadros classificados
+  5000/6684 quadros classificados
+  5250/6684 quadros classificados
+  5500/6684 quadros classificados
+  5750/6684 quadros classificados
+  6000/6684 quadros classificados
+  6250/6684 quadros classificados
+  6500/6684 quadros classificados
+
+[3/3] veredito por caso
+
+    958  CONFIRMADO
+      2  FALLBACK_OPERACIONAL
+     40  VACUO
+
+  efetivos 958 | vacuos 40
+
+  resultado  output/campaign/e2e_1000_v4/resultado_snort3.jsonl
+  relatorio  output/campaign/e2e_1000_v4/relatorio_snort3.json
+
+CAMPANHA SEM VIOLACAO.
+Atencao: 40 caso(s) vacuo(s); isso nao e o mesmo que confirmar.

@@ -20,7 +20,9 @@ The manuscript will report the `snort3` numbers as its results and the
 - The `legacy` artifacts are archived byte for byte in
   `output/historical/legacy_header_semantics/`, and every result measured
   with them stays valid as a `legacy` result (§5).
-- Data-plane measurements under `snort3` are pending (§6).
+- The data-plane measurements were redone under the `snort3` plans on the
+  rig on 2026-10-05/06. Every one matches its offline prediction exactly,
+  with no VIOLATION (§6). Only the manuscript is pending (§7).
 
 ## 2. What changed in the code
 
@@ -131,17 +133,118 @@ overwritten:
 - `output/analysis/operational_policy_simulation_snort3.json`
 - `output/campaign/plano_strong_discriminator_snort3/` (225 entries, 739
   rules prefiltered, 3,257 in operational fallback)
+- `output/campaign/particoes_snort3/{global,strong}.json`: the fallback
+  partitions of the campaigns (global: the 21 UNSUPPORTED; strong: those
+  plus the operational fallback, 3,278)
+- `output/analysis/replay_expected_snort3.json`: the offline expected counts
+  of every replay (`tests/expected_replay_counts.py`)
+- the data-plane results of §6
 
-## 6. Pending
+## 6. Data-plane measurements under `snort3`
 
-- **Data plane (rig).** Re-measure under the `snort3` plans:
-  - the controlled packet-domain and flag cases;
-  - the replay accounting of the three windows;
-  - alert-packet preservation;
-  - the end-to-end campaign;
-  - the off-port service test. No VIOLATION is expected under either
-    plan: `snort3` predicates no longer constrain the port, so each rule is
-    either prefiltered by an address-only predicate that covers the witness,
-    or, under the strong-discriminator plan, in operational fallback.
+Run on the rig with `scripts/rig_fase_b_snort3.sh tudo` at commit `14c2042`,
+from 2026-10-05 to 2026-10-06. Plans: global `b11a2510…` (235 entries) and
+strong `6d65b1d4…` (225 entries). Every installation read back all its
+entries (`Installation status: VALID`).
+
+Every measurement equals its offline prediction exactly. There is no
+VIOLATION and no STATE DEPENDENCY.
+
+### 6.1 Controlled cases (global plan)
+
+- **IPv4 packet-domain guard:** `VALID`, 11/11
+  (`output/analysis/ipv4_packet_domain_guard_test_snort3.json`). The
+  `legacy` 11/11 in `ipv4_packet_domain_guard_test.json` is untouched.
+- **TCP flag lowering:** `VALID`, candidate delta +6 of +6 expected
+  (`output/analysis/fase_b_snort3/controlados/flags.log`).
+
+### 6.2 Replay accounting
+
+Protocol of the handoff §11: fresh switch, `txqueuelen` 10000, exact-bytes
+AF_PACKET sender at 2 ms, 10 s idle audit and 10 s drain. Results are in
+`output/analysis/replay_snort3/{global,strong}/`, each with a
+`resultado.json` from `tests/analyze_replay_pos_correcao.py`.
+
+All 12 measurements are `ACCOUNTING_VALID`:
+
+- the idle delta is zero;
+- the switch counted every frame sent, so no frame was lost;
+- each counter category equals the offline expectation in
+  `output/analysis/replay_expected_snort3.json`.
+
+| Measurement | Frames | Global: cand / no-match / fallback | Strong: cand / no-match / fallback |
+|---|---:|---:|---:|
+| SQLi alert packets | 150 | 150 / 0 / 0 | 0 / 150 / 0 |
+| XSS alert packets | 528 | 528 / 0 / 0 | 0 / 528 / 0 |
+| Brute Force alert packets | 2,391 | 2,391 / 0 / 0 | 3 / 2,388 / 0 |
+| SQLi window | 35,274 | 34,924 / 0 / 350 | 32,234 / 2,690 / 350 |
+| XSS window | 191,848 | 189,076 / 0 / 2,772 | 174,277 / 14,799 / 2,772 |
+| Brute Force window | 1,108,658 | 1,101,459 / 0 / 7,199 | 1,045,116 / 56,343 / 7,199 |
+
+**Global plan.** It admits every supported-domain packet of the three
+windows. The Brute Force window gives the same counts as the `legacy`
+post-correction replay.
+
+**Strong plan.**
+- The candidate rates over the supported domain are 92.298%, 92.173% and
+  94.885%. These are the §4.4 trace rates.
+- All but 3 alert packets are `P4_NO_MATCH`. This is the predicted outcome,
+  not a loss. Every alert in these traces comes from a rule in operational
+  fallback (§4.4), which Snort inspects outside the prefilter.
+
+**Timing of the strong Brute Force replay.** Its wall clock spanned the
+night, because the WSL VM was paused part of the way through. The sender's
+own elapsed time, which does not count the pause, is 3,508 s. The
+accounting still closes exactly.
+
+### 6.3 End-to-end campaigns
+
+The fallback partitions are `output/campaign/particoes_snort3/`. Reports are
+`relatorio_snort3.json` and `relatorio_strong_snort3.json` in each campaign
+directory.
+
+| Campaign | Plan | CONFIRMED | OPERATIONAL FALLBACK | VACUOUS | VIOLATION | STATE DEP. |
+|---|---|---:|---:|---:|---:|---:|
+| `e2e_1000_v4` | global (235) | 958 | 2 | 40 | 0 | 0 |
+| `e2e_1000_v4` | strong (225) | 134 | 826 | 40 | 0 | 0 |
+| `servico_fora_do_cabecalho` | global (235) | 190 | 0 | 10 | 0 | 0 |
+| `servico_fora_do_cabecalho` | strong (225) | 0 | 190 | 10 | 0 | 0 |
+
+`tests/compare_campaign_snort3.py` checks the runs case by case and writes
+`output/analysis/fase_b_snort3/comparacao_campanhas.json`:
+
+- **Against the offline precheck:** in all 2,400 cases, every role's
+  measured P4 category equals the one predicted offline. This covers the
+  witness, the payload negative, and the header negative.
+- **Against Snort:** Snort's alerts are byte-identical between the global
+  and strong runs. They also match the `legacy` runs of the same pcaps:
+  the same cases alerted, on the same packets. Snort does not depend on the
+  installed plan, so only the P4 side changed.
+
+**Differences from `legacy`:**
+
+- **`e2e_1000_v4`, global plan.** The 2 operational-fallback cases are sids
+  56583 and 56584. They are `NECESSARY` under `legacy` and `UNSUPPORTED`
+  under `snort3` (14 → 21 in §4.2), so the partition sends them to fallback.
+- **`e2e_1000_v4`, strong plan.** Compared with the `legacy` strong run:
+  - 717 CONFIRMED cases move to operational fallback. Their service-based
+    rules leave the strong set under `snort3`.
+  - The 2 `legacy` STATE DEPENDENCY cases also move to fallback. They are
+    sids 43809 and 47386, alerted on an HTTP flush ACK.
+  - 78 witnesses are `P4_NO_MATCH`, all of them for rules in operational
+    fallback, as the precheck predicted.
+  - The other 134 CONFIRMED, 107 FALLBACK and 40 VACUOUS cases are
+    unchanged.
+- **`servico_fora_do_cabecalho`, strong plan.** The 190 `legacy` VIOLATIONs
+  become 190 OPERATIONAL FALLBACK under `snort3`. Under `snort3`, the strong
+  plan no longer prefilters these service-based rules by a port they do not
+  check. This closes the discrepancy of `SERVICE_BASED_HEADER_FINDING.md`
+  §9. 64 witnesses are `P4_NO_MATCH`, all for rules in fallback, as the
+  precheck predicted.
+- **`servico_fora_do_cabecalho`, global plan.** The 190 CONFIRMED and 10
+  VACUOUS cases are unchanged.
+
+## 7. Pending
+
 - **Manuscript.** Report the `snort3` numbers as results and the `legacy`
   ones as history.

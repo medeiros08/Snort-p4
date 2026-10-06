@@ -1,0 +1,223 @@
+{
+  "analise": "replay_pos_correcao",
+  "gerado_em": "2026-10-06T16:26:38+00:00",
+  "gerador": "tests/analyze_replay_pos_correcao.py",
+  "medicoes": {
+    "alertas_bruteforce": {
+      "status": "ACCOUNTING_VALID",
+      "enviados": 2391,
+      "contados_pelo_switch": 2391,
+      "perdidos": 0,
+      "medido": {
+        "P4_CANDIDATE": 2391,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0
+      },
+      "esperado_offline": {
+        "P4_CANDIDATE": 2391,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0
+      },
+      "ociosidade_delta": {
+        "P4_CANDIDATE": 0,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0
+      },
+      "problemas": [],
+      "ambiente": {
+        "gerado_em": "2026-10-05T23:25:06Z",
+        "commit": "14c2042a62aa8c3fc9745aa412346cd06dc40da7",
+        "pcap": "output/experiments/cicids2017_thursday_bruteforce/candidate_alert_packets.pcap",
+        "pcap_sha256": "ed00df639af5e83d215e20cde9d5d77ddb1b7056884de555fa638856a0ece830",
+        "programa_sha256": "f5167adc69e8ae053d4496a7b3a17715aff0e483c6d7aa27aadd13c99f005992",
+        "p4info_sha256": "0d60057afb6f34e904f7b8fb2f0a1d6af3e8b2959fedfdadeea9b6916acdf6f4",
+        "plano": "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/p4runtime_install_plan.json",
+        "plano_sha256": "b11a25104c8127a699481b139140ef953da8bfe418577c47e43b2cf8a3678d3e",
+        "intervalo_s": "0.02",
+        "txqueuelen": "10000",
+        "ociosidade_s": "10",
+        "drenagem_s": "10"
+      }
+    },
+    "alertas_sqli": {
+      "status": "ACCOUNTING_VALID",
+      "enviados": 150,
+      "contados_pelo_switch": 150,
+      "perdidos": 0,
+      "medido": {
+        "P4_CANDIDATE": 150,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0
+      },
+      "esperado_offline": {
+        "P4_CANDIDATE": 150,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0
+      },
+      "ociosidade_delta": {
+        "P4_CANDIDATE": 0,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0
+      },
+      "problemas": [],
+      "ambiente": {
+        "gerado_em": "2026-10-05T23:24:05Z",
+        "commit": "14c2042a62aa8c3fc9745aa412346cd06dc40da7",
+        "pcap": "output/experiments/cicids2017_thursday_sqli/candidate_alert_packets.pcap",
+        "pcap_sha256": "c36ded14ad9b04b9c423016681660e10882b027dbca027a2354b5a4aa26d28c0",
+        "programa_sha256": "f5167adc69e8ae053d4496a7b3a17715aff0e483c6d7aa27aadd13c99f005992",
+        "p4info_sha256": "0d60057afb6f34e904f7b8fb2f0a1d6af3e8b2959fedfdadeea9b6916acdf6f4",
+        "plano": "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/p4runtime_install_plan.json",
+        "plano_sha256": "b11a25104c8127a699481b139140ef953da8bfe418577c47e43b2cf8a3678d3e",
+        "intervalo_s": "0.02",
+        "txqueuelen": "10000",
+        "ociosidade_s": "10",
+        "drenagem_s": "10"
+      }
+    },
+    "alertas_xss": {
+      "status": "ACCOUNTING_VALID",
+      "enviados": 528,
+      "contados_pelo_switch": 528,
+      "perdidos": 0,
+      "medido": {
+        "P4_CANDIDATE": 528,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0
+      },
+      "esperado_offline": {
+        "P4_CANDIDATE": 528,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0
+      },
+      "ociosidade_delta": {
+        "P4_CANDIDATE": 0,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0
+      },
+      "problemas": [],
+      "ambiente": {
+        "gerado_em": "2026-10-05T23:24:31Z",
+        "commit": "14c2042a62aa8c3fc9745aa412346cd06dc40da7",
+        "pcap": "output/experiments/cicids2017_thursday_xss/candidate_alert_packets.pcap",
+        "pcap_sha256": "f61950609991ebe20bf525981ea987144e02c9893dfe7aeef54b1eb59ef4ab30",
+        "programa_sha256": "f5167adc69e8ae053d4496a7b3a17715aff0e483c6d7aa27aadd13c99f005992",
+        "p4info_sha256": "0d60057afb6f34e904f7b8fb2f0a1d6af3e8b2959fedfdadeea9b6916acdf6f4",
+        "plano": "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/p4runtime_install_plan.json",
+        "plano_sha256": "b11a25104c8127a699481b139140ef953da8bfe418577c47e43b2cf8a3678d3e",
+        "intervalo_s": "0.02",
+        "txqueuelen": "10000",
+        "ociosidade_s": "10",
+        "drenagem_s": "10"
+      }
+    },
+    "janela_bruteforce": {
+      "status": "ACCOUNTING_VALID",
+      "enviados": 1108658,
+      "contados_pelo_switch": 1108658,
+      "perdidos": 0,
+      "medido": {
+        "P4_CANDIDATE": 1101459,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 7199
+      },
+      "esperado_offline": {
+        "P4_CANDIDATE": 1101459,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 7199
+      },
+      "ociosidade_delta": {
+        "P4_CANDIDATE": 0,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0
+      },
+      "problemas": [],
+      "ambiente": {
+        "gerado_em": "2026-10-05T23:36:27Z",
+        "commit": "14c2042a62aa8c3fc9745aa412346cd06dc40da7",
+        "pcap": "/mnt/c/Users/amede/datasets/cicids2017/windows/thursday_web_bruteforce.pcap",
+        "pcap_sha256": "c41480e5d9494ab56325c9b53d23301b0c182230ee1cf6af50f5489010d5edeb",
+        "programa_sha256": "f5167adc69e8ae053d4496a7b3a17715aff0e483c6d7aa27aadd13c99f005992",
+        "p4info_sha256": "0d60057afb6f34e904f7b8fb2f0a1d6af3e8b2959fedfdadeea9b6916acdf6f4",
+        "plano": "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/p4runtime_install_plan.json",
+        "plano_sha256": "b11a25104c8127a699481b139140ef953da8bfe418577c47e43b2cf8a3678d3e",
+        "intervalo_s": "0.002",
+        "txqueuelen": "10000",
+        "ociosidade_s": "10",
+        "drenagem_s": "10"
+      }
+    },
+    "janela_sqli": {
+      "status": "ACCOUNTING_VALID",
+      "enviados": 35274,
+      "contados_pelo_switch": 35274,
+      "perdidos": 0,
+      "medido": {
+        "P4_CANDIDATE": 34924,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 350
+      },
+      "esperado_offline": {
+        "P4_CANDIDATE": 34924,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 350
+      },
+      "ociosidade_delta": {
+        "P4_CANDIDATE": 0,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0
+      },
+      "problemas": [],
+      "ambiente": {
+        "gerado_em": "2026-10-05T23:26:19Z",
+        "commit": "14c2042a62aa8c3fc9745aa412346cd06dc40da7",
+        "pcap": "/mnt/c/Users/amede/datasets/cicids2017/windows/thursday_web_sqli.pcap",
+        "pcap_sha256": "7e36b2e25a8846b0019a2049a3e74e14818340be350e0ae25022de75dd24859d",
+        "programa_sha256": "f5167adc69e8ae053d4496a7b3a17715aff0e483c6d7aa27aadd13c99f005992",
+        "p4info_sha256": "0d60057afb6f34e904f7b8fb2f0a1d6af3e8b2959fedfdadeea9b6916acdf6f4",
+        "plano": "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/p4runtime_install_plan.json",
+        "plano_sha256": "b11a25104c8127a699481b139140ef953da8bfe418577c47e43b2cf8a3678d3e",
+        "intervalo_s": "0.002",
+        "txqueuelen": "10000",
+        "ociosidade_s": "10",
+        "drenagem_s": "10"
+      }
+    },
+    "janela_xss": {
+      "status": "ACCOUNTING_VALID",
+      "enviados": 191848,
+      "contados_pelo_switch": 191848,
+      "perdidos": 0,
+      "medido": {
+        "P4_CANDIDATE": 189076,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 2772
+      },
+      "esperado_offline": {
+        "P4_CANDIDATE": 189076,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 2772
+      },
+      "ociosidade_delta": {
+        "P4_CANDIDATE": 0,
+        "P4_NO_MATCH": 0,
+        "PACKET_DOMAIN_FALLBACK": 0
+      },
+      "problemas": [],
+      "ambiente": {
+        "gerado_em": "2026-10-05T23:28:09Z",
+        "commit": "14c2042a62aa8c3fc9745aa412346cd06dc40da7",
+        "pcap": "/mnt/c/Users/amede/datasets/cicids2017/windows/thursday_web_xss.pcap",
+        "pcap_sha256": "13281f8d7133e0c8aa6286904e3d3e2f2ee4b945654dac444526f5f39bb79fe7",
+        "programa_sha256": "f5167adc69e8ae053d4496a7b3a17715aff0e483c6d7aa27aadd13c99f005992",
+        "p4info_sha256": "0d60057afb6f34e904f7b8fb2f0a1d6af3e8b2959fedfdadeea9b6916acdf6f4",
+        "plano": "/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/p4runtime_install_plan.json",
+        "plano_sha256": "b11a25104c8127a699481b139140ef953da8bfe418577c47e43b2cf8a3678d3e",
+        "intervalo_s": "0.002",
+        "txqueuelen": "10000",
+        "ociosidade_s": "10",
+        "drenagem_s": "10"
+      }
+    }
+  }
+}

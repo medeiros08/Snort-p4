@@ -1,0 +1,102 @@
+{
+  "analise": "comparacao_campanhas_snort3",
+  "gerado_em": "2026-10-06T17:34:19+00:00",
+  "gerador": "tests/compare_campaign_snort3.py",
+  "campanhas": {
+    "e2e_1000_v4": {
+      "_snort3": {
+        "casos": 1000,
+        "vereditos": {
+          "CONFIRMADO": 958,
+          "VACUO": 40,
+          "FALLBACK_OPERACIONAL": 2
+        },
+        "papeis_medidos": {
+          "negativo_payload": 1000,
+          "testemunha": 1000,
+          "negativo_header": 101
+        },
+        "divergencias_do_precheque": [],
+        "fallback_operacional_sids": [
+          "56583",
+          "56584"
+        ]
+      },
+      "_strong_snort3": {
+        "casos": 1000,
+        "vereditos": {
+          "CONFIRMADO": 134,
+          "FALLBACK_OPERACIONAL": 826,
+          "VACUO": 40
+        },
+        "papeis_medidos": {
+          "negativo_payload": 1000,
+          "testemunha": 1000,
+          "negativo_header": 101
+        },
+        "divergencias_do_precheque": [],
+        "fallback_operacional_sids": null,
+        "legacy": {
+          "arquivo": "output/campaign/e2e_1000_v4/resultado_strong.jsonl",
+          "transicoes": {
+            "CONFIRMADO -> CONFIRMADO": 134,
+            "CONFIRMADO -> FALLBACK_OPERACIONAL": 717,
+            "DEPENDENCIA_DE_ESTADO -> FALLBACK_OPERACIONAL": 2,
+            "FALLBACK_OPERACIONAL -> FALLBACK_OPERACIONAL": 107,
+            "VACUO -> VACUO": 40
+          },
+          "casos_com_snort_alertou_diferente": 0,
+          "casos_com_pacotes_alertados_diferentes": 0
+        }
+      },
+      "alertas_snort_identicos_entre_planos": true
+    },
+    "servico_fora_do_cabecalho": {
+      "_snort3": {
+        "casos": 200,
+        "vereditos": {
+          "VACUO": 10,
+          "CONFIRMADO": 190
+        },
+        "papeis_medidos": {
+          "negativo_payload": 200,
+          "testemunha": 200
+        },
+        "divergencias_do_precheque": [],
+        "fallback_operacional_sids": [],
+        "legacy": {
+          "arquivo": "output/campaign/servico_fora_do_cabecalho/resultado.jsonl",
+          "transicoes": {
+            "CONFIRMADO -> CONFIRMADO": 190,
+            "VACUO -> VACUO": 10
+          },
+          "casos_com_snort_alertou_diferente": 0,
+          "casos_com_pacotes_alertados_diferentes": 0
+        }
+      },
+      "_strong_snort3": {
+        "casos": 200,
+        "vereditos": {
+          "VACUO": 10,
+          "FALLBACK_OPERACIONAL": 190
+        },
+        "papeis_medidos": {
+          "negativo_payload": 200,
+          "testemunha": 200
+        },
+        "divergencias_do_precheque": [],
+        "fallback_operacional_sids": null,
+        "legacy": {
+          "arquivo": "output/campaign/servico_fora_do_cabecalho/resultado_strong.jsonl",
+          "transicoes": {
+            "VACUO -> VACUO": 10,
+            "VIOLACAO -> FALLBACK_OPERACIONAL": 190
+          },
+          "casos_com_snort_alertou_diferente": 0,
+          "casos_com_pacotes_alertados_diferentes": 0
+        }
+      },
+      "alertas_snort_identicos_entre_planos": true
+    }
+  }
+}

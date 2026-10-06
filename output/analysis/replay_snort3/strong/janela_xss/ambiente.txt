@@ -1,0 +1,12 @@
+gerado_em=2026-10-06T00:34:57Z
+commit=14c2042a62aa8c3fc9745aa412346cd06dc40da7
+pcap=/mnt/c/Users/amede/datasets/cicids2017/windows/thursday_web_xss.pcap
+pcap_sha256=13281f8d7133e0c8aa6286904e3d3e2f2ee4b945654dac444526f5f39bb79fe7
+programa_sha256=f5167adc69e8ae053d4496a7b3a17715aff0e483c6d7aa27aadd13c99f005992
+p4info_sha256=0d60057afb6f34e904f7b8fb2f0a1d6af3e8b2959fedfdadeea9b6916acdf6f4
+plano=/mnt/c/Users/amede/OneDrive/Desktop/Snort-p4/output/campaign/plano_strong_discriminator_snort3/p4runtime_install_plan.json
+plano_sha256=6d65b1d450047f6b64894606ef93218bf9c9fafffa08632faa14953cb4c58a4e
+intervalo_s=0.002
+txqueuelen=10000
+ociosidade_s=10
+drenagem_s=10
