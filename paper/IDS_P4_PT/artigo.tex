@@ -42,22 +42,22 @@ represent. We present a semantics-aware, target-aware Snort-to-P4 compiler
 that classifies the relation between each rule and its generated predicate as
 \cls{Exact}, \cls{Necessary}, or \cls{Unsupported}, records every omitted
 component in a compilation manifest, and fails open for packets outside an
-explicitly enforced IPv4 domain. Among 4,017 evaluated rules, 4,003 were
-classified as necessary, 14 as unsupported, and none as exact; the backend
-produced 331 P4 entries installed on BMv2. The global binary prefilter
-nevertheless marked 100\% of parser-eligible packets as candidates in three
-CICIDS2017 traces. Observed alerts were preserved, and an end-to-end campaign
-over 1,000 sampled rules, with Snort~3 as the oracle and BMv2 as the target,
-found no violation. Retained provenance reduced the mean per-packet candidate
-rule set by 91--96\% within the 3,611-rule P4-eligible partition, or
-81.81--86.40\% over the full ruleset. We also show, from the Snort~3.12.2.0
-source, that for 2,931 service-based rules the necessary relation holds only
-where Snort evaluates the full header: once the flow's service is identified,
-header ports and protocol are not checked. Compiled with that semantics, the
-candidate-set reduction is bounded at 18.40\% of the ruleset and measured at
-18.29--18.30\%. Semantic safety and operational selectivity are distinct
-properties, and what a rule-derived predicate guarantees depends on how the
-IDS evaluates the rule.
+explicitly enforced IPv4 domain. Following the Snort~3.12.2.0 source, it
+keeps only the header addresses of 2,931 service-based rules, whose ports and
+protocol Snort does not check once it identifies the flow's service; on
+BMv2, an earlier compilation that kept them marked no-match the witnesses of
+190 HTTP rules that alerted off their header port. Among 4,017 evaluated
+rules, 3,996 were classified as necessary, 21 as unsupported, and none as
+exact; the backend produced 235 P4 entries installed on BMv2. The global
+binary prefilter nevertheless marked 100\% of parser-eligible packets as
+candidates in three CICIDS2017 traces replayed on BMv2. Observed alerts were
+preserved, and an end-to-end campaign over 1,000 sampled rules, with Snort~3
+as the oracle and BMv2 as the target, found no violation. Retained
+provenance reduced the mean per-packet candidate set to about four of 739
+P4-eligible rules, but only by 18.3\% over the full ruleset, against 81.8\%
+under the earlier compilation. Semantic safety and operational selectivity
+are distinct properties, and what a rule-derived predicate guarantees, and
+appears to save, depends on how the IDS evaluates the rule.
 \end{abstract}
 
 \section{Introdução}
@@ -132,8 +132,8 @@ operacional, mostrando empiricamente que são propriedades independentes;
 amostradas, com o Snort~3 como oráculo e o BMv2 como alvo;
 \item Mostrar, a partir do código-fonte do Snort~3.12.2.0, que regras
 \emph{service-based} não tornam porta e protocolo do cabeçalho condições
-necessárias, medindo as 2.931 regras afetadas, quais planos continuam
-completos para elas e o que muda numa compilação fiel a essa semântica;
+necessárias, compilar as 2.931 regras afetadas segundo essa semântica e medir
+no BMv2 o que uma compilação anterior, que os mantinha, deixava escapar;
 \item Explorar um uso alternativo da proveniência retida --- em vez de uma
 decisão binária, derivar o conjunto de regras candidatas por pacote --- e
 medir os limites dessa redução.
@@ -343,13 +343,14 @@ dentro de $D$), \texttt{P4\_NO\_MATCH} (nenhuma casou dentro de $D$) e
 incondicionalmente). O veredito \emph{no-match}, o único que poderia justificar
 retirar um pacote do IDS, só é emitido dentro de $D$.
 
-\textbf{Semântica de cabeçalho de regras service-based.} O compilador tem dois
-modos. O modo \texttt{legacy}, padrão e usado em todos os artefatos
-congelados, avalia o cabeçalho de uma regra service-based como o de uma regra
-por porta e registra o serviço como condição delegada. O modo \texttt{snort3}
-delega também porta e protocolo dessas regras, mantendo o protocolo apenas
-quando a opção \texttt{flags} já as restringe a TCP. A
-Seção~\ref{sec:service} mede a diferença entre os dois.
+\textbf{Cabeçalho de regras service-based.} Para uma regra service-based, o
+compilador mantém só os endereços do cabeçalho e delega porta e protocolo ao
+Snort, mantendo o protocolo apenas quando a opção \texttt{flags} já restringe a
+regra a TCP, porque essa opção não casa outro protocolo
+(Seção~\ref{sec:service}). As regras que nomeiam o serviço no cabeçalho, como
+\texttt{alert http}, mantêm o cabeçalho inteiro. Uma versão anterior do
+compilador tratava toda regra pelo cabeçalho inteiro; seus artefatos estão
+arquivados e se regeneram byte a byte.
 
 \section{Avaliação}
 
@@ -358,8 +359,8 @@ semântica; (Q2) se o backend gerado é viável no alvo; (Q3) qual a seletividad
 do pré-filtro resultante; e (Q4) se os alertas observados são preservados e
 se a proveniência retida tem utilidade quando a seletividade binária é baixa.
 As três primeiras caracterizam a proposta; a última verifica empiricamente a
-garantia semântica, que a Seção~\ref{sec:service} confronta ainda com o modo
-como o Snort~3 avalia o cabeçalho.
+garantia semântica. A Seção~\ref{sec:service} compara os resultados com os da
+compilação anterior.
 
 \subsection{Metodologia}
 
@@ -378,18 +379,18 @@ foi feito após inspecioná-lo.
 P4 é compilado pelo \texttt{p4c} 1.2.4.2, com o backend \texttt{p4c-bm2-ss},
 e executado no BMv2 (\texttt{simple\_\allowbreak switch\_\allowbreak grpc}
 1.15.0, modelo v1model) em Ubuntu 22.04, com as entradas instaladas via
-P4Runtime. O replay usa um socket
-AF\_PACKET que transmite os bytes Ethernet capturados sem reserialização,
+P4Runtime. O replay usa um socket AF\_PACKET que transmite os bytes Ethernet
+capturados sem reserialização, a cada 2~ms e com filas veth de 10.000 quadros,
 após instalação nova do pipeline, contadores conferidos em zero e uma
 auditoria de ociosidade com delta nulo; os quadros enviados são reconciliados
 com a soma dos três contadores.
 
 \textbf{Validação do domínio.} Uma suíte controlada envia ao BMv2, com o plano
-de 331 entradas instalado, um quadro por caso e compara o delta dos contadores
-com a expectativa offline. Os onze casos cobrem candidatos TCP, UDP e ICMP, um
-no-match garantido, flags TCP exatas e mascaradas, opções IPv4, primeiro
-fragmento com MF, fragmento não inicial, cabeçalho IPv4 truncado e cabeçalho
-TCP truncado.
+global de 235 entradas instalado, um quadro por caso e compara o delta dos
+contadores com a expectativa offline. Os onze casos cobrem candidatos TCP, UDP
+e ICMP, um no-match garantido, flags TCP exatas e mascaradas, opções IPv4,
+primeiro fragmento com MF, fragmento não inicial, cabeçalho IPv4 truncado e
+cabeçalho TCP truncado.
 
 \textbf{Campanha diferencial fim a fim.} Os traços só exercitam as poucas
 regras que disparam neles. Para testar a garantia sobre mais regras, um
@@ -411,8 +412,12 @@ que satisfaz o cabeçalho da regra, foi no-match --- o único resultado que
 contradiz a propriedade); \cls{Vácuo} (o Snort não alertou, e o caso não
 testou nada); ou \cls{Dependência de estado} (a testemunha foi candidata, mas
 o Snort atribuiu o alerta a um quadro da sessão que não satisfaz o cabeçalho e
-foi no-match). A campanha rodou contra o plano global e contra o plano do
-discriminador forte (Seção~\ref{sec:resultados}).
+foi no-match). Regras em fallback não são pré-filtradas e são contadas à
+parte. O mesmo traço rodou contra o plano global e contra o plano do
+discriminador forte (Seção~\ref{sec:resultados}). Como cada testemunha usa
+uma porta do próprio cabeçalho, uma segunda campanha leva o fluxo HTTP de 200
+regras \texttt{service:http} à porta 18080, que nenhum desses cabeçalhos lista
+(Seção~\ref{sec:service}).
 
 \textbf{Métricas.} (i) cobertura de classificação semântica; (ii) número de
 entradas instaladas, sua validação e a redução do estado de instalação,
@@ -431,156 +436,158 @@ as regras de fallback, que valem para todo pacote.
 artefatos congelados estão em \url{https://github.com/medeiros08/Snort-p4}.
 Os dez artefatos do pipeline (manifesto semântico, partição de regras,
 entradas P4 e plano P4Runtime) são determinísticos: regenerados em uma cópia
-isolada a partir do código versionado, saíram idênticos byte a byte aos
-congelados. A suíte automatizada tem 23 módulos de teste; 20 passam e os
-outros 3, que exigem os bindings P4Runtime/gRPC, só executam no ambiente com o
-BMv2.
+isolada a partir do código versionado, saem idênticos byte a byte, assim como
+os da compilação anterior. A suíte automatizada tem 27 módulos de teste; 24
+passam e os outros 3, que exigem os bindings P4Runtime/gRPC, só executam no
+ambiente com o BMv2.
 
 \subsection{Resultados}
 \label{sec:resultados}
 
-\textbf{Cobertura semântica (Q1).} Das 4.017 regras, 4.003 foram classificadas
-como \cls{Necessary}, 14 como \cls{Unsupported} e \textbf{nenhuma} como
+\textbf{Cobertura semântica (Q1).} Das 4.017 regras, 3.996 foram classificadas
+como \cls{Necessary}, 21 como \cls{Unsupported} e \textbf{nenhuma} como
 \cls{Exact}. O parser leu 4.017 de 4.017 regras sem falha. No nível de
-predicado: 21.300 preservados, 20.621 delegados ao Snort, 2.662 expandidos, 82
+predicado: 14.866 preservados, 29.411 delegados ao Snort, 323 expandidos, 65
 em fallback e \textbf{zero} não avaliados --- isto é, não houve predicado sobre
 o qual o compilador deixasse de decidir. O fato de \cls{Exact} ser zero é o
 resultado esperado, e não um defeito: nenhuma regra do conjunto tem todo o seu
 significado representável no plano de dados, porque praticamente todas
-combinam cabeçalho com \texttt{content} ou com estado de fluxo. As 14
+combinam cabeçalho com \texttt{content} ou com estado de fluxo. As 21
 \cls{Unsupported} não são ignoradas: quatro têm cabeçalho não seletivo, dez
-são regras de serviço sem cabeçalho tradicional, e todas permanecem no Snort.
-A Seção~\ref{sec:service} mostra que, das 4.003 \cls{Necessary}, a garantia
-vale integralmente para 1.072; para as outras 2.931, vale só enquanto o Snort
-avalia o cabeçalho inteiro.
+são regras de serviço sem cabeçalho tradicional, sete são regras
+service-based sem restrição de endereço, cujas únicas condições seletivas
+eram porta e protocolo, e todas permanecem no Snort. Das 3.996
+\cls{Necessary}, 1.072 têm o predicado derivado do cabeçalho inteiro e 2.924,
+service-based, só dos endereços.
 
-\textbf{Viabilidade do backend (Q2).} As 6.675 instâncias de predicado
-geradas, expandidas e normalizadas resultaram em 327 casamentos únicos e, após
-o lowering de flags TCP, em 331 entradas de instalação --- redução de 95,04\%
-no \emph{estado da tabela}, não no tráfego, obtida por deduplicação de
-casamentos idênticos. As 331 entradas foram codificadas e instaladas sem erro
-de codificação ou de validação, dentro da capacidade de 8.192 entradas da
-tabela, e a proveniência liga cada entrada às regras que a originaram.
+\textbf{Viabilidade do backend (Q2).} As 4.040 instâncias de predicado
+geradas, expandidas e normalizadas resultaram em 231 casamentos únicos e, após
+o lowering de flags TCP, em 235 entradas de instalação --- redução de 94,18\%
+no \emph{estado da tabela}, não no tráfego. A maior parte vem das regras service-based, cujos
+predicados só de endereço coincidem: uma única entrada, destino em
+\texttt{HOME\_NET}, carrega a proveniência de 2.043 regras. As 235 entradas
+foram codificadas, instaladas no BMv2 e lidas de volta sem erro, dentro da
+capacidade de 8.192 entradas da tabela.
 
 \textbf{Domínio de pacotes.} A suíte controlada passou nos onze casos com
 deltas exatos; os cinco fragmentados ou truncados caíram em
 \texttt{PACKET\_DOMAIN\_FALLBACK}. Nos traços, ficaram fora de $D$ 350, 2.772
 e 7.199 quadros, quase todos ARP e IPv6, e todos mantidos como candidatos. O
-replay reconcilia quadro a quadro com os contadores nos três traços; no Brute
-Force, a primeira rodada perdeu 87 de 1.108.658 quadros no transporte, e uma
-nova, com filas maiores, contou todos, igual ao classificador offline.
+replay de cada traço inteiro, nos dois planos, contou todos os quadros
+enviados, com cada categoria igual à do classificador offline.
 
 \textbf{Seletividade: o resultado negativo (Q3).} O pré-filtro binário global
 marcou \textbf{100\% dos pacotes elegíveis} como candidatos nos três traços
 (Tabela~\ref{tab:sel}). A análise causal identificou entradas amplas:
-\texttt{p4-106} casa qualquer TCP e subsume 246 das 331 entradas, e
-\texttt{p4-40} e \texttt{p4-138} casam destino e origem em \texttt{HOME\_NET}.
-A ablação com discriminador forte considera forte a entrada que restringe
+\texttt{p4-88} casa qualquer TCP e subsume 162 das 235 entradas, e
+\texttt{p4-10} e \texttt{p4-51} casam destino e origem em \texttt{HOME\_NET} e
+carregam a proveniência de 2.043 e 900 regras, quase todas service-based. A
+ablação com discriminador forte considera forte a entrada que restringe
 porta, flags TCP ou prefixo IPv4 diferente de exatamente \texttt{HOME\_NET}, e
 mantém uma regra P4-elegível só se todas as suas entradas forem fortes. Ela
-removeu nove entradas, manteve 322 para 3.611 regras elegíveis e pôs 392 em
-fallback operacional, além das 14 \cls{Unsupported}; mesmo assim, marcou
-98,869--99,015\% dos pacotes nos traços de desenvolvimento e 98,942\% no
-held-out. A cobertura quase universal persiste, portanto, por acúmulo da
-união entre predicados necessários distribuídos, e não por umas poucas regras
-excessivamente amplas.
+removeu dez entradas, manteve 225 para 739 regras elegíveis e pôs 3.257 em
+fallback operacional, além das 21 \cls{Unsupported}; mesmo assim, no BMv2,
+marcou 92,173--92,298\% dos pacotes nos traços de desenvolvimento e 94,885\%
+no held-out. Quatro entradas retidas chegam a 90\% dos pacotes de SQLi e XSS:
+uma casa TCP para \texttt{HOME\_NET} com o bit ACK, vinda de uma única regra
+SMTP (SID 309, \texttt{flags:A+}), e três casam tráfego de \texttt{HOME\_NET}
+para as portas 443, 80 e 53. São discriminadores fortes pelo critério
+estrutural, mas coincidem com o tráfego dominante.
 
 \begin{table}[t]
 \centering
-\caption{Seletividade e preservação por traço. Candidatos sobre os pacotes em
-$D$; a coluna do discriminador forte foi calculada com o classificador
-offline. Alertas do Snort com o ruleset completo; P4 cand.: pacotes de alerta
-marcados como candidatos.}
+\caption{Seletividade e preservação por traço, medidas no BMv2 com
+contabilidade exata. Candidatos sobre os pacotes em $D$. Alertas do Snort com
+o ruleset completo; P4 cand.: pacotes de alerta marcados como candidatos em
+cada plano. No plano forte, todo alerta vem de regra em fallback.}
 \label{tab:sel}
 \footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{lrrrrrr}
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{lrrrrrrr}
 \toprule
 Traço & Em $D$ & \shortstack{Global\\cand.} & \shortstack{Forte\\cand.} &
-Alertas & SIDs & \shortstack{P4\\cand.} \\
+Alertas & SIDs & \shortstack{P4 cand.\\global} & \shortstack{P4 cand.\\forte} \\
 \midrule
-SQLi & 34.924 & 100\% & 99,015\% & 150 & 1 & 150 \\
-XSS & 189.076 & 100\% & 98,869\% & 528 & 2 & 528 \\
-Brute Force & 1.101.459 & 100\% & 98,942\% & 2.391 & 5 & 2.391 \\
+SQLi & 34.924 & 100\% & 92,298\% & 150 & 1 & 150 & 0 \\
+XSS & 189.076 & 100\% & 92,173\% & 528 & 2 & 528 & 0 \\
+Brute Force & 1.101.459 & 100\% & 94,885\% & 2.391 & 5 & 2.391 & 3 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \textbf{Preservação de alertas (Q4).} Nos três traços, a partição semântica
-não produziu alertas faltantes nem adicionais, e todos os pacotes de alerta
-elegíveis foram candidatos (Tabela~\ref{tab:sel}). As colunas P4 foram
-medidas no BMv2 reproduzindo só os pacotes de alerta, de novo com o programa
-corrigido e com contabilidade exata; a reclassificação offline dá as mesmas
-contagens. No held-out, a auditoria do discriminador forte cobriu 2.289
-eventos por predicados retidos e 102 por fallback, sem nenhum faltante.
-Registra-se, contudo, que nenhuma das 14 regras \cls{Unsupported} disparou e
-que os traços acionaram apenas 1, 2 e 5 SIDs distintos, o que limita o poder
-de discriminação dessa verificação. Os nomes das janelas também não implicam
-que os alertas observados detectaram os ataques rotulados.
-
+não produziu alertas faltantes nem adicionais; as sete regras que a
+compilação atual acrescenta às \cls{Unsupported} não alertaram e não
+participam de dependência de flowbits, de modo que a medição feita com a
+partição anterior vale sem mudança. No BMv2, reproduzindo só os pacotes de
+alerta, todos foram candidatos no plano global (Tabela~\ref{tab:sel}). No
+plano forte, todos menos três foram no-match, sem perda: todo alerta
+observado vem de regra em fallback operacional, que o Snort inspeciona sem o
+pré-filtro. A SID 254, responsável por 2.960 dos 3.069 alertas, declara
+\texttt{service:dns} e, sem UDP e porta 53, fica só com o destino
+\texttt{HOME\_NET}, que não é discriminador forte. Os traços, portanto, não
+exercitam os conjuntos candidatos da Tabela~\ref{tab:cand}. Registra-se ainda
+que nenhuma das 21 regras \cls{Unsupported} disparou e que os traços
+acionaram apenas 1, 2 e 5 SIDs distintos, o que limita o poder de
+discriminação dessa verificação. Os nomes das janelas também não implicam que
+os alertas observados detectaram os ataques rotulados.
 
 \textbf{Campanha fim a fim (Q4).} Nenhum caso resultou em \cls{Violação} em
 nenhum dos dois planos (Tabela~\ref{tab:camp}), nenhum quadro caiu fora de
 $D$, e as duas atribuições de alertas a casos, por faixa de pacotes e por
-timestamp, concordaram em todos. No plano global, 923 regras foram
-confirmadas e 77 foram vácuas; as 1.000 testemunhas e os 1.000 negativos de
-payload foram candidatos, e os 101 negativos de cabeçalho foram no-match.
-Nenhuma confirmação desse plano, porém, pode ser atribuída só ao predicado da
-própria regra: toda testemunha confirmada também casou uma entrada de outra
-regra. É a mesma cobertura ampla que elimina a seletividade, agora eliminando
-o poder de falsificar o lowering de uma regra isolada. No plano do
-discriminador forte, 851 regras foram confirmadas, 153 delas somente pelas
-próprias entradas, de modo que um defeito de lowering nessas regras teria
-aparecido como violação. Nas duas rodadas, a categoria prevista pelo casador
-offline coincidiu com o contador do BMv2 em todos os 2.101 quadros de
-testemunhas e vizinhos. Os dois casos de dependência de estado, SIDs 43809 e
-47386, são regras de requisição HTTP cujo alerta o Snort atribui ao ACK do
-servidor que dispara a inspeção da requisição armazenada, e o plano forte
-marca esse ACK como no-match. O predicado vale para a testemunha, mas um
-sistema que retirasse do IDS os pacotes no-match poderia atrasar ou suprimir
-esses alertas.
+timestamp, concordaram em todos. No plano global, 958 regras foram
+confirmadas, 40 foram vácuas e duas, Kerberos (SIDs 56583 e 56584), ficaram
+em fallback por serem \cls{Unsupported}; as 1.000 testemunhas e os 1.000
+negativos de payload foram candidatos, e os 101 negativos de cabeçalho foram
+no-match. Nenhuma confirmação desse plano, porém, pode ser atribuída só ao
+predicado da própria regra: toda testemunha confirmada também casou uma
+entrada de outra regra. No plano do discriminador forte, 134 regras foram confirmadas, 36 delas somente
+pelas próprias entradas, de modo que um defeito de lowering nessas regras
+teria aparecido como violação; das 826 em fallback operacional, 78 tiveram a
+testemunha marcada no-match, o que não viola nada numa regra que o plano não
+pré-filtra. Nas duas rodadas, a categoria prevista pelo casador offline
+coincidiu com o contador do BMv2 em todos os 2.101 quadros de testemunhas e
+vizinhos. Em 606 regras HTTP em fallback, o Snort atribuiu o alerta ao ACK
+que dispara a inspeção da mensagem armazenada, e o plano forte marcou 445
+desses ACKs como no-match: um sistema que retirasse do IDS os pacotes
+no-match dependeria de manter essas regras fora do pré-filtro, como faz o
+fallback.
 
 \begin{table}[t]
 \centering
-\caption{Campanha diferencial sobre a mesma amostra de 1.000 regras.
-``Só própria'': confirmadas cuja testemunha casou apenas entradas da
-própria regra. A rodada global usou uma revisão anterior do gerador de
-testemunhas; as revisões mudaram só a construção das testemunhas e reduziram
-os casos vácuos.}
+\caption{Campanha diferencial sobre a mesma amostra de 1.000 regras, no mesmo
+traço. Fallb.: regras que o plano não pré-filtra. ``Só própria'':
+confirmadas cuja testemunha casou apenas entradas da própria regra.}
 \label{tab:camp}
 \footnotesize
 \setlength{\tabcolsep}{2.5pt}
 \begin{tabular}{lrrrrrrr}
 \toprule
 Plano & Entr. & Conf. & Viol. & \shortstack{Dep.\\estado} &
-\shortstack{Fallb.\\oper.} & Vácuo & \shortstack{Só\\própria} \\
+Fallb. & Vácuo & \shortstack{Só\\própria} \\
 \midrule
-Global & 331 & 923 & 0 & 0 & -- & 77 & 0 \\
-Forte & 322 & 851 & 0 & 2 & 107 & 40 & 153 \\
+Global & 235 & 958 & 0 & 0 & 2 & 40 & 0 \\
+Forte & 225 & 134 & 0 & 0 & 826 & 40 & 36 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \textbf{Redução do espaço de regras candidatas (Q4).} Usando a proveniência
 retida em vez da decisão binária, o conjunto médio de regras candidatas por
-pacote, dentro da partição P4-elegível de 3.611 regras, foi reduzido em
-95,04\% (SQLi), 96,11\% (XSS) e 91,01\% (Brute Force \emph{held-out}, com
-média de 324,52 regras por pacote), como mostra a
-Tabela~\ref{tab:cand}. As 406 regras de fallback (392 operacionais e 14
-\cls{Unsupported}) valem para todo pacote; contadas contra o ruleset
-completo, as reduções são de 85,43\%, 86,40\% e 81,81\%. A redução vem
-inteiramente da proveniência fina entrada $\rightarrow$ regra: um pré-filtro
-que encaminhasse grupos inteiros de regras perderia a maior parte dela.
-Agrupando por protocolo, com um grupo TCP de 3.439 regras, a redução cai para
-12,30--19,10\%; protocolo e direção chegam a 54--57\%, protocolo e serviço a
-81--92\%, e só protocolo, direção e serviço, com 308 grupos para 322 entradas,
-fica a 0,01 ponto percentual do nível de entrada.
+pacote, dentro da partição P4-elegível de 739 regras, ficou em 3,97 (SQLi),
+3,94 (XSS) e 4,48 (Brute Force \emph{held-out}), redução de 99,39--99,47\%
+(Tabela~\ref{tab:cand}). As 3.278 regras de fallback (3.257 operacionais e
+21 \cls{Unsupported}) valem para todo pacote; contadas contra o ruleset
+completo, as reduções são de 18,30\%, 18,30\% e 18,29\%, logo abaixo do teto
+de 18,40\%. Agrupar regras também custa: por protocolo, com um grupo TCP de
+642 regras, a redução dentro da partição cai para 20,10--25,38\%; protocolo e
+serviço chegam a 98,80--98,96\%.
 
 \begin{table}[t]
 \centering
 \caption{Conjunto de regras candidatas por pacote (offline, plano do
-discriminador forte). $R$ sobre as 3.611 regras P4-elegíveis;
-$R_{\mathrm{full}}$ sobre as 4.017, contando as 406 de fallback;
+discriminador forte). $R$ sobre as 739 regras P4-elegíveis;
+$R_{\mathrm{full}}$ sobre as 4.017, contando as 3.278 de fallback;
 Prot.: redução quando se encaminham grupos inteiros por protocolo.}
 \label{tab:cand}
 \footnotesize
@@ -589,14 +596,14 @@ Prot.: redução quando se encaminham grupos inteiros por protocolo.}
 \toprule
 Traço & Média & Mediana & Máx. & $R$ & $R_{\mathrm{full}}$ & Prot. \\
 \midrule
-SQLi & 179,28 & 27 & 1.228 & 95,04\% & 85,43\% & 19,10\% \\
-XSS & 140,49 & 13 & 1.228 & 96,11\% & 86,40\% & 15,65\% \\
-Brute Force & 324,52 & 241 & 1.228 & 91,01\% & 81,81\% & 12,30\% \\
+SQLi & 3,97 & 3 & 43 & 99,46\% & 18,30\% & 25,38\% \\
+XSS & 3,94 & 3 & 43 & 99,47\% & 18,30\% & 23,95\% \\
+Brute Force & 4,48 & 3 & 293 & 99,39\% & 18,29\% & 20,10\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Regras service-based e o limite da garantia}
+\subsection{Regras service-based e a compilação anterior}
 \label{sec:service}
 
 A premissa de que uma regra só dispara quando todo o seu cabeçalho casa vale
@@ -613,66 +620,69 @@ regras que nomeiam o serviço no cabeçalho, como \texttt{alert http}, que o
 Snort marca como regras de usuário e que mantêm as portas checadas
 (\path{src/parser/parse_rule.cc}).
 
-No modo \texttt{legacy}, o compilador trata o serviço como mais uma condição
-delegada e mantém porta e protocolo no predicado, o que seria correto se o
-Snort exigisse serviço \emph{e} cabeçalho. Das 4.003 regras \cls{Necessary},
-2.931 são afetadas: 2.928 declaram \texttt{service} (\texttt{http} em 2.314,
-\texttt{imap} em 150, \texttt{pop3} em 138, \texttt{smtp} em 131), e três
-(SIDs 529, 3238 e 3239) recebem \texttt{dcerpc} e \texttt{netbios-ssn} das
-opções \texttt{dce\_iface} e \texttt{dce\_stub\_data}
-(\path{src/detection/fp_utils.cc}). Todas têm protocolo no predicado, e 2.877
-também porta; para elas, \snortimpl{} só vale para pacotes cujo serviço o
-Snort não identificou. A garantia vale integralmente para as outras 1.072,
-incluindo as 12 regras \texttt{alert http}. Um predicado restrito aos
-endereços seria necessário para todas as 2.931 e ainda seletivo para 2.924.
+A versão anterior do compilador tratava o serviço como mais uma condição
+delegada e mantinha porta e protocolo no predicado, o que seria correto se o
+Snort exigisse serviço \emph{e} cabeçalho. Isso afetava 2.931 regras: 2.928
+declaram \texttt{service} (\texttt{http} em 2.314, \texttt{imap} em 150,
+\texttt{pop3} em 138, \texttt{smtp} em 131), e três (SIDs 529, 3238 e 3239)
+recebem \texttt{dcerpc} e \texttt{netbios-ssn} das opções
+\texttt{dce\_iface} e \texttt{dce\_stub\_data}
+(\path{src/detection/fp_utils.cc}). Todas tinham protocolo no predicado, e
+2.877 também porta. O plano global anterior, de 331 entradas, ainda cobria
+quase todas por entradas amplas sem porta, mas o plano do discriminador forte
+as removia. O teste com 200 regras \texttt{service:http} na porta 18080
+exercita exatamente esse caso: o Snort alertou em 190, e o plano forte
+anterior marcou no-match as 190 testemunhas e o ACK ao qual o Snort atribui
+cada alerta, isto é, 190 violações. Com a compilação atual, o plano global
+marcou as 190 testemunhas como candidatas, e o plano forte tem as 190 regras
+em fallback operacional (Tabela~\ref{tab:comp}).
 
-Se isso se traduz em candidato perdido depende do plano inteiro. No plano
-global, as entradas sem porta nem protocolo \texttt{p4-40} e \texttt{p4-138}
-contêm a região de alerta de 2.922 dessas regras, e \texttt{p4-106} contém a
-parte TCP das nove restantes (SNMP, TFTP, HTTP e Kerberos). O plano global é,
-portanto, completo para elas, exceto para pacotes não TCP dessas nove. O plano
-do discriminador forte remove justamente essas entradas e não cobre a região
-de nenhuma das 2.877 regras que pré-filtra --- e é dele que derivam os
-conjuntos de regras candidatas da Tabela~\ref{tab:cand}.
+A correção desloca seletividade, e não cobertura. Sem porta e protocolo, a
+maioria das regras service-based fica só com um endereço em
+\texttt{HOME\_NET}, que o discriminador forte não considera discriminante, e
+a partição elegível cai de 3.611 para 739 regras. A redução do conjunto
+candidato sobre o ruleset, que na compilação anterior chegava a 81,81\% no
+held-out, vinha em grande parte de portas que o Snort~3 não checa depois de
+identificar o serviço.
 
-Recompilado no modo \texttt{snort3}, o ruleset dá 3.996 regras
-\cls{Necessary} e 21 \cls{Unsupported}, e o backend produz 235 entradas
-finais em vez de 331. A mesma política de discriminador forte mantém apenas
-739 regras elegíveis, porque um predicado só de endereço sobre
-\texttt{HOME\_NET} não é discriminador forte, e 3.278 regras passam a valer
-para todo pacote: nenhum conjunto candidato fica abaixo delas, o que limita a
-redução sobre o ruleset a 18,40\%. Medida offline nos três traços, com o
-mesmo espelho do parser e o mesmo casador que reproduzem exatamente os números
-congelados no modo \texttt{legacy}, a compilação corrigida mantém o
-pré-filtro global em 100\%; o discriminador forte marca 92,298\%, 92,173\% e
-94,885\% dos pacotes; o conjunto médio cai para 3,97, 3,94 e 4,48 das 739
-regras elegíveis; e a redução sobre o ruleset fica em 18,30\%, 18,30\% e
-18,29\%. A auditoria dos 3.069 alertas não perde nenhum, mas só porque todos
-passam a vir de regras em fallback: a SID 254, responsável por 2.960 deles,
-declara \texttt{service:dns} e, sem UDP e porta 53, fica apenas com o destino
-\texttt{HOME\_NET}. Os traços, portanto, não exercitam os conjuntos candidatos
-corrigidos. Nenhum plano da compilação corrigida foi instalado no BMv2. Um
-teste no BMv2 com 200 regras \texttt{service:http} na porta 18080 confirmou
-o achado: o Snort alertou em 190, e o plano forte marcou todas como no-match.
+\begin{table}[t]
+\centering
+\caption{Compilação anterior (cabeçalho inteiro) e atual (só endereços nas
+regras service-based). Valores de traço no Brute Force held-out.}
+\label{tab:comp}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrr}
+\toprule
+ & Anterior & Atual \\
+\midrule
+\cls{Necessary} / \cls{Unsupported} & 4.003 / 14 & 3.996 / 21 \\
+Entradas (global / forte) & 331 / 322 & 235 / 225 \\
+Regras elegíveis no forte & 3.611 & 739 \\
+Candidatos no forte & 98,942\% & 94,885\% \\
+$R_{\mathrm{full}}$ & 81,81\% & 18,29\% \\
+Fora da porta: violações / fallback & 190 / 0 & 0 / 190 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Discussão dos resultados}
 
 Os achados centrais são três. O primeiro é negativo: segurança semântica não
 implica seletividade operacional, e a mesma união de predicados que elimina a
 seletividade também elimina o poder de teste --- no plano global, nenhuma
-confirmação da campanha dependia só da regra testada. O segundo é construtivo,
-mas limitado: a proveniência indica quais regras importam para cada pacote,
-porém a redução vem da granularidade por entrada, desaparece com agrupamento
-grosseiro e repousa em portas que o Snort~3 não usa depois de identificar o
-serviço. Um seletor de candidatas que usasse também o serviço identificado ---
-que o próprio Snort usa para rejeitar regras de outros serviços --- é o passo
-natural seguinte e não foi avaliado aqui. O terceiro é que a garantia de um
-predicado derivado de regra depende de como o IDS avalia a regra, e não só do
-texto do cabeçalho: no plano global, as entradas amplas que eliminaram a
-seletividade foram as mesmas que o mantiveram completo para as regras
-service-based. Todas as medidas de conjunto candidato são de viabilidade
-\emph{offline}: não foi implementada execução do Snort orientada por conjunto
-de candidatos.
+confirmação da campanha dependia só da regra testada. O segundo é que a
+garantia de um predicado derivado de regra depende de como o IDS avalia a
+regra, e não só do texto do cabeçalho: a compilação que mantinha as portas
+deixava escapar alertas no plano forte, e sua aparente seletividade vinha em
+boa parte dessas portas. O terceiro é construtivo, mas limitado: a
+proveniência indica quais regras importam para cada pacote, porém, com a
+semântica do Snort~3, poucas regras restam discriminadas pelo cabeçalho, e a
+redução sobre o ruleset fica em 18,3\%. Um seletor de candidatas que usasse
+também o serviço identificado --- que o próprio Snort usa para rejeitar regras
+de outros serviços --- é o passo natural seguinte e não foi avaliado aqui.
+Todas as medidas de conjunto candidato são de viabilidade \emph{offline}: não
+foi implementada execução do Snort orientada por conjunto de candidatos.
 
 \subsection{Limitações}
 
@@ -680,27 +690,26 @@ Os resultados valem para um ruleset, um perfil de variáveis e um conjunto de
 dados antigo em relação ao tráfego atual. Para as quantidades por pacote,
 medimos também, offline, a quinta-feira inteira (9.322.025 quadros, 9.240.405
 em $D$): o pré-filtro global continua em 100\%, o discriminador forte marca
-97,534\%, e a redução média é de 93,73\% na partição elegível, 84,25\% sobre o
-ruleset e 18,29\% com a compilação corrigida; as janelas não são atípicas do
-dia, mas os alertas do Snort não foram calculados para o restante dele. A
-campanha amplia a cobertura de regras para 851--923, mas com tráfego
-sintético, um ponto por regra e sempre numa porta do próprio cabeçalho, de
-modo que não observa a avaliação service-based; as 1.875 regras sem
-testemunha sintetizável não foram testadas. A semântica service-based foi
-estabelecida pela leitura do código-fonte e da documentação do
-Snort~3.12.2.0 e confirmada no BMv2 só para um serviço e uma porta. O alvo é o BMv2 em
-software: não houve medição de vazão, latência ou recursos de hardware.
-Fora do ruleset avaliado, o compilador só foi exercitado na compilação:
-compilou as regras do Snort~2.9.15.1 distribuídas pelo Ubuntu, brutas e
-convertidas pelo \texttt{snort2lua}, depois de removidas as 48 linhas com
-variáveis que o Snort~3 não define e também recusa; as dez regras só de
-cabeçalho desse ruleset, únicas classificadas como \cls{Exact}, concordaram
-com o Snort nos 340 pares (quadro, regra) amostrados, com o lado P4 avaliado
-pelo casador offline. Por
-fim, algumas condições de cabeçalho representáveis ainda são omitidas, o que
-só alarga os predicados: faixas de porta, tipo e código ICMP e
-\texttt{ip\_proto}. Representá-las elevaria a redução sobre o ruleset do plano
-forte em no máximo 1,8, 3,1 e 0,07 ponto percentual, respectivamente.
+95,335\%, e a redução média é de 99,42\% na partição elegível e 18,29\% sobre
+o ruleset; as janelas não são atípicas do dia, mas os alertas do Snort não
+foram calculados para o restante dele. A campanha amplia a cobertura de
+regras para 958 e 134 confirmadas, mas com tráfego sintético, um ponto por
+regra e sempre numa porta do próprio cabeçalho, de modo que só o teste
+dedicado observa a avaliação service-based; as 1.875 regras sem testemunha
+sintetizável não foram testadas. A semântica service-based foi estabelecida
+pela leitura do código-fonte e da documentação do Snort~3.12.2.0 e confirmada
+no BMv2 só para um serviço e uma porta. A partição do discriminador forte não
+é fechada sob flowbits: 24 arestas a cruzam, todas no flowbit
+\texttt{smb.trans2}, e uma execução que separasse os dois lados teria de
+manter esse componente junto. O alvo é o BMv2 em software: não houve medição
+de vazão, latência ou recursos de hardware. Fora do ruleset avaliado, o
+compilador só foi exercitado na compilação, sobre as regras do
+Snort~2.9.15.1 distribuídas pelo Ubuntu; as dez regras só de cabeçalho desse
+ruleset, únicas classificadas como \cls{Exact}, concordaram com o Snort nos
+340 pares (quadro, regra) amostrados. Por fim, algumas condições de cabeçalho representáveis ainda são
+omitidas, o que só alarga os predicados: faixas de porta, tipo e código ICMP
+e \texttt{ip\_proto}. Representá-las elevaria a redução sobre o ruleset do
+plano forte em no máximo 1,3, 3,1 e 0,07 ponto percentual, respectivamente.
 
 \section{Conclusão e Trabalhos Futuros}
 
@@ -716,32 +725,32 @@ de cobertura de tradução o revele.
 
 Este trabalho desenvolveu um compilador Snort-para-P4 que busca garantir que
 todo pacote sobre o qual uma regra dispararia seja marcado como candidato, e
-que registra explicitamente cada componente semântico omitido. Das 4.017 regras avaliadas, 4.003 resultaram em predicados
-necessários e 14 foram declaradas não suportadas; o backend instalou 331
-entradas em um alvo BMv2, com fail-open fora do domínio que o parser
-interpreta. Os alertas observados foram preservados, e a campanha fim a fim
-sobre 1.000 regras não encontrou violação. O principal resultado é negativo e
-informativo: o pré-filtro binário marcou 100\% dos pacotes como candidatos.
-A proveniência retida reduz em 91 a 96\% o conjunto de regras candidatas por
-pacote, mas essa redução depende de portas que o Snort~3 ignora em 2.931
-regras service-based; com a semântica do Snort~3, fica limitada a 18,4\% do
-ruleset. A contribuição para a literatura é a
-separação explícita entre segurança semântica e seletividade operacional,
-acompanhada de um manifesto de compilação que torna auditável o que cada
-tradução preserva, e a constatação de que essa garantia depende de como o IDS
-avalia a regra, e não apenas do seu texto.
+que registra explicitamente cada componente semântico omitido. Das 4.017
+regras avaliadas, 3.996 resultaram em predicados necessários e 21 foram
+declaradas não suportadas; o backend instalou 235 entradas em um alvo BMv2,
+com fail-open fora do domínio que o parser interpreta. Os alertas observados
+foram preservados, e a campanha fim a fim sobre 1.000 regras não encontrou
+violação. O principal resultado é negativo e informativo: o pré-filtro
+binário marcou 100\% dos pacotes como candidatos. A proveniência retida reduz
+o conjunto de regras candidatas a cerca de quatro das 739 elegíveis, mas só
+18,3\% sobre o ruleset; a compilação anterior, que mantinha portas que o
+Snort~3 ignora em 2.931 regras service-based, prometia 81,8\% e deixava
+escapar alertas. A contribuição para a literatura é a separação explícita
+entre segurança semântica e seletividade operacional, acompanhada de um
+manifesto de compilação que torna auditável o que cada tradução preserva, e a
+constatação de que essa garantia, e a seletividade aparente, dependem de como
+o IDS avalia a regra, e não apenas do seu texto.
 
-Como trabalhos futuros, quatro direções se destacam. A primeira é medir no
-BMv2 os planos da compilação corrigida. A segunda é um seletor de regras
-candidatas que use o serviço identificado, além do cabeçalho, e a execução do
-Snort orientada por esse conjunto, transformando a redução medida
+Como trabalhos futuros, três direções se destacam. A primeira é um seletor de
+regras candidatas que use o serviço identificado, além do cabeçalho, e a
+execução do Snort orientada por esse conjunto, transformando a redução medida
 \emph{offline} em ganho efetivo --- o que exige tratar as dependências de
-estado entre regras, como as das duas regras HTTP da campanha. A terceira é
-ampliar a expressividade do backend, incorporando faixas de porta por
-decomposição ternária e campos ICMP à chave da tabela. A quarta é avaliar o
-custo de execução em alvos de hardware e sobre conjuntos de regras, perfis e
-tráfegos mais amplos, incluindo medição de vazão e latência, que não foram
-objeto desta avaliação.
+estado entre regras, como as dos ACKs HTTP e dos flowbits da campanha. A
+segunda é ampliar a expressividade do backend, incorporando faixas de porta
+por decomposição ternária e campos ICMP à chave da tabela. A terceira é
+avaliar o custo de execução em alvos de hardware e sobre conjuntos de regras,
+perfis e tráfegos mais amplos, incluindo medição de vazão e latência, que não
+foram objeto desta avaliação.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

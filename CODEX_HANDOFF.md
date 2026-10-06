@@ -14,7 +14,12 @@ histórico). A raiz de `output/` agora é a compilação `snort3`: 3.996 /
 - Documento: `paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md`.
 - 2026-10-06: as medições no rig sob `snort3` (Fase B) estão feitas e
   batem exatamente com as previsões offline, sem VIOLAÇÃO (documento acima,
-  §6). Pendência: o manuscrito (§15, item 5).
+  §6).
+- 2026-10-06: os três manuscritos relatam `snort3` como resultado e o
+  `legacy` como "compilação anterior" (documento acima, §7). As análises
+  offline que faltavam foram rederivadas sob `snort3` (§6.4). Nelas apareceu
+  um achado novo: a partição strong `snort3` não é fechada sob flowbits (24
+  arestas em `smb.trans2`).
 
 Atualizado em 2026-10-01: as quatro pendências que bloqueavam a submissão
 estão concluídas (§15). Desde 2026-09-29 também entraram:
@@ -446,17 +451,19 @@ registro de cada uma fica abaixo.
      ESTADO. Caso a caso, tudo igual ao precheque
      (`tests/compare_campaign_snort3.py`).
 
-   Falta:
-   - **Manuscrito:** `snort3` como resultado e `legacy` como histórico, nos
-     três manuscritos (`IDS_P4`, `IDS_P4_PT`, `IDS_P4_SBRC`).
+   **Manuscritos, feito em 2026-10-06:** `snort3` como resultado e `legacy`
+   como "compilação anterior" nos três (`IDS_P4` com 45 páginas, `IDS_P4_PT`
+   com 7, `IDS_P4_SBRC` com 14), sem caixa estourada.
 
    Detalhes em `paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md`.
 
 ## 16. Pendências de reforço científico
 
 - Um único ruleset, um perfil e um dataset; CIC-IDS2017 é antigo.
-- Diversidade de alertas nos traces: 1, 2 e 5 SIDs. A campanha cobre 851–923
-  SIDs, mas com tráfego sintético.
+- Diversidade de alertas nos traces: 1, 2 e 5 SIDs, e sob `snort3` todos em
+  fallback no strong, então os traces não exercitam nenhum predicado retido.
+  A campanha confirma 958 (global) e 134 (strong) SIDs, mas com tráfego
+  sintético.
 - Sem throughput, latência ou validação em hardware.
 - Sem execução candidate-set-aware no Snort.
 - EXACT = 0 no ruleset avaliado.

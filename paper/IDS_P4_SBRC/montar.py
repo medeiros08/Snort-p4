@@ -59,13 +59,14 @@ IDS, but Snort~3 rules also depend on payload, flow and service semantics
 that a P4 target cannot represent. We present a Snort-to-P4 compiler that
 classifies each rule's relation to its predicate as \cls{Exact},
 \cls{Necessary} or \cls{Unsupported} and records every omitted component.
-Of 4,017 rules, 4,003 are necessary and 14 unsupported; the backend installs
-331 entries on BMv2. The global prefilter marks 100\% of eligible packets in
-three CICIDS2017 traces, observed alerts are preserved, and a 1,000-rule
-campaign with Snort as oracle finds no violation. Provenance reduces the
-candidate rule set by 81.81--86.40\% of the ruleset. For 2,931 service-based
-rules, however, Snort~3 skips header ports and protocol, which bounds that
-reduction at 18.40\%.
+For 2,931 service-based rules it keeps only the header addresses, since
+Snort~3 skips their ports and protocol. Of 4,017 rules, 3,996 are necessary
+and 21 unsupported; the backend installs 235 entries on BMv2. The global
+prefilter marks 100\% of eligible packets in three CICIDS2017 traces,
+observed alerts are preserved, and a 1,000-rule campaign with Snort as oracle
+finds no violation. Provenance reduces the candidate rule set by only 18.3\%
+of the ruleset, against 81.8\% under an earlier compilation that kept the
+ports.
 \end{abstract}
 
 \begin{resumo}
@@ -74,14 +75,14 @@ IDS em software, mas as regras do Snort~3 dependem de payload, fluxo e
 serviço, que um alvo P4 não representa. Apresentamos um compilador
 Snort-para-P4 que classifica a relação de cada regra com seu predicado como
 \cls{Exact}, \cls{Necessary} ou \cls{Unsupported} e registra tudo o que
-omite. Das 4.017 regras, 4.003 são necessárias e 14 não suportadas; o
-backend instala 331 entradas no BMv2. O pré-filtro global marca 100\% dos
-pacotes elegíveis em três traces do CICIDS2017, os alertas observados são
-preservados e uma campanha com 1.000 regras, tendo o Snort como oráculo, não
-encontra violação. A proveniência reduz o conjunto de regras candidatas em
-81,81--86,40\% do ruleset. Para 2.931 regras baseadas em serviço, porém, o
-Snort~3 não checa porta e protocolo do cabeçalho, o que limita essa redução a
-18,40\%.
+omite. Em 2.931 regras baseadas em serviço, mantém só os endereços, pois o
+Snort~3 não checa porta e protocolo delas. Das 4.017
+regras, 3.996 são necessárias e 21 não suportadas; o backend instala 235
+entradas no BMv2. O pré-filtro global marca 100\% dos pacotes elegíveis em
+três traces do CICIDS2017, os alertas observados são preservados e uma
+campanha com 1.000 regras, com o Snort como oráculo, não encontra violação.
+A proveniência reduz as regras candidatas em só 18,3\% do ruleset, contra
+81,8\% numa compilação anterior que mantinha as portas.
 \end{resumo}
 
 """

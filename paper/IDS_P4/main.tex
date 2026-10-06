@@ -37,32 +37,30 @@ rule within an explicitly enforced packet domain, while omitted semantics
 remain explicit in a manifest recording predicate-to-rule provenance.
 Packets outside that domain, such as those carrying IPv4 options, fragments,
 or truncated headers, are failed open as conservative candidates instead of
-being matched against fields the parser cannot locate. Among 4,017 evaluated
-rules, 4,003 were classified as necessary, 14 as unsupported, and none as
-exact; backend lowering produced 331 final P4 installation entries. Despite
-this semantic coverage, the global binary prefilter marked 100\% of
-parser-eligible packets as candidates across SQLi, XSS, and held-out Brute
-Force traces, an outcome that causal analysis attributes to both broad
-necessary predicates and distributed union coverage. Provenance nevertheless
-supports an offline utility, deriving per-packet candidate rule sets: on
-held-out Brute Force, the average set decreased from the frozen 3,611-rule
-P4-eligible partition to 324.52 rules, a 91.01\% reduction, or 81.81\% over
-the full ruleset once the 406 fallback rules that apply to every packet are
-counted. Observed alerts were preserved in the evaluated traces, and in an
-end-to-end campaign over 1,000 sampled rules, with Snort~3 as the oracle and
-BMv2 as the target, no rule that a plan prefilters alerted on a witness the
-data plane marked no-match. We also show that the necessary relation holds
-only where Snort evaluates the full rule header. Once Snort~3 identifies a
-flow's service, it ignores the header ports and protocol of service-based
-rules, which affects 2,931 necessary rules whose predicates constrain the
-protocol and, for 2,877, a port. The global plan still covers
-all but nine of them through its port-free entries. The strong-discriminator
-ablation behind the candidate sets does not, and recompiled with Snort~3's
-semantics it keeps 739 rules eligible, which bounds the full-ruleset
-candidate reduction at 18.4\%; on the traces it reaches 18.3\%. These results show that semantic safety and
-operational selectivity are distinct, and that what a rule-derived predicate
-guarantees depends on how the IDS evaluates the rule; candidate-set-aware IDS
-execution remains future work.
+being matched against fields the parser cannot locate. What a header
+condition guarantees depends on how the IDS evaluates it: once Snort~3
+identifies a flow's service, it ignores the header ports and protocol of
+service-based rules, so the compiler keeps only their addresses. An earlier
+compilation that kept those conditions over-constrained 2,931 predicates,
+and one of its plans marked no-match, on BMv2, the witnesses of 190 HTTP
+rules on which Snort alerted off their header port. Under the corrected
+compilation, 3,996 of 4,017 rules are classified as necessary, 21 as
+unsupported, and none as exact, and backend lowering produces 235 P4
+entries. The global binary prefilter marked 100\% of parser-eligible packets
+as candidates on SQLi, XSS, and held-out Brute Force traces replayed on BMv2,
+and a strong-discriminator ablation that removes the broadest entries still
+marked 92.2--94.9\%. Provenance supports an offline utility, per-packet
+candidate rule sets, which average about four of the 739 rules that ablation
+keeps P4-eligible; the 3,278 rules left in fallback apply to every packet,
+however, and the held-out reduction over the full ruleset is 18.3\%, against
+81.8\% under the earlier compilation. Observed alerts were preserved in the traces,
+and in an end-to-end campaign over 1,000 sampled rules, with Snort~3 as the
+oracle and BMv2 as the target, no rule that a plan prefilters alerted on a
+witness the data plane marked no-match. These results show that semantic
+safety and operational selectivity are distinct, and that much of the
+selectivity a header-derived prefilter appears to offer can come from
+conditions the IDS does not check; candidate-set-aware IDS execution remains
+future work.
 \end{abstract}
 
 \section{Introduction}
@@ -106,17 +104,18 @@ an implemented runtime execution mechanism.
 
 This paper develops and evaluates a semantics-aware, target-aware compilation
 workflow from Snort 3 rules to P4 predicates, with explicit delegation and
-fallback. Under the evaluated configuration, 4,003 of 4,017 rules admitted
-necessary predicates, although for the 2,931 service-based ones the relation
-holds only where Snort evaluates the full header. The global binary
-prefilter marked 100\% of parser-eligible packets as candidates in the three
-evaluated traces. In
-contrast, provenance-based analysis retained a 91.01\% mean
-candidate-rule-space reduction on held-out Brute Force within the frozen
-3,611-rule P4-eligible partition, or 81.81\% over the full ruleset; with
-Snort~3's service semantics, the same derivation could save at most 18.40\%
-of the full ruleset, and it saved 18.29--18.30\% on the traces. These observations motivate the following
-contributions and research questions.
+fallback. Under the evaluated configuration, 3,996 of 4,017 rules admitted
+necessary predicates. For the 2,931 service-based rules among them, those
+predicates keep only the header addresses, because Snort~3 stops checking
+ports and protocol once it identifies the flow's service; an earlier
+compilation that kept them is reported for what it missed. The global
+binary prefilter marked 100\% of parser-eligible packets as candidates in
+the three evaluated traces. Provenance-based analysis reduced the mean
+per-packet candidate set by more than 99\% within the 739 rules that a
+strong-discriminator ablation keeps P4-eligible, but by only 18.29--18.30\%
+over the full ruleset; under the earlier compilation the held-out reduction
+over the full ruleset was 81.81\%. These
+observations motivate the following contributions and research questions.
 
 \subsection{Contributions}
 This work makes the following contributions:
@@ -129,8 +128,8 @@ This work makes the following contributions:
     P4 entries to source Snort rule identifiers.
     \item A P4 backend that performs predicate expansion, normalization,
     target-aware lowering, deduplication, and P4Runtime installation-plan
-    generation; the evaluated backend reduces 6,675 predicate instances to
-    331 final installation entries as installation state.
+    generation; the evaluated backend reduces 4,040 predicate instances to
+    235 final installation entries as installation state.
     \item An explicitly enforced packet domain that gates predicate
     evaluation on IPv4 header form and fails open for options, fragments,
     truncated headers, and parser errors, validated by a controlled
@@ -138,26 +137,24 @@ This work makes the following contributions:
     \item An empirical evaluation that separates semantic safety from
     ruleset-scale packet-level selectivity, including a causal analysis of
     broad predicates and distributed union coverage.
-    \item A provenance-based, offline candidate-rule-space analysis that
-    retains substantially smaller per-packet rule sets, including a 91.01\%
-    mean reduction on held-out Brute Force within the 3,611-rule P4-eligible
-    partition and 81.81\% over the full ruleset, bounded at 18.40\% and
-    measured at 18.29--18.30\% once service-based rules are compiled as
-    Snort~3 evaluates them, and a measurement of the candidate set that a
-    grouped prefilter would forward.
+    \item A provenance-based, offline candidate-rule-space analysis, which
+    reduces the mean per-packet candidate set by more than 99\% within the
+    P4-eligible partition but by at most 18.40\% over the full ruleset, and a
+    measurement of the candidate set that a grouped prefilter would forward.
     \item An analysis, from the Snort~3.12.2.0 source, showing that
     service-based rules, whether they declare a \texttt{service} option or
     acquire a service through their options, do not make their header ports
-    and protocol necessary conditions, with a measurement of the 2,931
-    affected rules, of the plans that remain candidate-complete for them, and
-    of what a compilation faithful to that rule changes.
+    and protocol necessary conditions; a compilation that follows this rule
+    for the 2,931 affected rules; and a measurement, on BMv2 and over the
+    traces, of what an earlier compilation that kept those conditions missed
+    and of the selectivity it had appeared to offer.
     \item Empirical validation of semantic-split behavior and observed P4
     alert-packet preservation, without claiming formal equivalence or dynamic
     stateful candidate-set execution.
     \item An end-to-end differential campaign that synthesizes a witness flow
     per rule and compares Snort~3 alerts with BMv2 verdicts frame by frame,
-    observing no violation over a stratified sample of 1,000 rules and
-    measuring how much the evaluated plans can falsify.
+    observing no violation over a stratified sample of 1,000 rules under
+    either plan and measuring how much the evaluated plans can falsify.
 \end{itemize}
 
 \subsection{Research Questions}
@@ -401,11 +398,11 @@ Ethernet/IPv4 target profile, not a general claim about arbitrary Snort
 execution. For a parsed rule $r$, let $H_r$ denote the conjunction of its
 header conditions that the capability analysis marks \textsc{Preserved} or
 \textsc{Expanded}; let $U_r$ denote the remaining detection-relevant
-conditions recorded as delegated, fallback, or unassessed. For a rule whose
-header Snort evaluates in full, a source-rule match entails its represented
-header conditions, so $r(x) \Rightarrow H_r(x)$;
-Section~\ref{sec:service-based} treats the rules for which Snort does not.
-The backend materializes a predicate $p_r=L(H_r)$ only for a prefilter
+conditions recorded as delegated, fallback, or unassessed. A source-rule
+match entails every header condition that Snort checks for that rule, and
+the compiler restricts $H_r$ to those conditions, so that
+$r(x) \Rightarrow H_r(x)$; Section~\ref{sec:service-based} identifies them
+for the rules whose header Snort does not evaluate in full. The backend materializes a predicate $p_r=L(H_r)$ only for a prefilter
 candidate. Under the implementation assumptions that the accepted header
 forms are parsed and normalized as recorded in the manifest, and that lowering
 does not exclude a packet satisfying $H_r$, the construction gives
@@ -450,14 +447,18 @@ add a guessed service (\path{src/detection/fp_utils.cc}). The DCE options
 \texttt{dcerpc} and \texttt{netbios-ssn}.
 
 For a service-based rule whose header names an IP protocol, the header
-condition that is necessary for an alert is therefore $H_r^{\mathrm{addr}}$,
-the address part of $H_r$, and $r(x) \Rightarrow H_r(x)$ holds only for
-packets whose service Snort has not identified. The compiler represents these
-rules with their full header. From here on, \emph{service-based} refers to
-these rules only; the user-mode rules keep their port checks and are counted
-with the rules whose full header Snort evaluates.
-Section~\ref{sec:service-exposure} measures how many rules this affects and
-which of the deployed plans still cover the traffic on which they can alert.
+condition that is necessary for an alert is therefore
+$H_r^{\mathrm{addr}}$, the address part of its header; the full header is
+necessary only for packets whose service Snort has not identified. The
+compiler therefore represents these rules by $H_r^{\mathrm{addr}}$ and
+delegates their ports and protocol to Snort. It keeps the protocol only when
+the rule's \texttt{flags} option already restricts it to TCP, since that
+option matches no other protocol. From here on, \emph{service-based} refers
+to these rules only; the user-mode rules keep their port checks and are
+compiled, like port-based rules, with their full header. An earlier version
+of the compiler represented every rule by its full header;
+Section~\ref{sec:service-exposure} measures how many rules that affected and
+what it changed.
 
 \subsection{Enforced Packet Domain}
 \label{sec:packet-domain}
@@ -486,10 +487,9 @@ p_r(x) \Rightarrow \mathrm{cand}(x), & x \in D,\\
 \end{cases}
 \]
 
-Consequently, for a rule whose header Snort evaluates in full, no packet
-satisfying the rule is excluded from Snort inspection, whether or not the
-parser can interpret it; Section~\ref{sec:service-based} identifies the rules
-for which that premise fails. The data plane fails open by construction: a no-match verdict is emitted only inside $D$, because
+Consequently, no packet satisfying the rule is excluded from Snort
+inspection, whether or not the parser can interpret it. The data plane fails
+open by construction: a no-match verdict is emitted only inside $D$, because
 no-match is the only outcome that could ever motivate bypassing the IDS.
 This makes the domain a stated precondition of the selectivity metrics rather
 than a hidden assumption, and it is why candidate rates in
@@ -679,7 +679,7 @@ guarantees.
 \begin{landscape}
 \begin{table}[p]
 \centering
-\small
+\footnotesize
 \setlength{\tabcolsep}{3pt}
 \caption{Compilation semantics in the implemented Ethernet/IPv4 profile.
 ``Omitted'' means absent from $p_r$ while remaining explicit in the manifest
@@ -698,7 +698,7 @@ Supported TCP flags & Flag syntax is normalized to masks; \texttt{*} is lowered 
 Negation, port ranges, unresolved complex header forms & Capability analysis records fallback or unassessed treatment. & Omitted from $p_r$. & Fallback / delegated & Omission can broaden a predicate; absent another selective $H_r$, the rule is UNSUPPORTED. \\
 Payload, PCRE, buffers, flow/state, stream, temporal, and application semantics & Ordered options and buffer context remain in the IR and manifest. & No P4 match. & Delegated & Snort remains responsible for these conditions and for final detection. \\
 Service-style or otherwise nonselective rule & No traditional header is invented; a rule without a selective represented header is not emitted. & No P4 entry. & \textsc{Unsup.} & Entire rule remains in the Snort fallback. \\
-Traditional header on a service-based rule & Header is assessed as for a port-based rule; the service is recorded as delegated. & Same keys as the header, ports and protocol included. & Preserved / delegated & Necessary only while Snort evaluates the full header; once the flow's service matches, Snort checks addresses only (Section~\ref{sec:service-based}). \\
+Traditional header on a service-based rule & Addresses assessed as for a port-based rule; ports and protocol delegated, except TCP under \texttt{flags}. & Address keys, plus TCP in that case. & Preserved / delegated & Necessary also once Snort identifies the flow's service (Section~\ref{sec:service-based}). \\
 IPv4 options, fragments, truncated headers, non-IPv4 frames & Outside the compiler's scope; handled by the deployed program rather than by lowering. & No table lookup; \texttt{packet\_domain\_fallback} marks a candidate on a dedicated counter. & Fail-open & Retained for Snort without a no-match verdict, so misparsed L4 fields cannot break $r \Rightarrow \mathrm{cand}$. \\
 \bottomrule
 \end{tabular}
@@ -891,6 +891,13 @@ Two execution paths are compared:
 The frozen experimental Snort variable profile is documented for
 reproducibility in Appendix~\ref{app:snort-profile}.
 
+Every result below is for the compilation of
+Section~\ref{sec:service-based}, which keeps only the address part of a
+service-based rule's header. An earlier compilation kept ports and protocol
+for those rules. Its artifacts are archived and reproducible byte for byte,
+and its results are reported only where they show what the correction
+changed (Section~\ref{sec:service-exposure}).
+
 The evaluation considers four main metrics. First, \textit{rule
 coverage} measures the proportion of analyzed Snort rules for which the
 compiler can generate an EXACT or NECESSARY data-plane representation.
@@ -937,16 +944,17 @@ since the prefilter never claims selectivity over traffic it cannot parse.
 \paragraph{Packet-domain validation.} Because the metric above depends on
 the parser and the offline matcher agreeing, both are validated directly. A
 controlled data-plane suite sends one crafted frame per case through BMv2
-with the 331-entry plan installed and compares the resulting counter delta
+with the 235-entry global plan installed and compares the resulting counter delta
 with the offline expectation. The eleven cases cover TCP, UDP, and ICMP
 candidates, a guaranteed no-match, exact and masked TCP flags, IPv4 options
 ($\mathrm{IHL} \neq 5$), a first fragment with MF set, a non-initial
 fragment, a truncated IPv4 header, and a truncated TCP header. Separately,
 each full trace is replayed through BMv2 over a raw AF\_PACKET socket that
-transmits the captured Ethernet bytes without reserialization, after a fresh
-pipeline installation with counters verified at zero and an idle audit
-confirming a zero delta; sender frame counts are then reconciled against the
-sum of the three counter categories.
+transmits the captured Ethernet bytes without reserialization, with a 2~ms
+inter-frame delay and veth transmit queues of 10,000 frames. Each replay
+starts from a fresh pipeline installation, with counters verified at zero and
+an idle audit confirming a zero delta; sender frame counts are then
+reconciled against the sum of the three counter categories.
 
 \paragraph{Installation-state reduction.} The backend artifact distinguishes
 \path{source_entries}, namely the \path{generated/expanded/normalized} predicate
@@ -960,9 +968,8 @@ ISR = \left(1 - \frac{N_{\mathrm{install}}}{N_{\mathrm{source}}}\right)
 \times 100\%.
 \]
 
-For the frozen evaluation, the backend reports $N_{\mathrm{source}}=6675$
-and $N_{\mathrm{install}}=331$, which yields the reported 95.04\% reduction.
-This metric quantifies reduction in P4 installation state only; it does not
+The backend reports $N_{\mathrm{source}}=4040$ and $N_{\mathrm{install}}=235$,
+which yields a 94.18\% reduction. This metric quantifies reduction in P4 installation state only; it does not
 quantify traffic reduction, Snort rule reduction, execution-time reduction,
 or throughput improvement.
 
@@ -978,29 +985,29 @@ C(x) = \bigcup_{e \in E(x)} S(e).
 \]
 
 Thus, multiple source rules may map to one final entry, a packet may match
-multiple entries, and duplicate IDs are removed by set union. For the frozen
-strong-discriminator ablation, the P4-eligible baseline is
-$B=3611$ rules, and per-packet candidate-rule-space reduction is
+multiple entries, and duplicate IDs are removed by set union. For the
+strong-discriminator ablation of Section~\ref{sec:selectivity-causal}, the
+P4-eligible baseline is $B=739$ rules, and per-packet candidate-rule-space
+reduction is
 
 \[
 R(x) = \left(1 - \frac{|C(x)|}{B}\right) \times 100\%.
 \]
 
-This metric is defined only within the 3,611-rule P4-eligible partition.
-The 392 operational fallback rules and 14 semantic \textsc{Unsupported}
+This metric is defined only within the 739-rule P4-eligible partition.
+The 3,257 operational fallback rules and 21 semantic \textsc{Unsupported}
 fallback rules are outside $B$. A parser-eligible packet with no retained
 predicate match can have an empty $C(x)$; this is not interpreted as safe
 full packet bypass because fallback rules remain applicable. Because those
-406 rules apply to every packet, we also report the reduction over the full
+3,278 rules apply to every packet, we also report the reduction over the full
 4,017-rule ruleset,
 
 \[
-R_{\mathrm{full}}(x) = \left(1 - \frac{|C(x)| + 406}{4017}\right) \times 100\%.
+R_{\mathrm{full}}(x) = \left(1 - \frac{|C(x)| + 3278}{4017}\right) \times 100\%,
 \]
 
-For the corrected compilation of Section~\ref{sec:service-exposure}, the same
-definitions apply with $B=739$ and 3,278 rules applying to every packet in
-place of 406.
+which can never exceed 18.40\%. Under the earlier compilation the same
+definitions used $B=3611$ and 406 fallback rules.
 
 For a grouping of the retained entries, a prefilter that forwards whole
 groups passes Snort every rule of each group containing a matched entry. Its
@@ -1035,7 +1042,7 @@ experiments focus on representative rules that expose different
 relationships between the original IDS rule and the generated
 data-plane predicate.
 
-The first scenario is a legacy semantic-model unit scenario for a
+The first scenario is an early semantic-model unit scenario for a
 header-only EXACT-class expectation. This is a component-level test
 specification, not a trace-based EXACT result for the frozen Community ruleset.
 That ruleset produced EXACT$=0$; the reported experiments therefore do not
@@ -1070,7 +1077,8 @@ alert, and, where the installed entries leave one, a header-negative frame
 whose destination port falls outside every installed entry.
 
 A witness could be synthesized for 2,142 of the 4,017 rules. The other 1,875,
-including the 14 \textsc{Unsupported} rules, were excluded: 1,654 of them
+including the 14 rules that both compilations classify as
+\textsc{Unsupported}, were excluded: 1,654 of them
 carry options such as \texttt{pcre}, \texttt{byte\_test}, \texttt{byte\_jump},
 or \texttt{flowbits} that cannot be satisfied by choosing bytes, and the rest
 have content the generator cannot place or a header it cannot resolve. A
@@ -1095,181 +1103,180 @@ plane marked no-match. Rules placed in operational fallback by the
 strong-discriminator policy are reported separately, because the prefilter is
 not responsible for them.
 
-The campaign was run against both the 331-entry global plan and the 322-entry
-strong-discriminator plan. The global plan limits what the campaign can
-falsify: entry \texttt{p4-106} matches every in-domain TCP packet, so a TCP
-witness is a candidate however its own rule was lowered. To quantify this,
-the offline matcher also records whether each witness is matched only by
-entries whose provenance contains the case's own rule. For such a case, a
-lowering defect in that rule would have produced a \textsc{Violation}.
+The same trace was run against the 235-entry global plan and the 225-entry
+strong-discriminator plan. In the global plan the 21 \textsc{Unsupported}
+rules form the fallback; in the strong-discriminator plan, the 3,278 rules
+outside $B$. The global plan limits what the campaign can falsify: entry
+\texttt{p4-88} matches every in-domain TCP packet, so a TCP witness is a
+candidate however its own rule was lowered. To quantify this, the offline
+matcher also records whether each witness is matched only by entries whose
+provenance contains the case's own rule. For such a case, a lowering defect
+in that rule would have produced a \textsc{Violation}.
+
+The campaign places each witness on a port of the rule's own header, so it
+cannot exercise the service-based evaluation of
+Section~\ref{sec:service-based}. A second, dedicated campaign does: it takes
+200 HTTP rules with \texttt{service:http}, sampled from the synthesizable
+ones, and moves the HTTP flow to destination port 18080, which none of their
+headers lists (Section~\ref{sec:service-exposure}).
 
 \section{Results}
 \label{sec:results}
 \subsection{Semantic Compilation Coverage (RQ1)}
-The frozen compilation processed and successfully parsed all 4,017 rules in
-the evaluated Snort 3 Community ruleset. The semantic manifest contains no
-\textsc{Exact} classifications, 4,003 \textsc{Necessary} classifications,
-and 14 \textsc{Unsupported} classifications. Hence, 99.65\% of the rules
-contributed a candidate predicate under the supported profile. For the 1,060
-port-based \textsc{Necessary} rules, and for the 12 that name a service
-protocol in their header and keep their port checks, that predicate is a
-necessary condition of the rule. For the 2,928 with a \texttt{service} option,
-and for three that acquire services through their DCE options, it is
-necessary only on traffic whose service Snort has not identified
-(Section~\ref{sec:service-exposure}).
+The compilation processed and successfully parsed all 4,017 rules in the
+evaluated Snort 3 Community ruleset. The semantic manifest contains no
+\textsc{Exact} classifications, 3,996 \textsc{Necessary} classifications,
+and 21 \textsc{Unsupported} classifications. Hence, 99.48\% of the rules
+contributed a candidate predicate under the supported profile. For 1,072 of
+them, the 1,060 port-based rules and the 12 that name a service protocol in
+their header and keep their port checks, that predicate is derived from the
+full header. For the other 2,924, which are service-based, it keeps only the
+header addresses, and the TCP protocol where a \texttt{flags} option requires
+it (Section~\ref{sec:service-based}).
 
 This percentage characterizes semantic candidate coverage, not complete
 offloading of Snort semantics. For a rule $r$ and its \textsc{Necessary}
 predicate $p_r$, the relation the compiler targets is $r \Rightarrow p_r$;
 neither $p_r \Rightarrow r$ nor $r \Leftrightarrow p_r$ is assumed. Payload
 inspection, stream and flow/state semantics, normalization, and other
-target-inexpressible conditions remain delegated to Snort. For the 14
+target-inexpressible conditions remain delegated to Snort. For the 21
 \textsc{Unsupported} rules, no safe selective P4 predicate was established,
 and the rules remain in the Snort fallback rather than being ignored. The
 absence of \textsc{Exact} rules therefore reflects a deliberate conservative
 classification policy: the compiler does not declare equivalence when it has
 preserved only a necessary condition.
 
-The frozen manifest explains the 14 \textsc{Unsupported} cases without
-silently discarding them. Four are traditional rules whose represented headers
-are nonselective while payload or byte-level conditions remain delegated; the
-other ten are service-style rules whose service, flow, buffer, and payload
-semantics are delegated and for which the parser intentionally invents no
-traditional packet headers. Thus, each lacks a selective represented $H_r$ and
-remains in the Snort fallback. Across NECESSARY rules, the manifest commonly
-records content and other payload/buffer conditions, flow or state conditions,
-application/service semantics, and PCRE as delegated while retaining at least
-one selective represented header predicate. A smaller set also records a
-fallback header form, such as a port range, negated port, or unsupported flag
-encoding, but is emitted only when another selective represented predicate is
-available.
+The manifest explains the 21 \textsc{Unsupported} cases without silently
+discarding them. Four are traditional rules whose represented headers are
+nonselective while payload or byte-level conditions remain delegated; ten
+are service-style rules whose service, flow, buffer, and payload semantics
+are delegated and for which the parser intentionally invents no traditional
+packet headers. The other seven are service-based rules with unrestricted
+addresses, SIDs 1941 (TFTP), 28852, 29174, and 38993 (HTTP), and 56583 to
+56585 (Kerberos), whose only selective conditions were the ports and
+protocol that Snort does not check once it has identified their service.
+Thus, each lacks a selective represented $H_r$ and remains in the Snort
+fallback. Across NECESSARY rules, the manifest commonly records content and
+other payload/buffer conditions, flow or state conditions,
+application/service semantics, and PCRE as delegated while retaining at
+least one selective represented header predicate. A smaller set also records
+a fallback header form, such as a port range, negated port, or unsupported
+flag encoding, but is emitted only when another selective represented
+predicate is available.
 
 \noindent\textbf{Answer to RQ1.} Under the evaluated target profile and
 within the enforced packet domain, the compiler derives explicit necessary
-predicates for the 1,072 \textsc{Necessary} rules whose header ports Snort
-checks, while making the remaining semantic limitations visible; traffic
-outside that domain is retained by failing open rather than by an unstated
-parsing assumption. For the other 2,931, which are service-based, the
-derived predicates are necessary only where Snort evaluates the full header;
-a predicate restricted to the header addresses would be necessary for all of
-them and still selective for 2,924.
+predicates for 3,996 of the 4,017 rules while making the remaining semantic
+limitations visible; traffic outside that domain is retained by failing open
+rather than by an unstated parsing assumption. For the 2,924 service-based
+rules among them, a predicate that stays necessary once Snort identifies the
+flow's service keeps only the header addresses, which costs selectivity
+rather than coverage (Section~\ref{sec:service-exposure}).
 
-\subsection{Service-Based Rules and Plan Coverage}
+\subsection{Service-Based Rules and the Earlier Compilation}
 \label{sec:service-exposure}
-Of the 4,003 \textsc{Necessary} rules, 2,928 declare a \texttt{service}
-option, most often \texttt{http} (2,314), \texttt{imap} (150),
-\texttt{pop3} (138), and \texttt{smtp} (131). Every one of their predicates
-constrains the protocol, and 2,877 also constrain a port. By
-Section~\ref{sec:service-based}, Snort can raise such a rule on a packet
-whose ports or protocol differ from the rule header once the flow's service
-is identified, so the rule's own predicate can be false on a packet it
-alerts on. Of the other 1,075, twelve name \texttt{http} in their header,
-which gives them that service but keeps their port checks. Three more, SIDs
-529, 3238, and 3239, are service-based without a \texttt{service} option:
-their \texttt{dce\_iface} and \texttt{dce\_stub\_data} options add
-\texttt{dcerpc} and \texttt{netbios-ssn} (Section~\ref{sec:service-based}).
-Their predicates constrain the protocol and a \texttt{HOME\_NET} destination
-but no port, because each port list contains a range. The remaining 1,060
-rules use no option that gives them a service. Service-based rules number
-2,931 in all.
+Of the 4,017 rules, 2,928 declare a \texttt{service} option, most often
+\texttt{http} (2,314), \texttt{imap} (150), \texttt{pop3} (138), and
+\texttt{smtp} (131). Twelve more name \texttt{http} in their header, which
+gives them that service but keeps their port checks. Three, SIDs 529, 3238,
+and 3239, are service-based without a \texttt{service} option: their
+\texttt{dce\_iface} and \texttt{dce\_stub\_data} options add \texttt{dcerpc}
+and \texttt{netbios-ssn} (Section~\ref{sec:service-based}). Service-based
+rules number 2,931 in all; 1,060 rules use no option that gives them a
+service.
 
-Whether this becomes a missed candidate depends on the whole plan. For each
-of the 2,931 rules, the region on which Snort can alert once the service is
-identified is the rule's address condition with any port and any protocol.
-In the 331-entry global plan, the port- and protocol-free entries
-\texttt{p4-40} and \texttt{p4-138} contain that region for 2,922 rules, and
-\texttt{p4-106} contains its TCP part for the remaining nine: SIDs 1415 and
-1416 (SNMP over UDP to the broadcast address), 1941 (TFTP over UDP), 28852,
-29174, and 38993 (HTTP), and 56583 to 56585 (Kerberos); the first two from
-any source and the other seven with unrestricted addresses. The global plan is therefore candidate-complete for these rules
-except for non-TCP packets of those nine services that no entry of the rule
-itself matches. The 322-entry strong-discriminator plan removed the nine
-entries that constrain at most the protocol and exactly \texttt{HOME\_NET};
-the six port-free entries it keeps carry TCP flags or other addresses, and
-none contains the region of any of the 2,931 rules. Of those rules, 2,877 are
-among its 3,611 P4-eligible rules; the other 54, including the three DCE
-rules, are in its operational fallback, whose rules apply to every packet.
+An earlier version of the compiler represented every rule by its full
+header and recorded a service as one more delegated condition. That would be
+sound if Snort required the service and the header together; Snort~3 instead
+replaces the port and protocol checks by the service match. Every predicate
+of the 2,928 rules with a \texttt{service} option constrained the protocol,
+and 2,877 also constrained a port, so a rule's own predicate could be false
+on a packet it alerts on. Table~\ref{tab:compilations} compares that
+compilation with the current one; its artifacts are archived and reproduce
+byte for byte.
 
-Compiling the rules as Snort~3 evaluates them changes the structural results
-substantially. The compiler provides this as an option: ports and protocol of
-service-based rules are delegated, and the protocol is kept only for rules
-whose \texttt{flags} option already restricts them to TCP. Seven rules lose
-their last selective predicate, giving 3,996 \textsc{Necessary} and 21
-\textsc{Unsupported} rules, and the backend produces 235 final entries
-instead of 331. Applied unchanged, the strong-discriminator policy keeps only
-739 rules P4-eligible and places 3,257 in operational fallback, because an
-address-only predicate on \texttt{HOME\_NET} is not a strong discriminator;
-applied to the frozen artifacts, the same computation reproduces the frozen
-3,611, 392, and 322. Under the accounting of Table~\ref{tab:candidate-rules},
-in which fallback rules apply to every packet, no packet's candidate set
-could then fall below 3,278 rules, which bounds the full-ruleset reduction at
-18.40\%, against the 81.81\% measured on held-out Brute Force with the frozen
-predicates.
+Whether an over-constrained predicate becomes a missed candidate depends on
+the whole plan. In the earlier 331-entry global plan, two port- and
+protocol-free entries, which match a destination or a source in
+\texttt{HOME\_NET}, contained the region on which Snort can alert once the
+service is identified for 2,922 of the 2,931 rules. A TCP-only entry
+contained the TCP part of that region for the other nine: the seven rules
+above that are now \textsc{Unsupported}, and SIDs 1415 and 1416 (SNMP over
+UDP to the broadcast address). That plan was therefore candidate-complete for
+these rules except for non-TCP packets of those nine. Its
+strong-discriminator ablation removed the broad entries, and none of the 322
+entries it kept contained the region of any of the 2,931 rules, 2,877 of
+which were among its 3,611 P4-eligible rules.
 
-We then measured the corrected compilation on the three traces, offline,
-with the parser mirror and entry matcher that produced the frozen
-strong-discriminator rates; the same computation first reproduces the frozen
-rates and candidate sets exactly. The corrected global plan still marks
-every parser-eligible packet as a candidate. Under the strong-discriminator
-policy it marks 92.298\%, 92.173\%, and 94.885\% of the SQLi, XSS, and Brute
-Force packets, against 99.015\%, 98.869\%, and 98.942\% with the frozen
-predicates. The mean candidate set shrinks to 3.97, 3.94, and 4.48 of the
-739 eligible rules, a reduction above 99.3\% within that partition, but the
-3,278 fallback rules apply to every packet, and the full-ruleset reduction is
-18.30\%, 18.30\%, and 18.29\%, just under the bound. Neither plan of the
-corrected compilation was installed on BMv2.
+The dedicated off-port test of Section~\ref{sec:campaign-method} exercises
+this case. Of its 200 HTTP rules, Snort alerted for 190, 190 distinct SIDs,
+on port 18080, so it did not check the header port; the other 10 raised no
+alert. With the earlier strong-discriminator plan installed on BMv2, all 190
+witnesses were no-match, and so was the flush acknowledgment to which Snort
+attributes each alert: a prefilter that withheld no-match packets would have
+dropped both. The earlier global plan marked all 190 witnesses candidates,
+through two port-free entries of other rules. Under the current compilation
+there is no such case. The global plan marked all 190 witnesses candidates,
+each matched by an entry of its own rule as well as by others; the
+strong-discriminator plan places all 190 rules in operational fallback, which
+Snort inspects without the prefilter, so the 60 witnesses it marked no-match
+violate nothing. The test covers one port and one service; the
+generalization rests on the source reading of
+Section~\ref{sec:service-based}.
 
-Repeating the offline audit of observed alerts under this compilation loses
-none of the 3,069 alerts of the three traces, but only because all of them
-now belong to fallback rules. SID 254, which raised 2,960 of them and whose
-events were all in the frozen candidate sets, declares the \texttt{dns}
-service; without its UDP and port-53 conditions its predicate keeps only the
-\texttt{HOME\_NET} destination, which is not a strong discriminator. The
-traces therefore do not exercise the corrected candidate sets at all.
+The correction moves selectivity rather than coverage. Without ports and
+protocol, most service-based rules keep only a \texttt{HOME\_NET} address
+condition, which the strong-discriminator policy does not treat as
+discriminating (Section~\ref{sec:selectivity-causal}), so the policy keeps
+739 rules P4-eligible instead of 3,611. Much of the candidate-rule-space
+reduction that the earlier compilation appeared to offer came from header
+ports that Snort~3 does not check once it knows the service
+(Section~\ref{sec:candidate-sets}).
 
-None of the trace or campaign experiments exercises a service on a port
-outside a rule's header. Under the global plan, an alert of this kind would
-fall, except for non-TCP packets of the nine rules above, on a packet that
-\texttt{p4-40}, \texttt{p4-138}, or \texttt{p4-106} already marks
-candidate, so the trace-based checks could not reveal it; only the offline
-strong-discriminator audits of the three traces could, and they found no
-missing event among the 3,069 alerts. The end-to-end campaign places each witness on a port of the
-rule's own header.
-
-A dedicated data-plane test exercises exactly this case. It takes 200 HTTP
-rules with \texttt{service:http}, sampled from the synthesizable ones, and
-moves the campaign's HTTP flow to destination port 18080. None of their
-headers lists that port, and none of the rules' own entries matches the
-witness. Snort alerted for 190 of them, 190 distinct SIDs, so it did not
-check the header port. With the global plan installed on BMv2, all 190
-witnesses were candidates, through \texttt{p4-3} or \texttt{p4-5}, two
-port-free entries of other rules that the strong-discriminator policy
-removes. With the strong-discriminator plan, all 190 were no-match, and so
-was the flush acknowledgment to which Snort attributes each alert: the
-prefilter would have dropped both. The other 10 rules raised no alert on
-either plan. The test covers one port and one service; the generalization
-rests on the source reading above.
-
-The frozen measurements in the rest of this section are
-therefore correct for the traffic they observed, but the strong-discriminator
-ablation and the per-packet candidate rule sets derive from predicates that
-are not necessary conditions for service-based rules.
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{Earlier and current compilation of service-based rule headers.
+Trace values are for held-out Brute Force; campaign and off-port values are
+BMv2 measurements under the strong-discriminator plan of each compilation.}
+\label{tab:compilations}
+\begin{tabular}{lrr}
+\toprule
+ & \shortstack{Earlier\\(full header)} & \shortstack{Current\\(addresses only)} \\
+\midrule
+Necessary / Unsupported / Exact & 4,003 / 14 / 0 & 3,996 / 21 / 0 \\
+Predicate instances / final entries & 6,675 / 331 & 4,040 / 235 \\
+Strong plan: eligible / fallback rules & 3,611 / 406 & 739 / 3,278 \\
+Strong plan: entries & 322 & 225 \\
+Strong plan: candidate rate & 98.942\% & 94.885\% \\
+Mean candidate set (rules) & 324.52 & 4.48 \\
+Full-ruleset reduction & 81.81\% & 18.29\% \\
+Campaign: confirmed / fallback / state dep. & 851 / 107 / 2 & 134 / 826 / 0 \\
+Off-port HTTP rules: violation / fallback & 190 / 0 & 0 / 190 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{P4 Backend Feasibility (RQ2)}
 Table~\ref{tab:semantic-backend} summarizes the semantic compilation and
 backend feasibility results. The backend generated, expanded, and normalized
-6,675 predicate instances.
-These instances yielded 327 unique matches before TCP-flag lowering. Two
+4,040 predicate instances.
+These instances yielded 231 unique matches before TCP-flag lowering. Two
 flag-constrained groups required expansion, adding four entries and resulting
-in 331 final installation entries. The P4Runtime plan encoded 331/331
+in 235 final installation entries. The P4Runtime plan encoded 235/235
 entries, with zero encoding failures and zero validation errors, within the
-8,192-entry table capacity. Installation and read-back validation of the
-331-entry plan was reported for the evaluated BMv2 target.
+8,192-entry table capacity. On BMv2, every installation of the 235-entry
+plan, and of the 225-entry strong-discriminator plan, read back all of its
+entries.
 
-The reduction from 6,675 source instances to 331 final entries (95.04\%) is
+The reduction from 4,040 source instances to 235 final entries (94.18\%) is
 an \emph{installation-state reduction}: identical backend matches are merged
-before installation. It does not represent traffic reduction, elimination of
-Snort rules, execution-time improvement, or speedup.
+before installation. Most of it comes from the service-based rules, whose
+address-only predicates coincide: a single entry, matching a destination in
+\texttt{HOME\_NET}, carries the provenance of 2,043 rules. The reduction does
+not represent traffic reduction, elimination of Snort rules, execution-time
+improvement, or speedup.
 
 \noindent\textbf{Answer to RQ2.} The semantically derived predicates were
 lowered to the evaluated target within its table capacity and P4Runtime
@@ -1279,14 +1286,14 @@ validation constraints, without concealing unsupported semantics.
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
-\caption{Semantic compilation and backend feasibility for the frozen profile. The
-95.04\% value is backend installation-state reduction, not traffic reduction.}
+\caption{Semantic compilation and backend feasibility. The 94.18\% value is
+backend installation-state reduction, not traffic reduction.}
 \label{tab:semantic-backend}
 \begin{tabular}{rrrrrrrr}
 \toprule
 Rules & Exact & Necessary & Unsupported & \shortstack{Predicate\\instances} & Unique & Final & P4Runtime \\
 \midrule
-4017 & 0 & 4003 & 14 & 6675 & 327 & 331 & 331/331 \\
+4017 & 0 & 3996 & 21 & 4040 & 231 & 235 & 235/235 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1316,52 +1323,42 @@ are the reason its parser-eligible population is 1,101,459 rather than the
 1,101,475 obtained when fragmentation is not gated; all 16 remain candidates
 through domain fallback.
 
-Trace replay accounting was reconciled against the data plane. SQLi and XSS
-agree frame for frame: 35,274 and 191,848 frames sent, with identical
-totals across the three counters and exact per-category agreement with the
-offline classifier. A first Brute Force replay recorded 1,108,571 of
-1,108,658 sent frames, a 0.008\% shortfall confined to the candidate
-category, with domain fallback exact at 7,199 and no-match at zero: a
-transport-layer measurement loss on a 23-minute replay, not a
-classification disagreement. A rerun with longer veth queues and a 2~ms
-inter-frame delay recorded all 1,108,658 frames, with 1,101,459 candidates,
-7,199 domain fallbacks, and no no-match, in exact per-category agreement
-with the offline classifier.
-
-Revalidating the frozen analyses under the enforced domain reproduced the
-reported results. On the held-out trace the global candidate rate remains
-100\% of $D$, the strong-discriminator rate 98.942\%, the mean candidate set
-324.52 rules, and the mean candidate-rule-space reduction 91.01\%; in all
-three traces every candidate-alert packet is still a candidate. No policy or
-grouping configuration was retuned during this revalidation.
+Trace replay accounting was reconciled against the data plane. Each of the
+three traces was replayed whole under the global and the
+strong-discriminator plans, and in all six replays the switch counted every
+frame sent, with each counter category equal to the offline classifier's
+value (Table~\ref{tab:packet-selectivity}). The replay protocol's longer
+veth queues and 2~ms inter-frame delay come from an earlier held-out replay
+without them, which lost 87 of 1,108,658 frames (0.008\%) in the transport
+layer, all within the candidate category.
 
 \subsection{Global Binary Prefilter Selectivity (RQ3)}
 Table~\ref{tab:packet-selectivity} reports packet-level selectivity under
-the current Ethernet/IPv4 parser scope and supported protocols. The original
-global candidate bit marked 100\% of parser-eligible packets as candidates
-in SQLi, XSS, and the held-out Brute Force trace. Parser-ineligible frames
-are outside this denominator and are not treated as P4 no-matches. Thus,
-within the evaluated CICIDS2017 windows, high semantic candidate coverage did
-not translate into useful packet-level bypass selectivity for the global
-binary candidate bit.
+the current Ethernet/IPv4 parser scope and supported protocols, measured on
+BMv2 by replaying each trace whole. The global candidate bit marked 100\% of
+parser-eligible packets as candidates in SQLi, XSS, and the held-out Brute
+Force trace. Parser-ineligible frames are outside this denominator and are
+not treated as P4 no-matches. Thus, within the evaluated CICIDS2017 windows,
+high semantic candidate coverage did not translate into useful packet-level
+bypass selectivity for the global binary candidate bit.
 
 \begin{table*}[t]
 \centering
 \footnotesize
 \setlength{\tabcolsep}{3pt}
-\caption{Packet-level selectivity. Candidate rates are among parser-eligible
-packets, that is, packets inside the enforced domain $D$; frames outside $D$
-are retained as candidates through domain fallback and are excluded from the
-denominator. The strong-discriminator columns are a frozen operational
-ablation computed with the offline classifier, not replayed on BMv2.}
+\caption{Packet-level selectivity, measured on BMv2 by replaying each trace
+whole under each plan, with exact accounting; the offline classifier gives
+the same counts. Candidate rates are among parser-eligible packets, that is,
+packets inside the enforced domain $D$; frames outside $D$ are retained as
+candidates through domain fallback and are excluded from the denominator.}
 \label{tab:packet-selectivity}
 \begin{tabular}{lrrrrrr}
 \toprule
 Trace & Total & Eligible & \shortstack{Global\\candidate} & \shortstack{Global\\no-match} & \shortstack{Strong\\candidate} & \shortstack{Strong\\no-match} \\
 \midrule
-SQLi & 35274 & 34924 & 34924 & 0 & 99.015\% & 0.985\% \\
-XSS & 191848 & 189076 & 189076 & 0 & 98.869\% & 1.131\% \\
-Brute Force (held-out) & 1108658 & 1101459 & 1101459 & 0 & 98.942\% & 1.058\% \\
+SQLi & 35274 & 34924 & 34924 & 0 & 92.298\% & 7.702\% \\
+XSS & 191848 & 189076 & 189076 & 0 & 92.173\% & 7.827\% \\
+Brute Force (held-out) & 1108658 & 1101459 & 1101459 & 0 & 94.885\% & 5.115\% \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1369,135 +1366,139 @@ Brute Force (held-out) & 1108658 & 1101459 & 1101459 & 0 & 98.942\% & 1.058\% \\
 \subsection{Selectivity Causal Analysis}
 \label{sec:selectivity-causal}
 The causal audit first identified broad \textsc{Necessary} predicates in the
-global table. Entry \texttt{p4-106} matches TCP protocol only; it subsumes
-246 installation entries (74.32\%). Entry \texttt{p4-40} matches traffic
-with destination \texttt{192.168.10.0/24} and subsumes 210 entries (63.44\%),
-whereas \texttt{p4-138} matches the corresponding source prefix and subsumes
-107 entries (32.33\%). These predicates individually cover large fractions
-of the evaluated traffic. Deduplication is not responsible for the coverage,
+global table. Entry \texttt{p4-88} matches TCP protocol only; it subsumes 162
+of the 235 installation entries (68.94\%). Entry \texttt{p4-10} matches
+traffic with destination \texttt{192.168.10.0/24} and subsumes 154 entries
+(65.53\%), whereas \texttt{p4-51} matches the corresponding source prefix
+and subsumes 71 entries (30.21\%). The last two carry the provenance of
+2,043 and 900 rules, almost all of them service-based rules whose predicates
+keep only a \texttt{HOME\_NET} address. Together, these three entries cover
+every parser-eligible packet of SQLi and XSS; \texttt{p4-88} alone covers
+84.87\% and 88.54\%. Deduplication is not responsible for the coverage,
 because it merges identical normalized matches rather than removing
 restrictions; TCP-flag lowering is also not responsible, because these broad
 entries do not depend on TCP flags.
 
-The frozen strong-discriminator ablation treats an installation entry as a
-strong discriminator when it constrains a source or destination port, the TCP
+The strong-discriminator ablation treats an installation entry as a strong
+discriminator when it constrains a source or destination port, the TCP
 flags, or an IPv4 prefix other than exactly \texttt{HOME\_NET}; a rule
 remains P4-eligible only if every final entry derived from it is strong. The
-criterion is structural and uses no traffic frequencies. It removed nine
+criterion is structural and uses no traffic frequencies. It removed ten
 entries, each constraining at most the protocol and exactly
-\texttt{HOME\_NET} (\texttt{p4-3}, \texttt{p4-5}, \texttt{p4-20},
-\texttt{p4-24}, \texttt{p4-40}, \texttt{p4-80}, \texttt{p4-106},
-\texttt{p4-138}, and \texttt{p4-286}), retaining 322 installation entries for
-3,611 P4-eligible rules. It places 392 semantic candidates in operational
-fallback and retains the 14 semantic \textsc{Unsupported} rules in fallback;
-it is therefore an operational ablation, not a revised semantic
-classification. Its trace-level rates were computed with the offline
-classifier; the 322-entry plan was installed on BMv2 only for the end-to-end
-campaign of Section~\ref{sec:campaign-results}. As shown in
+\texttt{HOME\_NET} as source, destination, or both, \texttt{p4-10},
+\texttt{p4-51}, and \texttt{p4-88} among them, retaining 225 installation
+entries for 739 P4-eligible rules. It places 3,257 semantic candidates in
+operational fallback and retains the 21 semantic \textsc{Unsupported} rules
+in fallback; it is therefore an operational ablation, not a revised semantic
+classification. Its plan was installed on BMv2 for the trace replays and for
+the end-to-end campaign of Section~\ref{sec:campaign-results}. As shown in
 Table~\ref{tab:packet-selectivity}, the candidate rate nevertheless remained
-between 98.869\% and 99.015\% on the development traces and 98.942\% on the
-held-out trace, where 11,654 parser-eligible packets were no-matches.
+between 92.173\% and 92.298\% on the development traces and 94.885\% on the
+held-out trace, where 56,343 parser-eligible packets were no-matches.
 
-The residual-selectivity audit shows that removing obviously broad predicates
-does not eliminate distributed union coverage from the retained predicates.
-Accordingly, semantic safety and operational selectivity are distinct
-properties: a predicate can be sound as a necessary condition while adding
-little packet-level selectivity when composed with thousands of other
-necessary predicates.
+The residual-selectivity audit shows what limits the retained union. Four
+retained entries reach 90\% of the parser-eligible packets of SQLi and XSS.
+The first matches TCP to \texttt{HOME\_NET} with the ACK bit set and covers
+46.80\% and 48.87\% by itself; it comes from a single service-based SMTP
+rule, SID 309, whose \texttt{flags:A+} option keeps its TCP protocol and
+adds the ACK bit. The other three match traffic from \texttt{HOME\_NET} to
+destination ports 443, 80, and 53. All four are strong discriminators by the
+structural criterion, but their flag and port conditions coincide with the
+dominant traffic of the workload. Under the earlier compilation, the same
+ablation still marked 98.869--99.015\% of the packets, and 22 retained
+entries were needed to reach 99\% of SQLi: a distributed union rather than a
+few dominant entries. Either way, semantic safety and operational
+selectivity are distinct properties: a predicate can be sound as a necessary
+condition, and structurally specific, while adding little packet-level
+selectivity when composed with the rest of the ruleset.
 
-\noindent\textbf{Answer to RQ3.} The global binary prefilter is conservative,
-except for non-TCP traffic of nine service-based rules, but operationally
-non-selective on the evaluated traces. The frozen broad-predicate ablation
-remains nearly as non-selective and, by removing the broad port-free
-entries, is not conservative for service-based rules (Section~\ref{sec:service-exposure}).
+\noindent\textbf{Answer to RQ3.} The global binary prefilter is conservative
+but operationally non-selective on the evaluated traces. The
+strong-discriminator ablation, which removes the broad entries, still marks
+92.2--94.9\% of parser-eligible packets as candidates.
 
 \subsection{Candidate Rule-Set Reduction (RQ4)}
+\label{sec:candidate-sets}
 The global candidate bit asks whether a packet remains a candidate for IDS
 handling. The provenance-based analysis asks a different question: which of
-the 3,611 P4-eligible Snort rules remain plausible for a given packet? For
+the 739 P4-eligible Snort rules remain plausible for a given packet? For
 each parser-eligible packet, it unions the source-rule IDs of the matched
 retained P4 entries to derive a per-packet candidate rule set.
 
-The mean candidate-rule-space reduction was 95.04\% for SQLi and 96.11\%
-for XSS; the SQLi value coincides with, but is unrelated to, the 95.04\%
-installation-state reduction in Table~\ref{tab:semantic-backend}. On held-out Brute
-Force, the mean set contained 324.52 rules, a mean reduction of 91.01\%, so
-the effect carried over to the held-out trace with a smaller magnitude. Brute
-Force was not used for policy retuning. Counting the 406 fallback rules that apply to every packet,
-the mean reduction over the full ruleset is 85.43\% for SQLi, 86.40\% for
-XSS, and 81.81\% for held-out Brute Force.
+The mean candidate set contained 3.97 rules for SQLi, 3.94 for XSS, and 4.48
+for held-out Brute Force, a mean reduction of 99.39--99.47\% within the
+P4-eligible partition (Table~\ref{tab:candidate-rules}), and 99\% of packets
+had at most eight candidate rules. Brute Force was not used for policy
+retuning. The partition is small, however. The 3,278 fallback rules apply to
+every packet, and the mean reduction over the full ruleset is 18.30\% for
+SQLi and XSS and 18.29\% for held-out Brute Force, just under the 18.40\%
+that no candidate set can exceed.
+
+The earlier compilation gave a very different picture
+(Table~\ref{tab:compilations}). Its strong-discriminator ablation kept 3,611
+rules P4-eligible, the held-out mean candidate set held 324.52 of them, and
+the reduction over the full ruleset was 81.81\%. Most of the difference is
+the header ports of service-based rules: with them, a packet to port 80
+excluded the rules written for other ports; without them, those rules are in
+fallback and apply to every packet. Header provenance cannot recover that
+discrimination for rules whose header ports Snort~3 does not check. The
+identified service, which Snort itself uses to reject rules of other
+services, could.
 
 This is an offline candidate-rule-space feasibility measurement, not a
 measured reduction in Snort execution, throughput, or latency, and not a
 count of rules dynamically executed by Snort. A candidate-set-aware Snort
-execution engine was not implemented. The sets are also derived from the
-port-constrained predicates of Section~\ref{sec:service-exposure}: a packet
-of a service carried on a port outside a service-based rule's header can
-omit that rule from $C(x)$ although Snort would evaluate it. Deriving the
-sets from address-only predicates for those rules would make them larger, so
-the reported reductions are an upper bound on that derivation; under the
-strong-discriminator policy it could save at most 18.40\% of the full
-ruleset (Section~\ref{sec:service-exposure}).
+execution engine was not implemented.
 
 \begin{table*}[t]
 \centering
 \footnotesize
 \setlength{\tabcolsep}{2pt}
-\caption{Offline per-packet candidate rule set feasibility using the frozen
-strong-discriminator baseline of 3,611 P4-eligible rules. The last column
-counts the 406 fallback rules, which apply to every packet, against the full
-4,017-rule ruleset.}
+\caption{Offline per-packet candidate rule set feasibility using the
+strong-discriminator baseline of 739 P4-eligible rules. The last column
+counts the 3,278 fallback rules, which apply to every packet, against the
+full 4,017-rule ruleset; it cannot exceed 18.40\%.}
 \label{tab:candidate-rules}
 \begin{tabular}{lrrrrrrrrr}
 \toprule
 Trace & Base. & Mean & Median & P90 & P95 & P99 & Max & \shortstack{Mean\\reduction} & \shortstack{Full-ruleset\\reduction} \\
 \midrule
-SQLi & 3611 & 179.28 & 27 & 799 & 799 & 799 & 1228 & 95.04\% & 85.43\% \\
-XSS & 3611 & 140.49 & 13 & 799 & 799 & 1227 & 1228 & 96.11\% & 86.40\% \\
-Brute Force (held-out) & 3611 & 324.52 & 241 & 799 & 799 & 1227 & 1228 & 91.01\% & 81.81\% \\
+SQLi & 739 & 3.97 & 3 & 8 & 8 & 8 & 43 & 99.46\% & 18.30\% \\
+XSS & 739 & 3.94 & 3 & 8 & 8 & 8 & 43 & 99.47\% & 18.30\% \\
+Brute Force (held-out) & 739 & 4.48 & 3 & 8 & 8 & 8 & 293 & 99.39\% & 18.29\% \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
 \subsection{Coarse-Grained Grouping Ablation (RQ4)}
-The frozen grouping study assigned the 322 retained entries to groups by
-protocol (4 groups), protocol plus direction (12), protocol plus service
-(268), and protocol plus direction plus service (308). Its per-packet
-candidate rule set, however, is computed at entry level, as the union of the
-provenance of the matched entries, and does not read the group assignment.
-The four strategies therefore report the values of
-Table~\ref{tab:candidate-rules} by construction; that they coincide is not an
-experimental observation, and the frozen study did not measure the candidate
-set that a grouped prefilter would produce.
+A prefilter could also forward groups of rules rather than per-entry
+provenance. We assigned the 225 retained entries to groups by protocol
+(4 groups), protocol plus direction (12), protocol plus service (203), and
+protocol plus direction plus service (213), and measured the grouped
+candidate set on the three traces (Table~\ref{tab:grouped}). For each
+parser-eligible packet it is the union of the rules of every group that
+contains a matched strong-discriminator entry, which is what a prefilter
+that forwards whole groups would pass to Snort.
 
-What the study does record is the structure of the groups, and that structure
-bounds the cost of grouping. Under protocol grouping, the four groups
-partition the 3,611 rules without overlap, and the TCP group alone holds
-3,439 of them. A grouped prefilter that forwarded every rule of an activated
-group would give each packet that activates the TCP group at least 3,439
-candidate rules, a reduction of at most 4.8\%, where entry-level provenance
-gives 91--96\% on average. Finer strategies shrink the largest groups but do
-not remove the effect: under protocol plus service, the TCP group for
-destination port 80 holds 2,024 rules, and 2,358 rules belong to more than one
-group, up to nine.
-
-We therefore measured the grouped candidate set on the three traces
-(Table~\ref{tab:grouped}). For each parser-eligible packet it is the union of
-the rules of every group that contains a matched strong-discriminator entry,
-which is what a prefilter that forwards whole groups would pass to Snort.
-Protocol grouping forwards on average 2,921 to 3,167 rules, a reduction of
-12.30--19.10\% over the P4-eligible partition, and its median packet
-activates the 3,439-rule TCP group. Adding direction reaches 54--57\%, and
-protocol plus service 81--92\%. Only protocol plus direction plus service,
-with 308 groups for 322 entries, comes within 0.01 percentage points of the
-entry-level reduction.
+Under protocol grouping, the TCP group holds 642 of the 739 rules, and the
+median packet activates it. The grouped set averages 551 to 590 rules, a
+reduction of 20.10--25.38\% within the P4-eligible partition and of only
+3.70--4.67\% over the full ruleset. Adding direction reaches
+57.00--60.11\%. Protocol plus service, whose largest group holds the 291
+rules of destination port 1521, reaches 98.80--98.96\%, and protocol plus
+direction plus service 98.98--99.08\%, within half a percentage point of the
+entry-level reduction; over the full ruleset, both stay within 0.12 points
+of it. Under the earlier compilation, with a P4-eligible partition five times
+larger, the cost of coarse grouping was higher: the TCP group held 3,439 of
+3,611 rules, and protocol grouping reduced the set by only 12.30--19.10\%,
+against 91.01--96.11\% at entry level.
 
 \begin{table}[t]
 \centering
 \caption{Grouped candidate set on the traces: mean rules forwarded per
 parser-eligible packet when every rule of each activated group is forwarded,
-and the reduction over the 3,611 P4-eligible rules (strong-discriminator
-plan, frozen predicates, offline). The first row is the entry-level set of
+and the reduction over the 739 P4-eligible rules (strong-discriminator
+plan, offline). The first row is the entry-level set of
 Table~\ref{tab:candidate-rules}.}
 \label{tab:grouped}
 \footnotesize
@@ -1508,67 +1509,78 @@ Table~\ref{tab:candidate-rules}.}
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
 Strategy & Groups & Mean & Red. & Mean & Red. & Mean & Red. \\
 \midrule
-Entry level & -- & 179.3 & 95.04\% & 140.5 & 96.11\% & 324.5 & 91.01\% \\
-Protocol & 4 & 2,921.3 & 19.10\% & 3,046.0 & 15.65\% & 3,167.0 & 12.30\% \\
-Protocol, direction & 12 & 1,540.5 & 57.34\% & 1,621.4 & 55.10\% & 1,657.5 & 54.10\% \\
-Protocol, service & 268 & 377.7 & 89.54\% & 280.3 & 92.24\% & 681.9 & 81.12\% \\
-Protocol, direction, service & 308 & 179.5 & 95.03\% & 140.6 & 96.11\% & 324.9 & 91.00\% \\
+Entry level & -- & 3.97 & 99.46\% & 3.94 & 99.47\% & 4.48 & 99.39\% \\
+Protocol & 4 & 551.44 & 25.38\% & 562.04 & 23.95\% & 590.47 & 20.10\% \\
+Protocol, direction & 12 & 294.77 & 60.11\% & 307.89 & 58.34\% & 317.77 & 57.00\% \\
+Protocol, service & 203 & 7.71 & 98.96\% & 7.73 & 98.95\% & 8.89 & 98.80\% \\
+Protocol, direction, service & 213 & 6.78 & 99.08\% & 6.89 & 99.07\% & 7.52 & 98.98\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The 91--96\% reductions in Table~\ref{tab:candidate-rules} therefore come
-from the mapping of matched P4 entries to their source-rule IDs, followed by
-the union of those provenance sets for each packet, and grouping preserves
-them only when its groups are nearly as fine as the entries.
+The reductions in Table~\ref{tab:candidate-rules} therefore come from the
+mapping of matched P4 entries to their source-rule IDs, followed by the
+union of those provenance sets for each packet, and grouping preserves them
+only when its groups are nearly as fine as the entries.
 
 \subsection{Dynamic Alert Preservation (RQ4)}
-Table~\ref{tab:alert-preservation} separates four empirical properties. They
-are semantic split preservation, P4 alert-packet preservation, observed-event
-coverage under the strong discriminator, and entry-level candidate-set SID
-membership. These are not interchangeable claims of equivalence.
+Table~\ref{tab:alert-preservation} separates three of the empirical
+properties defined in Section~\ref{sec:methodology}: semantic split
+preservation, P4 alert-packet preservation under each plan, and
+observed-event coverage under the strong discriminator. The fourth,
+candidate-set SID membership, has no P4-eligible alert event to test under
+this compilation. These are not interchangeable claims of equivalence.
 
-For SQLi, XSS, and held-out Brute Force, the semantic split had zero missing
-or additional alerts, and all observed parser-eligible candidate-alert
-packets matched the P4 table. The P4 columns of
-Table~\ref{tab:alert-preservation} were measured on BMv2 by replaying only
-the candidate-alert packets of each trace, first before the packet-domain
-gate of Section~\ref{sec:packet-domain} was added to the data plane and then
-again under the corrected program, sending the captured bytes unchanged. The
-second replay reconciles exactly: 150, 528, and 2,391 frames sent and
-counted, all candidates, none in no-match or domain fallback. Re-classifying
-the same packets offline under the enforced domain gives the same counts. No \textsc{Unsupported} rule fired in any of the
-three traces, which limits the discriminating power of the semantic split
-comparison; Section~\ref{sec:threats} states this explicitly. Thus, observed
-alert preservation was 100\% in the three traces. In held-out Brute Force, FULL Snort produced 2,391 alerts
-from five SIDs (254, 399, 402, 650, and 1394). All 2,391 candidate-alert
-packets were parser eligible and P4 candidates; none was a P4 no-match. The
-offline strong-discriminator audit covered 2,289 eligible alert events through
-retained predicates and 102 through fallback, with zero missing. Observed
-candidate-set SID membership was 2,289/2,289.
+In SQLi, XSS, and held-out Brute Force, FULL Snort produced 150, 528, and
+2,391 alerts from one, two, and five SIDs: 254; 254 and 402; and 254, 399,
+402, 650, and 1394. The semantic split had zero missing or additional
+alerts. It was measured by running Snort separately on the candidate and
+\textsc{Unsupported} partitions of the earlier compilation. The seven rules
+that the current compilation adds to \textsc{Unsupported} raised no alert in
+the FULL runs and take part in no flowbit dependency, so the result carries
+over unchanged. No \textsc{Unsupported} rule fired in any of the three
+traces, which limits the discriminating power of this comparison;
+Section~\ref{sec:threats} states this explicitly.
 
-The trace names do not imply that the observed Snort alerts detected the
-corresponding CICIDS2017 attack labels. These measurements describe the
-evaluated ruleset behavior and constitute observed alert preservation, not
-formal equivalence, guaranteed preservation for arbitrary traffic, or
-detection accuracy.
+P4 alert-packet preservation was measured on BMv2 by replaying only the
+alert packets of each trace under each plan, sending the captured bytes
+unchanged, with exact accounting. Under the global plan, all 150, 528, and
+2,391 alert packets were candidates. Under the strong-discriminator plan, all
+but three were no-match. This is not a loss, because every observed alert
+comes from a rule in operational fallback, which Snort inspects without the
+prefilter. SID 254, which raised 2,960 of the 3,069 alerts, declares the
+\texttt{dns} service; without its UDP and port-53 conditions its predicate
+keeps only the \texttt{HOME\_NET} destination, which is not a strong
+discriminator. The offline strong-discriminator audit accordingly attributes
+all 3,069 alert events to fallback and none to retained predicates, so the
+traces do not exercise the candidate sets of Table~\ref{tab:candidate-rules}
+at all. Under the earlier compilation, 2,289 of the held-out events were
+covered by retained predicates, and in all 2,289 the alert SID belonged to
+the packet's candidate set.
+
+Thus, observed alert preservation was 100\% in the three traces. The trace
+names do not imply that the observed Snort alerts detected the corresponding
+CICIDS2017 attack labels. These measurements describe the evaluated ruleset
+behavior and constitute observed alert preservation, not formal
+equivalence, guaranteed preservation for arbitrary traffic, or detection
+accuracy.
 
 \begin{table}[h]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{2pt}
 \caption{Observed alert preservation. Missing and additional compare the
-semantic split with FULL Snort; P4 columns concern candidate-alert packets,
-replayed alone on BMv2 under the corrected program, with exact accounting,
-and reproduced offline under the enforced domain.}
+semantic split with FULL Snort. P4 columns concern the alert packets,
+replayed alone on BMv2 under each plan with exact accounting; under the
+strong-discriminator plan every alert belongs to a fallback rule.}
 \label{tab:alert-preservation}
 \begin{tabular}{lrrrrrrrrr}
 \toprule
-Trace & FULL & Cand. & Unsup. & Missing & Add. & \shortstack{Alert\\packets} & \shortstack{P4\\cand.} & \shortstack{P4\\no-match} & Pres. \\
+Trace & FULL & Missing & Add. & \shortstack{Alert\\packets} & \shortstack{Global\\cand.} & \shortstack{Strong\\cand.} & \shortstack{Strong\\no-match} & \shortstack{Via\\fallback} & Pres. \\
 \midrule
-SQLi & 150 & 150 & 0 & 0 & 0 & 150 & 150 & 0 & 100\% \\
-XSS & 528 & 528 & 0 & 0 & 0 & 528 & 528 & 0 & 100\% \\
-Brute Force (held-out) & 2391 & 2391 & 0 & 0 & 0 & 2391 & 2391 & 0 & 100\% \\
+SQLi & 150 & 0 & 0 & 150 & 150 & 0 & 150 & 150 & 100\% \\
+XSS & 528 & 0 & 0 & 528 & 528 & 0 & 528 & 528 & 100\% \\
+Brute Force (held-out) & 2391 & 0 & 0 & 2391 & 2391 & 3 & 2388 & 2391 & 100\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1578,87 +1590,85 @@ Brute Force (held-out) & 2391 & 2391 & 0 & 0 & 0 & 2391 & 2391 & 0 & 100\% \\
 Table~\ref{tab:campaign} reports the campaign verdicts. No case produced a
 \textsc{Violation} under either plan, and no frame fell outside $D$, so no
 case was resolved by domain fallback. The two attributions of Snort alerts to
-cases, by packet range and by timestamp, agreed for every case.
+cases, by packet range and by timestamp, agreed for every case. In both
+runs, the category predicted by the offline matcher agreed with the BMv2
+counter on all 2,101 witness and neighbor frames, which extends the
+eleven-case packet-domain suite of Section~\ref{sec:domain-validation} to a
+thousand rules and to the matcher that produced the selectivity results.
 
-Under the global plan, 923 of the 1,000 rules were \textsc{Confirmed} and 77
-were \textsc{Vacuous}. All 1,000 witnesses and all 1,000 payload-negative
-frames were candidates, and all 101 header-negative frames were no-matches.
-Every confirmed witness was matched by its own rule's entries but also by an
-entry of another rule, so no confirmation under this plan can be attributed
-solely to the rule's own predicate. This is the broad coverage of
+Under the global plan, 958 of the 1,000 rules were \textsc{Confirmed}, 40
+were \textsc{Vacuous}, and 2 were in fallback: SIDs 56583 and 56584, Kerberos
+rules that are \textsc{Unsupported} in this compilation. All 1,000 witnesses
+and all 1,000 payload-negative frames were candidates, and all 101
+header-negative frames were no-matches. Every confirmed witness was matched
+by its own rule's entries but also by an entry of another rule, so no
+confirmation under this plan can be attributed solely to the rule's own
+predicate. This is the broad coverage of
 Section~\ref{sec:selectivity-causal} seen at the level of individual rules:
 the same coverage that removes packet-level selectivity also removes the
 power to falsify a single rule's lowering.
 
-Under the strong-discriminator plan, 851 rules were \textsc{Confirmed}, 107
-were in operational fallback, 40 were \textsc{Vacuous}, and 2 showed
-\textsc{State Dependence}. Every confirmed witness was matched by at least one
-entry of its own rule, and for 153 of the 851 it was matched by no other
+Under the strong-discriminator plan, 134 rules were \textsc{Confirmed}, 826
+were in operational fallback, 40 were \textsc{Vacuous}, and none showed
+\textsc{State Dependence}. Every confirmed witness was matched by at least
+one entry of its own rule, and for 36 of the 134 it was matched by no other
 entry, so a lowering defect in those rules would have been observed as a
-\textsc{Violation}; the other 698 were matched by their own entries together
-with entries of other rules. Of the 107 fallback rules, 66 had witnesses
-marked no-match, as expected for rules with no retained entry, and 41 were
-candidates through other rules' entries. In both runs, the category
-predicted by the offline matcher agreed with the BMv2 counter on all 2,101
-witness and neighbor frames, which extends the eleven-case packet-domain
-suite of Section~\ref{sec:domain-validation} to a thousand rules and to the
-matcher that produced the selectivity results.
+\textsc{Violation}. Of the 826 fallback rules, 78 had witnesses marked
+no-match, as expected for rules with no retained entry, and 748 were
+candidates through other rules' entries. The payload-negative frames measure
+the conservative excess of a header-level prefilter: 915 were candidates on
+which Snort did not alert, and 7 were candidates on which Snort did alert,
+because their rules carry no \texttt{content} to remove. The remaining 78
+belong to fallback rules, which the plan does not prefilter.
 
-Under the strong-discriminator plan, the payload-negative frames measure the
-conservative excess of a header-level prefilter: 927 of them were candidates
-on which Snort did not alert. Seven more were candidates on which Snort did
-alert, because their rules carry no \texttt{content} to remove, and the
-remaining 66 belong to the fallback rules, which the plan does not
-prefilter. The two \textsc{State Dependence} cases,
-SIDs 43809 and 47386, are HTTP request rules. Snort attributed each alert to
-the server-to-client acknowledgment that triggers inspection of the buffered
-request, and the strong-discriminator plan marks that acknowledgment
-no-match because it does not satisfy the rule's header. The compiled
-predicate held on the witness, but a deployment that withheld no-match
-packets from Snort could delay or suppress these alerts. The global plan
-hides this dependence, because \texttt{p4-138} matches every packet leaving
-\texttt{HOME\_NET}.
+The campaign also shows how much HTTP detection depends on packets that do
+not satisfy a rule's header. For 606 of the fallback rules, all HTTP rules,
+Snort attributed the alert to the acknowledgment from the other endpoint
+that triggers inspection of the buffered HTTP message, and the
+strong-discriminator plan marked 445 of those acknowledgments no-match. Nothing is lost, because
+these rules are in fallback. Under the earlier compilation, the same
+mechanism produced two \textsc{State Dependence} cases, SIDs 43809 and
+47386, HTTP request rules that its strong-discriminator plan prefiltered.
+The compiled predicate held on the witness, but a deployment that withheld
+no-match packets from Snort could have delayed or suppressed those alerts.
+The global plan hides this dependence, because \texttt{p4-51} matches every
+packet leaving \texttt{HOME\_NET}.
 
 \begin{table}[h]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
 \caption{End-to-end differential campaign over one stratified sample of 1,000
-rules. \emph{Own-only} counts confirmed rules whose witness was matched only
-by entries of their own rule, computed with the offline matcher. The global
-row used an earlier revision of the witness generator, and an IR without
-two later \texttt{content} repairs, than the strong-discriminator row; those
-revisions changed witness construction only, reduced vacuous cases, and
-none produced a violation.}
+rules, replayed as the same trace under both plans. \emph{Fallback} counts
+rules the plan does not prefilter: the \textsc{Unsupported} rules, and under
+the strong-discriminator plan also its operational fallback. \emph{Own-only}
+counts confirmed rules whose witness was matched only by entries of their
+own rule, computed with the offline matcher.}
 \label{tab:campaign}
 \begin{tabular}{lrrrrrrr}
 \toprule
-Plan & Entries & Confirmed & Violation & \shortstack{State\\dep.} & \shortstack{Oper.\\fallback} & Vacuous & \shortstack{Own-\\only} \\
+Plan & Entries & Confirmed & Violation & \shortstack{State\\dep.} & Fallback & Vacuous & \shortstack{Own-\\only} \\
 \midrule
-Global & 331 & 923 & 0 & 0 & -- & 77 & 0 \\
-Strong discriminator & 322 & 851 & 0 & 2 & 107 & 40 & 153 \\
+Global & 235 & 958 & 0 & 0 & 2 & 40 & 0 \\
+Strong discriminator & 225 & 134 & 0 & 0 & 826 & 40 & 36 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \noindent\textbf{Answer to RQ4.} The evaluated predicates preserved all
-observed candidate alert events in the three traces. In the end-to-end
+observed alerts in the three traces, as candidates under the global plan and
+through fallback under the strong-discriminator plan. In the end-to-end
 campaign no case was a \textsc{Violation}: no rule that a plan prefilters
-had its witness marked no-match while Snort alerted, across 923 confirmed
-rules under the global plan and 851 under the strong-discriminator plan.
-Under the strong plan, Snort also alerted on no-match frames for the 66
-fallback rules it does not prefilter and for the two state-dependence cases.
-The predicates also
-exposed substantially smaller per-packet candidate rule sets; that result
-remains an offline feasibility measurement because dynamic stateful
-candidate-set execution was not implemented, and it rests on port-constrained
-predicates for service-based rules. With Snort~3's service semantics, the
-strong-discriminator policy keeps 739 eligible rules, which bounds the
-full-ruleset reduction at 18.40\%; the traces reach 18.29--18.30\%, and all
-their alerts then come from fallback rules, so none exercises the corrected
-candidate sets (Section~\ref{sec:service-exposure}). A prefilter that forwards whole groups
-keeps the reduction only with groups nearly as fine as the entries: under
-protocol grouping the set shrinks by only 12--19\% (Table~\ref{tab:grouped}).
+had its witness marked no-match while Snort alerted, across 958 confirmed
+rules under the global plan and 134 under the strong-discriminator plan, 36
+of the latter attributable to the rule's own entries alone. The predicates
+also exposed per-packet candidate rule sets of about four rules within the
+739-rule P4-eligible partition, but the reduction over the full ruleset is
+18.29--18.30\%, because the other 3,278 rules apply to every packet. That
+result remains an offline feasibility measurement, because dynamic stateful
+candidate-set execution was not implemented, and the traces exercise no
+retained predicate. A prefilter that forwards whole groups keeps the
+reduction only with groups nearly as fine as the entries.
 
 Figure~\ref{fig:semantic-compilation-overview} summarizes the semantic
 compilation flow and distinguishes the implemented binary prefilter from the
@@ -1729,8 +1739,7 @@ offline provenance analysis.
 \end{tikzpicture}
 \caption{Semantics-aware, target-aware compilation overview. Semantic analysis
 retains unsupported or delegated semantics in Snort while deriving necessary
-P4 predicates; for service-based rules they are necessary only where Snort
-evaluates the full header
+P4 predicates; for service-based rules they keep only the header addresses
 (Section~\ref{sec:service-based}). Target-aware lowering preserves source-rule
 provenance. The implemented global binary prefilter aggregates predicates into
 candidate metadata and showed limited packet-bypass selectivity in the
@@ -1753,40 +1762,44 @@ $r \Leftrightarrow p_r$. Semantic safety therefore asks whether traffic that
 satisfies the rule also satisfies its compiled predicate; operational
 selectivity asks how much other traffic that predicate can exclude.
 
-Under the evaluated profile, 4,003 of 4,017 rules were classified as
-\textsc{Necessary}, 14 as \textsc{Unsupported}, and none as \textsc{Exact}.
-Nevertheless, the original global binary prefilter marked 100\% of
-parser-eligible packets as candidates in SQLi, XSS, and held-out Brute Force.
-This is not a contradiction. The usefulness of a safely compiled predicate
-is not determined solely by whether it preserves a necessary condition, but
-also by how that predicate composes with predicates generated for the
-remainder of the ruleset. The absence of \textsc{Exact} classifications is
-both a limitation of the evaluated target/profile and evidence that partial
+Under the evaluated profile, 3,996 of 4,017 rules were classified as
+\textsc{Necessary}, 21 as \textsc{Unsupported}, and none as \textsc{Exact}.
+Nevertheless, the global binary prefilter marked 100\% of parser-eligible
+packets as candidates in SQLi, XSS, and held-out Brute Force. This is not a
+contradiction. The usefulness of a safely compiled predicate is not
+determined solely by whether it preserves a necessary condition, but also by
+how that predicate composes with predicates generated for the remainder of
+the ruleset. The absence of \textsc{Exact} classifications is both a
+limitation of the evaluated target/profile and evidence that partial
 semantic preservation was not promoted to equivalence.
 \subsection{The Union Effect in Large Rule Sets}
 Conceptually, the global candidate decision is the disjunction
 $P_{\mathrm{global}}(x)=p_1(x) \lor p_2(x) \lor \cdots \lor p_n(x)$.
 Individual predicates may be useful filters, but the aggregate coverage of a
 large disjunction can approach the workload population. The causal audit
-identified broad initial contributors: \texttt{p4-106} matches TCP only,
-\texttt{p4-40} matches a destination in \texttt{HOME\_NET}, and
-\texttt{p4-138} matches a source in \texttt{HOME\_NET}.
+identified broad initial contributors: \texttt{p4-88} matches TCP only,
+\texttt{p4-10} matches a destination in \texttt{HOME\_NET}, and
+\texttt{p4-51} matches a source in \texttt{HOME\_NET}; the last two carry the
+provenance of most service-based rules.
 
 Broad predicates were an initial contributor, but they were not a complete
-explanation. The frozen strong-discriminator ablation retained 322 entries
-for 3,611 P4-eligible rules, placed 392 rules in operational fallback, and
-retained 14 semantic \textsc{Unsupported} rules in fallback. Even then, the
-held-out Brute Force trace had a 98.942\% candidate rate among
-parser-eligible packets. The residual audit indicates that near-universal
-coverage persisted through the distributed union of many retained predicates.
-Thus, the evidence does not attribute poor selectivity to only three broad
-entries. It instead indicates that large heterogeneous rulesets can make a
-single global candidate bit too coarse and discard rule-level provenance.
+explanation. The strong-discriminator ablation retained 225 entries for 739
+P4-eligible rules, placed 3,257 rules in operational fallback, and retained
+21 semantic \textsc{Unsupported} rules in fallback. Even then, the held-out
+Brute Force trace had a 94.885\% candidate rate among parser-eligible
+packets. A few retained entries are structurally specific, an ACK bit toward
+\texttt{HOME\_NET} and the web and DNS ports from it, yet coincide with most
+of the traffic; under the earlier compilation, the residual coverage was
+instead spread across many retained predicates. Thus, the evidence does not
+attribute poor selectivity to only three broad entries. It instead indicates
+that large heterogeneous rulesets, together with the traffic they are written
+for, can make a single global candidate bit too coarse and discard
+rule-level provenance.
 
 The union also limits what can be tested. In the end-to-end campaign, every
 confirmed witness under the global plan was also matched by another rule's
 entry, so a defect in any single rule's lowering would have been masked by
-the rest of the table. Only after the broad entries were removed did 153
+the rest of the table. Only after the broad entries were removed did 36
 confirmations depend on the rule's own entries alone. Testing the lowering
 of an individual rule therefore needs a configuration in which that rule's
 predicate is not covered by the others, a condition closely related to the
@@ -1799,23 +1812,19 @@ matched P4 entries to their recorded source-rule IDs and taking their union
 as a per-packet candidate rule set. Rule-level provenance consequently
 retains information that a global candidate bit discards.
 
-Using the frozen 3,611-rule strong-discriminator baseline, the mean
-candidate-rule-space reduction was 95.04\% for SQLi and 96.11\% for XSS.
-For held-out Brute Force, the mean candidate set contained 324.52 rules
-(median 241; P95 799; P99 1,227; maximum 1,228), corresponding to a mean
-reduction of 91.01\%. The held-out trace suggests that this candidate-set
-effect was not restricted to the development traces, although its magnitude
-was traffic-dependent and lower than the approximately 95--96\% observed on
-SQLi and XSS. The 406 fallback rules bound what any candidate set can save:
-counted against the full ruleset, the reductions are 85.43\%, 86.40\%, and
-81.81\%, and no packet can fall below 406 applicable rules.
+Using the 739-rule strong-discriminator baseline, the mean candidate set
+contained about four rules in each trace, 4.48 on held-out Brute Force
+(median 3; P99 8; maximum 293), a reduction above 99.3\% within that
+partition. The partition, however, holds only the rules whose predicates the
+policy treats as discriminating. The 3,278 fallback rules bound what any
+candidate set can save: counted against the full ruleset, the reductions are
+18.29--18.30\%, and no packet can fall below 3,278 applicable rules.
 
-The service-based case narrows this further. Once ports and protocol of
-service-based rules are treated as Snort~3 treats them, most of those rules
-keep only an address condition on \texttt{HOME\_NET}, and the
-strong-discriminator policy leaves 739 of the 3,996 \textsc{Necessary} rules
-P4-eligible, so a header-derived candidate set could save at most 18.40\% of
-the full ruleset for any packet. Much of what header provenance appeared to discriminate was
+The comparison with the earlier compilation locates the loss. With the
+header ports of service-based rules, the same derivation reduced the
+held-out candidate set by 81.81\% over the full ruleset; without them, most
+of those rules keep only an address condition on \texttt{HOME\_NET} and fall
+back. Much of what header provenance appeared to discriminate was therefore
 the header port, which Snort~3 does not use once it knows the service. A
 candidate selector that also used the identified service, which Snort itself
 uses to reject rules of other services, is a natural next step; this paper
@@ -1829,26 +1838,25 @@ implemented, no throughput or latency benchmark was conducted, and no
 speedup is demonstrated. In particular, dynamic stateful rule execution
 remains unresolved.
 \subsection{Why Coarse Grouping Does Not Help}
-The 91--96\% candidate-rule-space reduction was produced by fine-grained
-entry-to-source-rule provenance, not by grouping. The frozen grouping study
-could not show this, because its candidate-set metric ignores the groups and
-is identical across strategies by construction. Measured directly, grouping
-gives back the discrimination it aggregates: a coarse group forwards every
-rule it contains, and under protocol grouping, whose TCP group holds 3,439 of
-the 3,611 rules, the mean reduction falls to 12--19\%. Finer groupings
-recover it step by step, and the one that matches entry-level provenance has
-308 groups for 322 entries (Table~\ref{tab:grouped}).
+The candidate-rule-space reduction within the P4-eligible partition was
+produced by fine-grained entry-to-source-rule provenance, not by grouping.
+Measured directly, grouping gives back the discrimination it aggregates: a
+coarse group forwards every rule it contains, and under protocol grouping,
+whose TCP group holds 642 of the 739 rules, the mean reduction falls to
+20--25\%. Finer groupings recover it step by step, and the two that include
+the service come within half a percentage point of entry-level provenance
+(Table~\ref{tab:grouped}). Over the full ruleset, the fallback rules dominate
+either way.
 
 Coarse structural groups aggregate rules whose necessary predicates remain
-different. The service-oriented groupings also overlap heavily, with 2,358
-rules in more than one group. This does not show that every grouping is
-unhelpful: the four evaluated strategies are structural, and the grouped set
-was computed offline.
-Future grouping designs could account for provenance, semantic dependencies,
-rule overlap, flow/state dependencies, and hardware resource constraints.
+different. This does not show that every grouping is unhelpful: the four
+evaluated strategies are structural, and the grouped set was computed
+offline. Future grouping designs could account for provenance, semantic
+dependencies, rule overlap, flow/state dependencies, and hardware resource
+constraints.
 \subsection{Implications for P4-Based IDS Offloading}
 The evaluated results suggest that translation rate alone is insufficient for
-assessing a P4-based IDS prefilter. Classifying 99.65\% of rules as
+assessing a P4-based IDS prefilter. Classifying 99.48\% of rules as
 \textsc{Necessary} did not imply operationally selective binary packet
 bypass. This complements prior work on rule-derived P4 filtering and
 resource-aware data-plane representations \cite{lewis2019p4id,tavares2021p4onids}:
@@ -1867,13 +1875,16 @@ need to account for IDS state beyond packet-header matching \cite{brum2025rethin
 The service-based case shows that even the header of a rule is not
 self-describing. What a header condition means depends on how the IDS
 evaluates it, and Snort~3 drops the port and protocol conditions of
-service-based rules once a flow's service is known. A prefilter
-that derives port conditions from Snort~3 rule headers can therefore exclude
-packets the rule would alert on, unless its plan keeps port-free coverage for
-the addresses those rules name. In the evaluated global plan, the broad
-entries that removed packet-level selectivity are also what kept the plan
-candidate-complete for all but nine of these rules: safety and selectivity
-pulled against each other within the same entries.
+service-based rules once a flow's service is known. The earlier compilation,
+which derived port conditions from those headers, produced a
+strong-discriminator plan that marked no-match packets on which Snort
+alerted; its global plan stayed candidate-complete for all but nine of these
+rules only through the broad entries that removed packet-level selectivity.
+Compiled as Snort~3 evaluates them, the rules are safe under both plans, but
+their predicates shrink to address conditions on \texttt{HOME\_NET} that
+match most of the traffic, and the strong-discriminator policy leaves them
+to fallback. Safety and selectivity pulled against each other within the
+same rules.
 
 Binary packet bypass may be too coarse for large heterogeneous rulesets under
 the evaluated configuration. Predicate provenance can instead be treated as
@@ -1890,7 +1901,7 @@ in coordinated programmable-data-plane and IDS processing
 The reported metrics characterize different constructs and should not be
 collapsed into a single notion of offloading effectiveness. Semantic coverage
 measures whether a safe P4 predicate was derived under the supported profile;
-it does not measure semantic equivalence. In particular, the 4,003
+it does not measure semantic equivalence. In particular, the 3,996
 \textsc{Necessary} classifications do not constitute full Snort rule
 offload, and \textsc{Exact}=0 means that no evaluated rule had all of its
 semantics represented by the P4 predicate. This is both a limitation of the
@@ -1898,21 +1909,21 @@ evaluated target/profile and a consequence of the conservative classifier,
 which does not label partial preservation as equivalence.
 
 The \textsc{Necessary} classification itself rests on a model of Snort's
-header evaluation that holds for port-based rules but not for service-based
-ones (Section~\ref{sec:service-based}). The compiler treats a service as an
-additional delegated condition, which would be sound if Snort required the
-service and the header together. Snort~3 instead replaces the port and
-protocol checks by the service match, so for 2,931 rules the compiled
-predicate over-constrains the protocol and, for 2,877 of them, a port. This
-was established from the Snort~3.12.2.0 source and documentation and
-confirmed on BMv2 for one service and one port: 190 HTTP rules alerted on
-port 18080, and the strong-discriminator plan marked all 190 witnesses
-no-match. The compiler now offers the corrected semantics as an
-option, but the frozen artifacts and every trace-level result outside
-Section~\ref{sec:service-exposure} use the original one; the corrected
-compilation was measured offline only and was not installed on BMv2.
+header evaluation (Section~\ref{sec:service-based}): which rules are
+service-based, which header fields Snort skips for them, and that the
+\texttt{flags} option matches only TCP. The model was established from the
+Snort~3.12.2.0 source and documentation, and confirmed on BMv2 for one
+service and one port: 190 HTTP rules alerted on port 18080, and under the
+current compilation every such witness was a candidate or belonged to a rule
+in fallback. An earlier compilation, which treated a service as an
+additional delegated condition, over-constrained 2,931 predicates, and its
+strong-discriminator plan marked all 190 witnesses no-match. A model that
+missed another way in which Snort skips header conditions would fail in the
+same way, and a different Snort version could change these rules; for
+inspector buffers whose registration was not traced, the compiler counts the
+rule as service-based, which only broadens its predicate.
 
-Similarly, the 95.04\% backend reduction measures P4 installation state,
+Similarly, the 94.18\% backend reduction measures P4 installation state,
 not traffic reduction or removal of rules from Snort. Packet-level
 selectivity measures candidate rates only among parser-eligible frames,
 whereas candidate-rule-space reduction is an offline feasibility metric and
@@ -1929,34 +1940,46 @@ SQLi and XSS were used as development and diagnostic traces, whereas Brute
 Force was preserved as a held-out trace. No policy retuning was performed
 after inspecting the held-out trace. The strong-discriminator configuration
 is an operational ablation rather than a new semantic classification, and
-the grouping strategies were frozen before held-out validation. Experiment
-artifacts were frozen, with integrity checks recorded where applicable.
+its criterion and the grouping strategies were fixed before held-out
+validation under the earlier compilation and applied unchanged to the
+current one. Experiment artifacts were frozen, with integrity checks
+recorded where applicable, and the earlier compilation's artifacts are
+archived and regenerate byte for byte.
 
-The causal analysis initially identified broad predicates, but the residual
-analysis showed that near-universal coverage persisted through distributed
-union coverage. This reduces the risk of attributing the observed behavior
-only to a small number of broad rules. It does not establish causal proof
-beyond the performed ablations. Flowbit dependency audits were performed for
-both the original partition and the strong-discriminator partition, and no
-cross-partition flowbit dependency was observed in the evaluated ruleset.
-The absence of these static cross-partition dependencies does not establish
-safety for arbitrary Snort rulesets or all stateful mechanisms.
+The causal analysis initially identified broad predicates, and the residual
+analysis showed that coverage persisted through the entries that remained.
+This reduces the risk of attributing the observed behavior only to a small
+number of broad rules. It does not establish causal proof beyond the
+performed ablations.
+
+Flowbit dependency audits were performed for both partitions of the
+ruleset. In the semantic partition, all 636 flowbit producer-to-consumer
+edges stay inside the candidate side, so running the \textsc{Unsupported}
+rules separately does not break a flowbit. The strong-discriminator
+partition is not closed under flowbits: 24 edges cross it, all on one
+flowbit, \texttt{smb.trans2}, between two port-based rules that remain
+P4-eligible (SIDs 3143 and 3144) and ten \texttt{netbios-ssn} rules in
+fallback. A deployment that ran the two sides of that partition as separate
+rule sets would have to keep this flowbit component together. The absence of
+other cross-partition dependencies does not establish safety for arbitrary
+Snort rulesets or all stateful mechanisms.
 
 Semantic split preservation has limited discriminating power in the evaluated
-traces. The \textsc{Unsupported} partition contains 14 rules, and none of them
+traces. The \textsc{Unsupported} partition contains 21 rules, and none of them
 produced an alert in any of the three traces. The comparison of the
 \textsc{Unsupported} side therefore contrasted an empty expected set with an
 empty run, and the candidate side necessarily coincided with the FULL alert
 set. The reported zero missing and zero additional alerts are correct, but a
 partition that assigned rules incorrectly would yield the same result whenever
 the misassigned rules are silent on the evaluated traffic. This measure
-establishes that removing the 14 \textsc{Unsupported} rules did not perturb the
-observed alerts; it does not establish that the split is correct for rules that
-the traces never exercised. Rulesets or traces that activate
-\textsc{Unsupported} rules would be required to give this check discriminating
-power. The end-to-end campaign does not close this gap, because the 14
-\textsc{Unsupported} rules admit no synthesized witness and are outside its
-sample.
+establishes that removing the \textsc{Unsupported} rules did not perturb the
+observed alerts; it does not establish that the split is correct for rules
+that the traces never exercised. Rulesets or traces that activate
+\textsc{Unsupported} rules would be required to give this check
+discriminating power. The end-to-end campaign does not close this gap: the 14
+rules that both compilations classify as \textsc{Unsupported} admit no
+synthesized witness, and the campaign does not run Snort on the two
+partitions separately.
 
 The campaign's witnesses are synthesized from the compiler's own IR, so the
 generator and the compiler could share an error. The verdict does not rest on
@@ -1965,15 +1988,13 @@ text, alerts on it, so an IR error that produced a wrong witness yields a
 \textsc{Vacuous} case rather than a \textsc{Confirmed} one. Vacuous cases
 exposed two IR defects in \texttt{content} handling, whitespace inside the
 pattern and negation written as \texttt{!} outside the quotes, and both were
-corrected without changing any P4 artifact. The global-plan run preceded both
-corrections and an earlier witness-generator revision, so part of its 77
-vacuous cases reflect generator and IR defects rather than the plan. The
-strong-discriminator run preceded only the second correction; the only
-sampled rule it affected, SID 28982, was recorded as vacuous. The campaign's reach is also bounded by
-construction. Each rule is exercised at a single point of its packet space,
-always on a port of its own header, so the campaign cannot observe the
-service-based evaluation of Section~\ref{sec:service-based}; only the
-dedicated off-port test of Section~\ref{sec:service-exposure} does.
+corrected without changing any P4 artifact. Both runs replay the trace of the
+final witness-generator revision, which preceded only the second correction;
+the only sampled rule it affected, SID 28982, was recorded as vacuous. The
+campaign's reach is also bounded by construction. Each rule is exercised at a
+single point of its packet space, always on a port of its own header, so the
+campaign cannot observe the service-based evaluation of
+Section~\ref{sec:service-based}; only the dedicated off-port test does.
 The 1,875 rules for which no witness can be synthesized, most of which carry
 the richer payload and state semantics, are not tested at all, and the sample
 is drawn from the synthesizable subset rather than from the full ruleset.
@@ -2001,21 +2022,21 @@ Only selected Thursday CICIDS2017 windows were evaluated for alerts. For the
 packet-level quantities alone, we also measured the entire Thursday capture
 offline (9,322,025 frames, 9,240,405 parser-eligible), which contains the
 three windows. The global plan still marks every eligible packet as a
-candidate, and the strong-discriminator plan 97.534\%. The mean candidate set
-is 226.53 rules, a 93.73\% reduction within the P4-eligible partition, or
-84.25\% over the full ruleset; protocol grouping reduces it by 13.66\%. Under
-the corrected compilation of Section~\ref{sec:service-exposure}, the
-full-ruleset reduction is 18.29\%. The windows are therefore not atypical of
-the day, but Snort alerts were not computed for the rest of it. The dataset
-is old relative to current production traffic, and its traffic mix may not
-reflect contemporary enterprise networks. Held-out Brute Force strengthens the
-evidence within this experimental setup, but it does not establish broad
-real-world generalization to production networks, other datasets, or other
-IDS workloads.
+candidate, and the strong-discriminator plan 95.335\%. The mean candidate set
+is 4.27 rules, a 99.42\% reduction within the P4-eligible partition, or
+18.29\% over the full ruleset; protocol grouping reduces it by 19.68\%. The
+windows are therefore not atypical of the day, but Snort alerts were not
+computed for the rest of it. The dataset is old relative to current
+production traffic, and its traffic mix may not reflect contemporary
+enterprise networks. Held-out Brute Force strengthens the evidence within
+this experimental setup, but it does not establish broad real-world
+generalization to production networks, other datasets, or other IDS
+workloads.
 
 The trace-based alert evidence rests on few rules: the three windows fired
-one, two, and five distinct SIDs. The end-to-end campaign widens rule
-coverage to 923 confirmed SIDs under the global plan and 851 under the
+one, two, and five distinct SIDs, all of them in fallback under the
+strong-discriminator plan. The end-to-end campaign widens rule coverage to
+958 confirmed SIDs under the global plan and 134 under the
 strong-discriminator plan, but its traffic is synthetic, one short flow per
 rule, and says nothing about how often these rules fire, or which packets
 they fire on, in real traffic.
@@ -2051,47 +2072,45 @@ Some header conditions that the target could represent are still omitted,
 which only broadens their predicates: port ranges, although the port keys
 are ternary and a range decomposes into prefixes; ICMP type and code; and
 the protocol number given by \texttt{ip\_proto}. Representing them would
-take at most 71, 123, and 3 rules out of the 406 that the frozen
+take at most 54, 123, and 3 rules out of the 3,278 that the
 strong-discriminator plan applies to every packet, so it could raise that
-plan's full-ruleset reduction by at most 1.8, 3.1, and 0.07 percentage
+plan's full-ruleset reduction by at most 1.3, 3.1, and 0.07 percentage
 points. ICMP type and code would also need new table keys.
 
 Replay accounting reconciles frame for frame with the data-plane counters in
-all three traces. A first held-out Brute Force replay lost 87 of 1,108,658
-frames (0.008\%) in the transport layer, all within the candidate category.
-A rerun with longer veth queues and a 2~ms inter-frame delay delivered and
-counted every frame: 1,101,459 candidates, no no-match, and 7,199 domain
-fallbacks, the offline classifier's values exactly.
+all three traces under both plans, and for the alert packets replayed alone.
+An earlier held-out replay, without the longer veth queues and the 2~ms
+inter-frame delay, lost 87 of 1,108,658 frames (0.008\%) in the transport
+layer, all within the candidate category; with them, every replay delivered
+and counted every frame.
 
 \subsection{Limitations of the Candidate-Set Analysis}
-The candidate rule set analysis reported mean reductions of 95.04\% for SQLi,
-96.11\% for XSS, and 91.01\% for held-out Brute Force within the P4-eligible
-partition, and 85.43\%, 86.40\%, and 81.81\% over the full ruleset. These
-values are offline candidate-rule-space feasibility measurements, and they
-rest on port-constrained predicates for service-based rules; compiled as
-Snort~3 evaluates those rules, the strong-discriminator policy bounds the
-full-ruleset reduction at 18.40\%, and the traces reach 18.29--18.30\%. The
-current prototype
-does not implement dynamic per-packet Snort rule activation, candidate-rule
-masks inside Snort, rule scheduling driven by P4 metadata, a candidate-set
-aware Snort execution engine, or throughput benchmarking of reduced rule
-sets.
+The candidate rule set analysis reported mean reductions of 99.39--99.47\%
+within the P4-eligible partition and 18.29--18.30\% over the full ruleset.
+These values are offline candidate-rule-space feasibility measurements, and
+the traces exercise none of the retained predicates: every observed alert
+belongs to a fallback rule. The current prototype does not implement dynamic
+per-packet Snort rule activation, candidate-rule masks inside Snort, rule
+scheduling driven by P4 metadata, a candidate-set aware Snort execution
+engine, or throughput benchmarking of reduced rule sets.
 
 Stateful semantics make dynamic execution a separate research problem. Even
 when an alert SID is present in the packet's candidate set, detection can
 depend on prior flow state, stream state, flowbits, temporal conditions, or
-state established by previous packets. The held-out 2,289/2,289 result is
-therefore observed alert-SID membership, not stateful dynamic-execution
-equivalence. The dependency audit reduces one specific class of risk but does
-not prove dynamic safety for all Snort state mechanisms. The campaign measured
-one such mechanism directly: for two HTTP rules, Snort's alert depended on a
-server-to-client acknowledgment that the strong-discriminator plan marks
-no-match, so a packet-level decision that is safe for the rule's own packets
-can still withhold a packet that stream inspection needs. Likewise, the
-grouped candidate set was computed offline for four structural strategies
-only, and it does not show that every future grouping algorithm would fail;
-future evaluation should consider provenance, dependencies, overlap, and
-target resource constraints together.
+state established by previous packets. The dependency audit reduces one
+specific class of risk, and it found one flowbit component that crosses the
+strong-discriminator partition; it does not prove dynamic safety for all
+Snort state mechanisms. The campaign measured one such mechanism directly:
+Snort attributed the alerts of 606 HTTP rules to an acknowledgment that does
+not satisfy the rule's header, and the strong-discriminator plan marked 445
+of those acknowledgments no-match. These rules are in fallback under the
+current compilation, but under the earlier one two of them were prefiltered,
+so a packet-level decision that is safe for the rule's own packets can still
+withhold a packet that stream inspection needs. Likewise, the grouped
+candidate set was computed offline for four structural strategies only, and
+it does not show that every future grouping algorithm would fail; future
+evaluation should consider provenance, dependencies, overlap, and target
+resource constraints together.
 
 \section{Conclusion}
 This work examined how Snort 3 detection semantics can be partially compiled
@@ -2101,59 +2120,53 @@ result is a semantics-aware, target-aware compilation workflow in which the
 semantic relation of each generated predicate is explicit and predicate
 provenance is retained through backend lowering.
 
-For RQ1, all 4,017 evaluated rules were parsed; 4,003 were classified
-\textsc{Necessary} and 14 remained \textsc{Unsupported}, while no rule was
+For RQ1, all 4,017 evaluated rules were parsed; 3,996 were classified
+\textsc{Necessary} and 21 remained \textsc{Unsupported}, while no rule was
 \textsc{Exact}. Under the implementation assumptions of
 Section~\ref{sec:problem}, the construction gives $r \Rightarrow p_r$ inside
-the enforced packet domain for the 1,072 \textsc{Necessary} rules whose
-header ports Snort checks, with options, fragments, and truncated headers
+the enforced packet domain, with options, fragments, and truncated headers
 retained by fail-open fallback, and without presenting partial preservation
-as equivalence. For the 2,931 service-based rules the relation holds only
-where Snort evaluates the full header, because Snort~3
-skips header ports and protocol once it identifies the flow's service; the
-global plan still covers them through port-free entries, all but nine
-completely, while the strong-discriminator plan does not. For RQ2, 6,675
-source predicate instances were lowered to 331
-final installation entries, with a 95.04\% installation-state reduction and
-331/331 P4Runtime entries handled without reported encoding or validation
-failures on the evaluated BMv2/v1model target.
+as equivalence. For the 2,931 service-based rules, this required compiling
+only their header addresses, because Snort~3 skips header ports and protocol
+once it identifies the flow's service. An earlier compilation that kept them
+over-constrained those predicates, and on BMv2 its strong-discriminator plan
+marked no-match the witnesses of 190 HTTP rules on which Snort alerted off
+their header port. For RQ2, 4,040 source predicate instances were lowered to
+235 final installation entries, a 94.18\% installation-state reduction, and
+the 235-entry plan was installed and read back on the evaluated BMv2/v1model
+target without encoding or validation failures.
 
 RQ3 showed that semantic coverage and operational selectivity are distinct.
-Under the evaluated configuration, the original binary global prefilter
-marked all parser-eligible packets as candidates in the SQLi, XSS, and
-held-out Brute Force traces; the frozen strong-discriminator ablation still
-marked 98.942\% of parser-eligible held-out packets. Broad necessary
-predicates contributed initially, but the residual analysis indicated that
-distributed union coverage among retained predicates also sustained the
-near-universal candidate behavior.
+Under the evaluated configuration, the binary global prefilter marked all
+parser-eligible packets as candidates in the SQLi, XSS, and held-out Brute
+Force traces, replayed on BMv2 with exact accounting; the
+strong-discriminator ablation still marked 92.2--94.9\%. Broad necessary
+predicates contributed initially, and a few structurally specific entries
+that coincide with the dominant traffic sustained the coverage after they
+were removed.
 
 For RQ4, the evaluated predicates achieved 100\% observed alert preservation
 in the three traces, and the end-to-end campaign observed no violation of
 $r \Rightarrow \mathrm{cand}$ among the sampled rules that Snort confirmed:
-923 under the global plan and 851 under the strong-discriminator plan, 153 of
-the latter attributable to the rule's own entries alone. The same campaign showed that the global plan's broad
-entries leave no confirmation attributable to a single rule, and it measured
-two HTTP rules whose alerts depend on a packet the strong-discriminator plan
-marks no-match. The predicates also exposed a separate provenance-based
-utility: within
-the frozen 3,611-rule P4-eligible partition, mean candidate-rule-space
-reduction was 95.04\% for SQLi, 96.11\% for XSS, and 91.01\% for held-out
-Brute Force, whose mean candidate set contained 324.52 rules; counting the
-406 fallback rules against the full ruleset, the held-out reduction is
-81.81\%. This candidate-set result is an offline feasibility result, not a
-dynamic IDS execution result, and it depends on port-constrained predicates
-for service-based rules: recompiled with Snort~3's service semantics, the
-strong-discriminator policy keeps 739 eligible rules and bounds the
-full-ruleset reduction at 18.40\%, and the traces reach 18.29--18.30\%. A
-prefilter that forwards whole groups kept the frozen reduction only when its
-groups were nearly as fine as its entries. The
-central implication is that semantic correctness and operational usefulness
-are distinct dimensions of IDS rule offloading: a binary candidate bit can
-discard rule-level information that remains useful for downstream selection.
+958 under the global plan and 134 under the strong-discriminator plan, 36 of
+the latter attributable to the rule's own entries alone. The same campaign
+showed that the global plan's broad entries leave no confirmation
+attributable to a single rule, and that HTTP alerts often fall on an
+acknowledgment that does not satisfy the rule's header. Provenance exposed
+per-packet candidate rule sets of about four of the 739 P4-eligible rules,
+but the 3,278 fallback rules apply to every packet, and the reduction over
+the full ruleset is 18.29--18.30\%. Under the earlier compilation, the same
+derivation reported 81.81\% on held-out Brute Force, most of it from header
+ports that Snort~3 does not check. This candidate-set result is an offline
+feasibility result, not a dynamic IDS execution result. The central
+implication is that semantic correctness and operational usefulness are
+distinct dimensions of IDS rule offloading, and that a prefilter's apparent
+selectivity has to be checked against how the IDS evaluates each rule.
 Future work should implement candidate-set-aware and dependency-aware IDS
-execution, investigate provenance-aware selection beyond coarse grouping,
-then evaluate execution cost on hardware targets and broader rulesets,
-profiles, traffic datasets, and parser/protocol/encapsulation coverage.
+execution, investigate selectors that use the identified service as well as
+header provenance, then evaluate execution cost on hardware targets and
+broader rulesets, profiles, traffic datasets, and parser/protocol/
+encapsulation coverage.
 
 \section*{Artifact Availability}
 The compiler, the experimental variable profile, the analysis scripts, and the
@@ -2162,12 +2175,14 @@ frozen output artifacts reported in this paper are available at
 compilation pipeline from rule parsing to P4Runtime entry generation, the
 semantic manifest with predicate-to-rule provenance, the compiled P4 program
 and its P4Info, and the JSON artifacts underlying every table and figure. A
-regression check reproduces the ten frozen pipeline artifacts byte for byte
-from the committed sources. The end-to-end campaign's cases, per-case
-verdicts, and Snort alerts are under \path{output/campaign/}; its traces are
-not versioned, but the case generator at the commit that produced a run
-should regenerate its trace byte for byte; this was checked for the
-strong-discriminator run against the SHA-256 digest recorded with it.
+regression check reproduces the ten pipeline artifacts byte for byte from the
+committed sources; the earlier compilation's artifacts are archived and
+regenerate byte for byte from the same sources with its header semantics
+selected. The end-to-end campaign's cases, per-case verdicts, and Snort
+alerts are under \path{output/campaign/}; its traces are not versioned, but
+the case generator at the commit that produced a run should regenerate its
+trace byte for byte; this was checked against the SHA-256 digest recorded
+with the run.
 
 The CICIDS2017 traces are not redistributed here; they are obtained from the
 Canadian Institute for Cybersecurity. The BMv2 target, Snort~3, and the P4
