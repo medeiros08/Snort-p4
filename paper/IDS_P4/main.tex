@@ -42,8 +42,8 @@ condition guarantees depends on how the IDS evaluates it: once Snort~3
 identifies a flow's service, it ignores the header ports and protocol of
 service-based rules, so the compiler keeps only their addresses. An earlier
 compilation that kept those conditions over-constrained 2,931 predicates,
-and one of its plans marked no-match, on BMv2, the witnesses of 190 HTTP
-rules on which Snort alerted off their header port. Under the corrected
+and on BMv2 one of its plans marked no-match the witnesses of 190 HTTP rules
+that alerted off their header port. Under the corrected
 compilation, 3,996 of 4,017 rules are classified as necessary, 21 as
 unsupported, and none as exact, and backend lowering produces 235 P4
 entries. The global binary prefilter marked 100\% of parser-eligible packets
@@ -136,7 +136,7 @@ This work makes the following contributions:
     data-plane suite and by trace-level replay accounting.
     \item An empirical evaluation that separates semantic safety from
     ruleset-scale packet-level selectivity, including a causal analysis of
-    broad predicates and distributed union coverage.
+    broad predicates and of the coverage that remains once they are removed.
     \item A provenance-based, offline candidate-rule-space analysis, which
     reduces the mean per-packet candidate set by more than 99\% within the
     P4-eligible partition but by at most 18.40\% over the full ruleset, and a
@@ -1217,9 +1217,8 @@ entries it kept contained the region of any of the 2,931 rules, 2,877 of
 which were among its 3,611 P4-eligible rules.
 
 The dedicated off-port test of Section~\ref{sec:campaign-method} exercises
-this case. Of its 200 HTTP rules, Snort alerted for 190, 190 distinct SIDs,
-on port 18080, so it did not check the header port; the other 10 raised no
-alert. With the earlier strong-discriminator plan installed on BMv2, all 190
+this case. Snort raised alerts for 190 of its 200 HTTP rules on port 18080,
+so it did not check their header port; the other 10 raised no alert. With the earlier strong-discriminator plan installed on BMv2, all 190
 witnesses were no-match, and so was the flush acknowledgment to which Snort
 attributes each alert: a prefilter that withheld no-match packets would have
 dropped both. The earlier global plan marked all 190 witnesses candidates,
