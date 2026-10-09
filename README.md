@@ -221,6 +221,7 @@ nesta máquina).
 | `docs/review/` | auditorias |
 | `paper/IDS_P4/` | manuscrito e auditorias do manuscrito |
 | `paper/IDS_P4_PT/` | versão curta em português (IEEEtran), derivada do manuscrito |
+| `paper/IDS_P4_CORINGA/` | versão em português sem modelo de evento, montada da PT |
 | `paper/IDS_P4_SBRC/` | versão SBRC no modelo da SBC, montada a partir do `IDS_P4_PT` |
 
 ## Limitações conhecidas
