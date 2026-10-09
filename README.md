@@ -1,11 +1,69 @@
 # Snort-p4
 
-Tradução semântica de regras Snort 3 para um prefilter em P4.
+**Compilação de Cabeçalhos de Regras do Snort 3 em Pré-filtros P4
+Conservadores: Avaliação no BMv2**
 
-O P4 atua como **marcador de candidatos** para o Snort, não como substituto.
-O data plane classifica cada pacote em uma de três categorias e o Snort
-continua fazendo a detecção; regras que o compilador não consegue
-representar de forma conservadora continuam exigindo fallback.
+Arthur de Freitas Medeiros (UNIPAMPA) e Silvio E. Quincozes (FACOM/UFU)
+
+Um compilador que traduz as condições de cabeçalho das regras do Snort 3 em
+entradas de tabela P4 e declara, regra a regra, o que a tradução preserva e
+o que fica com o Snort. O P4 atua como **marcador de candidatos** para o
+Snort, não como substituto: o data plane classifica cada pacote em uma de
+três categorias e o Snort continua fazendo a detecção. Regras que o
+compilador não consegue representar de forma conservadora continuam
+exigindo fallback.
+
+Este repositório tem o artigo, o compilador, o programa P4 e todos os
+artefatos e medições que sustentam os números do artigo.
+
+## O artigo
+
+| Versão | PDF | Para quê |
+|---|---|---|
+| Completa, em inglês | [`paper/IDS_P4/main.pdf`](paper/IDS_P4/main.pdf) | versão de referência (45 páginas); as outras derivam dela |
+| Português, sem modelo de evento | [`paper/IDS_P4_CORINGA/artigo.pdf`](paper/IDS_P4_CORINGA/artigo.pdf) | para circular e ler (12 páginas) |
+| Português, IEEEtran | [`paper/IDS_P4_PT/artigo.pdf`](paper/IDS_P4_PT/artigo.pdf) | versão curta de conferência (7 páginas) |
+| Português, modelo SBC | [`paper/IDS_P4_SBRC/artigo.pdf`](paper/IDS_P4_SBRC/artigo.pdf) | trilha principal do SBRC (14 páginas, o limite) |
+
+Como as versões se relacionam e o que são as auditorias em
+`paper/IDS_P4/`: [`paper/README.md`](paper/README.md).
+
+## Resultados principais
+
+Snort 3 Community Ruleset (4.017 regras), Snort 3.12.2.0, BMv2 e as janelas
+de quinta-feira do CICIDS2017:
+
+- 3.996 regras ficam com predicado necessário, 21 não suportadas e nenhuma
+  exata; o backend instala 235 entradas no BMv2.
+- Mesmo assim, o pré-filtro global marca 100% dos pacotes elegíveis nos três
+  traços: segurança semântica não implica seletividade.
+- Os alertas observados são preservados, e uma campanha com 1.000 regras, com
+  o Snort como oráculo e o BMv2 como alvo, não encontra violação.
+- Em 2.931 regras baseadas em serviço, o Snort 3 não checa porta nem
+  protocolo depois de identificar o serviço, então o compilador mantém só os
+  endereços. Numa compilação anterior, que mantinha as portas, um dos planos
+  marcou como no-match, no BMv2, as testemunhas de 190 regras HTTP que
+  alertaram fora da porta do cabeçalho.
+- A proveniência das entradas reduz o conjunto de regras candidatas por
+  pacote em só 18,3% do ruleset, contra 81,8% na compilação anterior.
+
+## Mapa do repositório
+
+| Pasta | Conteúdo |
+|---|---|
+| `paper/` | as quatro versões do artigo e as auditorias do manuscrito |
+| `compiler/` | o compilador Snort → P4 (só a biblioteca padrão do Python) |
+| `p4/` | o programa P4 (`ids_prefilter.p4`) |
+| `rules/` | o ruleset avaliado (Snort 3 Community, 4.017 regras) |
+| `config/` | perfil de variáveis do Snort e configuração do experimento |
+| `output/` | artefatos gerados e medições; congelados, não se editam à mão |
+| `tests/` | testes, campanhas e scripts de análise |
+| `scripts/` | montagem do BMv2 e rotinas do ambiente Linux de medição |
+| `docs/` | modelo semântico, matriz de suporte do Snort 3 e revisões |
+| `CODEX_HANDOFF.md` | estado do projeto, resultados e pendências (notas de trabalho) |
+
+O restante deste README é a referência técnica: a propriedade que o
+compilador preserva, como rodar e como reproduzir.
 
 ## A propriedade central
 
@@ -195,9 +253,13 @@ registro. Os dois estágios seguintes só gravam se o `legacy`, lido de
 
 ## Reprodutibilidade
 
-Os artefatos em `output/` são reproduzíveis byte a byte a partir do código,
-em qualquer plataforma. A verificação é comparar os dez artefatos gerados
-numa cópia isolada com os versionados.
+Os artefatos em `output/` são reproduzíveis byte a byte a partir do código.
+A verificação é comparar os dez artefatos gerados numa cópia isolada com os
+versionados.
+
+Os números dos manuscritos são conferidos contra esses artefatos por
+`python tests/check_manuscript_numbers.py`, que lista qualquer número dos
+`.tex` sem artefato que o sustente.
 
 Os artefatos por perfil ficam em `output/profiles/<perfil>/`. Os logs de
 proveniência são versionados; o dump de runtime do BMv2 e as capturas
@@ -219,10 +281,7 @@ nesta máquina).
 | `docs/snort3_support_matrix.md` | matriz de suporte da linguagem |
 | `CODEX_HANDOFF.md` | estado do projeto, resultados congelados, pendências |
 | `docs/review/` | auditorias |
-| `paper/IDS_P4/` | manuscrito e auditorias do manuscrito |
-| `paper/IDS_P4_PT/` | versão curta em português (IEEEtran), derivada do manuscrito |
-| `paper/IDS_P4_CORINGA/` | versão em português sem modelo de evento, montada da PT |
-| `paper/IDS_P4_SBRC/` | versão SBRC no modelo da SBC, montada a partir do `IDS_P4_PT` |
+| `paper/README.md` | as quatro versões do artigo, como derivam uma da outra, e as auditorias do manuscrito |
 
 ## Limitações conhecidas
 
@@ -231,11 +290,17 @@ nesta máquina).
 apenas vazia neste dataset.
 
 Para as 2.931 regras service-based (2.928 com `service:` e 3 cujas opções
-DCE dão serviço), o predicado congelado restringe porta e protocolo, que o
-Snort 3 não checa quando identifica o serviço; ele só é condição necessária
-no tráfego avaliado com o cabeçalho inteiro. O plano
-global cobre essas regras pelas entradas sem porta; o strong-discriminator,
-não.
+DCE dão serviço), o Snort 3 não checa porta nem protocolo do cabeçalho
+quando identifica o serviço. Desde 2026-10-05 o compilador mantém só os
+endereços delas (sete ficam sem predicado seletivo e passam a UNSUPPORTED).
+O custo é de seletividade: a maioria fica só com um endereço em
+`HOME_NET`, o strong-discriminator mantém 739 regras elegíveis, e a redução
+do conjunto de regras candidatas sobre o ruleset fica limitada a 18,40%. A
+compilação anterior, que mantinha porta e protocolo, está arquivada em
+`output/historical/legacy_header_semantics/`.
+
+A partição strong-discriminator não é fechada sob flowbits: 24 arestas a
+cruzam, todas no flowbit `smb.trans2`.
 
 A avaliação usa um ruleset (snort3-community, 4.017 regras), um perfil e um
 dataset (CIC-IDS2017). Não há medição de throughput, latência nem validação
