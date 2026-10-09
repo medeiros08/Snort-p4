@@ -346,6 +346,12 @@ cada) é própria. Dá 14 páginas com as referências, o limite da trilha
 principal do SBRC 2026, sem caixa estourada. Cadeia de derivação:
 `main.tex` → `IDS_P4_PT` → `IDS_P4_SBRC`.
 
+**Versão coringa (2026-10-09).** `paper/IDS_P4_CORINGA/`, para circular o
+texto sem modelo de evento: `article` 11 pt, uma coluna, 12 páginas, build
+sem caixa estourada. O `montar.py` junta o corpo da PT e o resumo e
+*abstract* da SBRC, ambos sem edição; nada é escrito lá. Depois de corrigir
+a PT ou a SBRC, rodar os dois `montar.py`, primeiro o da SBRC.
+
 ## 15. Pendências que bloqueiam a submissão
 
 **Todas as quatro concluídas** (a última, o item 3, em 2026-09-30). O
