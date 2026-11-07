@@ -16,3 +16,13 @@ for p in ir.predicates:
         p.value,
         p.backend_treatment,
     )
+
+# Sem estas checagens o arquivo so imprimia e o runner o contava como PASSA.
+assert ir.rule_type == "SERVICE", ir.rule_type
+assert not [p for p in ir.predicates if p.kind == "HEADER"], (
+    "regra de servico nao pode ganhar predicado de cabecalho"
+)
+assert any(
+    p.kind == "APPLICATION" and p.operator == "service_header" and p.value == "http"
+    for p in ir.predicates
+)

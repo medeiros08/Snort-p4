@@ -49,6 +49,23 @@ def main():
             f"{item['resolved']}"
         )
 
+    # Sem estas checagens o arquivo so imprimia e o runner o contava como
+    # PASSA qualquer que fosse a resolucao.
+    assert resolved_rule["source"] == {
+        "address": variables["EXTERNAL_NET"],
+        "port": "any",
+    }, resolved_rule["source"]
+    assert resolved_rule["destination"] == {
+        "address": variables["HOME_NET"],
+        "port": variables["HTTP_PORTS"],
+    }, resolved_rule["destination"]
+    assert [item["field"] for item in log] == [
+        "src_ip",
+        "dst_ip",
+        "dst_port",
+    ], log
+    assert rule["destination"]["address"] == "$HOME_NET"
+
 
 if __name__ == "__main__":
     main()
