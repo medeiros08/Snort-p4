@@ -165,6 +165,22 @@ def test_round_trip_sobre_a_codificacao_real():
     assert verify_round_trip(fonte, encode_entry(fonte)) == []
 
 
+def test_prefixo_zero_omitido_nao_e_campo_ausente():
+    # 0.0.0.0/0 e IPv4 valido no cabecalho (PRESERVED na capacidade). O
+    # codificador omite o campo, porque mascara zero e curinga; o
+    # verificador acusava "ausente" e o gate derrubava o build inteiro.
+    fonte = {
+        "install_entry_id": "p4-zero",
+        "match": {
+            "protocol": 6,
+            "dst_ip": {"value": "0.0.0.0", "prefix_len": 0},
+            "dst_port": 80,
+        },
+    }
+
+    assert verify_round_trip(fonte, encode_entry(fonte)) == []
+
+
 def main():
     testes = [
         (nome, objeto)

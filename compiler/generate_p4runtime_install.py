@@ -952,7 +952,20 @@ def verify_round_trip(
         # FIELD_INFO e o match semantico usam o mesmo nome, "tcp_flags".
         reconstruido[nome] = valor
 
-    faltando = set(origem) - set(reconstruido)
+    # Prefixo /0 e flags com mascara 0 casam qualquer valor: o codificador
+    # os omite de proposito (mascara ternaria zero), e a ausencia nao e
+    # perda de campo.
+    curinga = {
+        nome
+        for nome, valor in origem.items()
+        if isinstance(valor, dict)
+        and (
+            (nome in ("src_ip", "dst_ip") and valor.get("prefix_len") == 0)
+            or (nome == "tcp_flags" and valor.get("mask") == 0)
+        )
+    }
+
+    faltando = set(origem) - set(reconstruido) - curinga
     sobrando = set(reconstruido) - set(origem)
 
     for nome in sorted(faltando):
