@@ -214,8 +214,10 @@ def remove_final_quote(pattern):
     """
 
     # Sem strip, pelo mesmo motivo de split_content_value: espaco antes da
-    # aspa de fechamento e conteudo (`content:"USERHOST "`).
-    if pattern.endswith('"'):
+    # aspa de fechamento e conteudo (`content:"USERHOST "`). Aspa precedida
+    # por numero impar de barras tambem e conteudo (`\\"`), nao fechamento.
+    barras = len(pattern[:-1]) - len(pattern[:-1].rstrip("\\"))
+    if pattern.endswith('"') and barras % 2 == 0:
         return pattern[:-1]
 
     return pattern
