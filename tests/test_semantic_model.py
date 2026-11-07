@@ -65,6 +65,7 @@ def main():
 
     if failures:
         print(f"{failures} test(s) failed.")
+        sys.exit(1)
     else:
         print("All semantic model tests passed.")
 
