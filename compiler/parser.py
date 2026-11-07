@@ -11,7 +11,7 @@ def _aspas_desbalanceadas(texto: str) -> bool:
     """Conta aspas duplas nao escapadas.
 
     Numero impar significa string aberta: o resto da regra e absorvido
-    pela opcao corrente. Ver parse_option, que faz strip('"') cego.
+    pela opcao corrente. Ver parse_option.
     """
 
     total = 0
@@ -97,6 +97,22 @@ def split_options(
     return parts
 
 
+def _tira_aspas(valor: str) -> str:
+    """Tira a aspa de abertura e a de fechamento, nunca uma aspa escapada.
+
+    Aspa final precedida por numero impar de barras e do proprio valor. O
+    strip('"') anterior a tirava: o padrao de content:"GET \\"" ficava
+    `GET \\` em vez de `GET \\"`.
+    """
+
+    if valor.startswith('"'):
+        valor = valor[1:]
+    barras = len(valor[:-1]) - len(valor[:-1].rstrip("\\"))
+    if valor.endswith('"') and barras % 2 == 0:
+        valor = valor[:-1]
+    return valor
+
+
 def parse_option(
     option: str,
 ) -> Dict:
@@ -114,10 +130,8 @@ def parse_option(
 
         return {
             "name": key.strip(),
-            "value": (
-                value
-                .strip()
-                .strip('"')
+            "value": _tira_aspas(
+                value.strip()
             ),
         }
 

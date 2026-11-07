@@ -151,6 +151,25 @@ def test_aspa_escapada_nao_conta_para_o_balanceamento():
     assert r["sid"] == 14
 
 
+def test_aspa_escapada_no_fim_do_valor_e_preservada():
+    # O strip('"') tirava a aspa escapada junto com a de fechamento: o
+    # padrao de content:"GET \"" virava `GET \`. Com modificador depois, a
+    # mesma aspa sobrevivia, e as duas formas davam padroes diferentes.
+    from option_normalizer import normalize_content
+
+    r = parse_rule(
+        'alert tcp any any -> any 80 ( content:"GET \\""; '
+        'content:"GET \\"", nocase; content:"barra\\\\"; sid:15; )'
+    )
+    valores = [o["value"] for o in r["options"][:3]]
+    assert valores[0] == 'GET \\"', valores[0]
+    assert valores[2] == "barra\\\\", valores[2]
+
+    padroes = [normalize_content(v)["pattern"] for v in valores]
+    assert padroes[0] == padroes[1] == 'GET \\"', padroes
+    assert padroes[2] == "barra\\\\", padroes[2]
+
+
 def test_malformada_e_subclasse_de_value_error():
     # Os chamadores existentes capturam ValueError; a nova excecao precisa
     # continuar sendo pega por eles, para que a regra va para "failures"
