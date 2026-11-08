@@ -63,6 +63,7 @@ sys.path.insert(0, str(COMPILER_DIR))
 import paths  # noqa: E402
 from build_profile import PYTHON_STEPS  # noqa: E402
 from snort2_syntax import analisar_ruleset  # noqa: E402
+from parser import sem_texto_entre_aspas  # noqa: E402
 
 ETAPAS = [nome for nome, _descricao in PYTHON_STEPS] + [
     "generate_p4runtime_install.py"
@@ -98,7 +99,9 @@ REGRA_COMENTADA = re.compile(r"^#\s*(" + "|".join(ACOES) + r")\s")
 
 
 def _opcao_inteira(regra: str, nome: str) -> int | None:
-    achado = re.search(r"(?:^|[;(\s])" + nome + r"\s*:\s*(\d+)\s*;", regra)
+    achado = re.search(
+        r"(?:^|[;(\s])" + nome + r"\s*:\s*(\d+)\s*;", sem_texto_entre_aspas(regra)
+    )
     return int(achado.group(1)) if achado else None
 
 

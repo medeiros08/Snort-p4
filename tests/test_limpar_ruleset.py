@@ -120,6 +120,20 @@ def test_ruleset_do_projeto_passa_intacto():
     assert relatorio["regras_mantidas"] == 4017
 
 
+def test_sid_dentro_de_aspas_nao_e_a_opcao_sid():
+    # msg e content podem citar sid:N; o sid da regra e o da opcao. Antes a
+    # regra 31 virava "sid 32" e a limpeza descartava a 32 como duplicata.
+    citando = 'alert tcp any any -> any 80 ( msg:"ver sid:32;"; content:"sid:7;"; sid:31; rev:5; )'
+    relatorio, regras = _limpar("\n".join([citando, _regra(32, 1, "citada")]))
+    assert relatorio["duplicadas"] == []
+    assert regras == [citando, _regra(32, 1, "citada")]
+
+    # A divisao das regras le o sid do mesmo jeito.
+    from generate_snort_experiment_rules import extract_sid_from_rule
+    assert extract_sid_from_rule(citando) == 31
+    assert extract_sid_from_rule('alert tcp any any -> any 80 ( msg:"a \\"sid:9;\\""; sid:8; )') == 8
+
+
 if __name__ == "__main__":
     test_remove_comentarios_regras_comentadas_e_sem_sid()
     test_duplicada_fica_a_revisao_maior()
@@ -128,4 +142,5 @@ if __name__ == "__main__":
     test_duplicada_com_protocolo_diferente_e_recusada()
     test_regra_em_varias_linhas_e_juntada()
     test_ruleset_do_projeto_passa_intacto()
+    test_sid_dentro_de_aspas_nao_e_a_opcao_sid()
     print("Limpeza de ruleset: testes passaram.")
