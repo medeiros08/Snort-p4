@@ -86,11 +86,18 @@ def rotulo(caminho: Path) -> str:
 
 
 def contar_regras(caminho: Path) -> int:
-    return sum(
-        1
-        for linha in caminho.read_text(encoding="utf-8", errors="ignore").splitlines()
-        if linha.strip() and not linha.lstrip().startswith("#")
-    )
+    """Linhas logicas nao vazias e fora de comentario.
+
+    Linha que continua a anterior (`\\` no fim, como em limpar_ruleset) e da
+    mesma regra: uma regra em quatro linhas conta uma vez, nao quatro.
+    """
+
+    total, continuacao = 0, False
+    for linha in caminho.read_text(encoding="utf-8", errors="ignore").splitlines():
+        if not continuacao and linha.strip() and not linha.lstrip().startswith("#"):
+            total += 1
+        continuacao = linha.rstrip().endswith("\\")
+    return total
 
 
 ACOES = ("alert", "block", "drop", "log", "pass", "react", "reject", "rewrite", "sdrop")
