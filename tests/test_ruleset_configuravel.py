@@ -197,6 +197,50 @@ def test_build_profile_recusa_as_variaveis(tmp):
     assert "run_static_pipeline" in resultado.stdout
 
 
+def _manifesto_legacy(**variaveis):
+    return subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            str(COMPILADOR / "generate_semantic_manifest.py"),
+            "--service-header-semantics",
+            "legacy",
+        ],
+        cwd=RAIZ,
+        env=_ambiente(**variaveis),
+        capture_output=True,
+        text=True,
+    )
+
+
+def test_manifesto_legacy_com_saida_em_output_e_recusado():
+    # O manifesto congelado em output/ e o da semantica snort3. Um manifesto
+    # legacy gravado ali por cima o trocaria pelo do arquivo historico. Se a
+    # trava falhar, o teste devolve o congelado antes de reprovar.
+    congelado = RAIZ / "output" / "semantic_manifest.json"
+    antes = congelado.read_bytes()
+    try:
+        resultado = _manifesto_legacy()
+    finally:
+        depois = congelado.read_bytes()
+        if depois != antes:
+            congelado.write_bytes(antes)
+    assert depois == antes, "o manifesto congelado foi sobrescrito"
+    assert resultado.returncode == 1
+    assert "SNORT_P4_OUTPUT_DIR" in resultado.stdout
+
+
+def test_manifesto_legacy_com_outra_saida_reproduz_o_arquivo(tmp):
+    resultado = _manifesto_legacy(SNORT_P4_OUTPUT_DIR=tmp)
+    assert resultado.returncode == 0, resultado.stdout[-2000:]
+    arquivado = (
+        RAIZ / "output" / "historical" / "legacy_header_semantics"
+        / "semantic_manifest.json"
+    )
+    gerado = Path(tmp) / "semantic_manifest.json"
+    assert gerado.read_bytes() == arquivado.read_bytes()
+
+
 if __name__ == "__main__":
     import tempfile
 
@@ -204,6 +248,7 @@ if __name__ == "__main__":
     test_outro_ruleset_com_saida_em_output_e_recusado()
     test_outras_variaveis_com_saida_em_output_sao_recusadas()
     test_executor_recusa_saida_em_output()
+    test_manifesto_legacy_com_saida_em_output_e_recusado()
     for teste in (
         test_rotulo_das_variaveis,
         test_executor_recusa_perfil_inexistente,
@@ -211,6 +256,7 @@ if __name__ == "__main__":
         test_rotulo_de_ruleset_dentro_do_projeto_e_relativo,
         test_rotulo_de_ruleset_fora_do_projeto_e_so_o_nome,
         test_build_profile_recusa_as_variaveis,
+        test_manifesto_legacy_com_outra_saida_reproduz_o_arquivo,
     ):
         with tempfile.TemporaryDirectory() as tmp:
             teste(tmp)

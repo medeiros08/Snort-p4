@@ -1,6 +1,7 @@
 import paths
 
 import json
+import sys
 
 from collections import Counter
 from pathlib import Path
@@ -90,6 +91,22 @@ def parse_arguments():
 def main():
     arguments = parse_arguments()
     service_header_semantics = arguments.service_header_semantics
+
+    # Mesma trava de paths.py para ruleset e perfil: o manifesto congelado
+    # em output/ e o da semantica snort3, e um legacy gravado ali por cima o
+    # trocaria pelo do arquivo historico sem aviso.
+    if (
+        service_header_semantics != "snort3"
+        and paths.OUTPUT_DIR == paths.SAIDA_PADRAO
+    ):
+        print(
+            f"ERRO: --service-header-semantics {service_header_semantics} "
+            f"gravaria em {paths.SAIDA_PADRAO}, onde estao os artefatos "
+            f"congelados (semantica snort3). Defina {paths.VAR_SAIDA} com "
+            "outro diretorio, ou use compiler/run_static_pipeline.py com "
+            "--saida e --semantica legacy."
+        )
+        sys.exit(1)
 
     ruleset_path = Path(
         RULESET_FILE
