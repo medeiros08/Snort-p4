@@ -183,6 +183,54 @@ def test_executor_recusa_saida_em_output():
     assert "congelados" in resultado.stdout
 
 
+def _executor(ruleset, saida):
+    return subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            str(COMPILADOR / "run_static_pipeline.py"),
+            "--ruleset",
+            str(ruleset),
+            "--saida",
+            str(saida),
+        ],
+        cwd=RAIZ,
+        env=_ambiente(),
+        capture_output=True,
+        text=True,
+    )
+
+
+def test_saida_reaproveitada_nao_herda_artefatos_da_execucao_anterior(tmp):
+    # Segunda execucao na mesma --saida para na etapa 01. Os artefatos das
+    # etapas seguintes ainda sao os da primeira, de outro ruleset: nao podem
+    # entrar no resumo nem na proveniencia desta.
+    boa = Path(tmp) / "boa.rules"
+    boa.write_text(
+        'alert tcp any any -> 10.0.0.1 [80,443] (msg:"a"; flags:S; sid:1;)\n',
+        encoding="utf-8",
+    )
+    quebrada = Path(tmp) / "quebrada.rules"
+    quebrada.write_text("isto nao e uma regra (sid:2;)\n", encoding="utf-8")
+    saida = Path(tmp) / "saida"
+
+    primeira = _executor(boa, saida)
+    assert primeira.returncode == 0, primeira.stdout[-2000:]
+    assert json.loads((saida / "proveniencia.json").read_text(encoding="utf-8"))[
+        "resumo"
+    ]["entradas_p4_finais"] == 2
+
+    segunda = _executor(quebrada, saida)
+    assert segunda.returncode == 1, segunda.stdout[-2000:]
+    proveniencia = json.loads((saida / "proveniencia.json").read_text(encoding="utf-8"))
+    assert proveniencia["status"] == "falhou"
+    assert proveniencia["resumo"]["entradas_p4_finais"] is None, proveniencia["resumo"]
+    assert proveniencia["resumo"]["plano_p4runtime"] is None, proveniencia["resumo"]
+    assert "p4_install_entries.json" not in proveniencia["artefatos"]
+    assert "semantic_manifest.json" in proveniencia["artefatos"]
+    assert "ids_prefilter.p4info.txt" in proveniencia["artefatos"]
+
+
 def test_build_profile_recusa_as_variaveis(tmp):
     # Sai antes do preflight de toolchain, entao roda sem Snort e sem p4c.
     resultado = subprocess.run(
@@ -255,6 +303,7 @@ if __name__ == "__main__":
         test_ruleset_padrao_explicito_mantem_o_rotulo,
         test_rotulo_de_ruleset_dentro_do_projeto_e_relativo,
         test_rotulo_de_ruleset_fora_do_projeto_e_so_o_nome,
+        test_saida_reaproveitada_nao_herda_artefatos_da_execucao_anterior,
         test_build_profile_recusa_as_variaveis,
         test_manifesto_legacy_com_outra_saida_reproduz_o_arquivo,
     ):

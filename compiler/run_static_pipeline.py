@@ -241,18 +241,40 @@ def contagem(arquivo: Path) -> int | None:
     return None
 
 
-def resumo(saida: Path) -> dict:
+def resumo(saida: Path, desta_execucao: set[str]) -> dict:
+    """Numeros so dos arquivos gravados nesta execucao.
+
+    Com --saida reaproveitada, um arquivo de uma execucao anterior que parou
+    antes de regrava-lo nao entra: seria o numero de outro ruleset.
+    """
+
     manifesto = saida / "semantic_manifest.json"
     try:
+        if manifesto.name not in desta_execucao:
+            raise OSError
         classificacao = json.loads(manifesto.read_text(encoding="utf-8"))["summary"][
             "classification"
         ]
     except (OSError, ValueError, KeyError):
         classificacao = None
+
+    def contagem_desta(nome: str) -> int | None:
+        return contagem(saida / nome) if nome in desta_execucao else None
+
     return {
         "classificacao": classificacao,
-        "entradas_p4_finais": contagem(saida / "p4_install_entries.json"),
-        "plano_p4runtime": contagem(saida / "p4runtime_install_plan.json"),
+        "entradas_p4_finais": contagem_desta("p4_install_entries.json"),
+        "plano_p4runtime": contagem_desta("p4runtime_install_plan.json"),
+    }
+
+
+def arquivos_com_data(pasta: Path) -> dict[str, int]:
+    if not pasta.is_dir():
+        return {}
+    return {
+        arquivo.name: arquivo.stat().st_mtime_ns
+        for arquivo in pasta.iterdir()
+        if arquivo.is_file()
     }
 
 
@@ -305,6 +327,11 @@ def main() -> int:
             + ". Gere-o no rig com build_profile.py."
         )
         return 1
+
+    # O que ja estava em --saida antes desta execucao, com a data. Um artefato
+    # que nenhuma etapa regravou e de outra execucao e fica fora do resumo e
+    # da proveniencia.
+    anteriores = arquivos_com_data(saida)
 
     saida.mkdir(parents=True, exist_ok=True)
     logs = saida / "logs"
@@ -426,12 +453,20 @@ def main() -> int:
             status = 1
             break
 
+    # O programa P4 foi copiado agora, mas copy2 mantem a data da origem.
+    desta_execucao = {
+        nome
+        for nome, data in arquivos_com_data(saida).items()
+        if nome in PROGRAMA_P4 or anteriores.get(nome) != data
+    }
     proveniencia["artefatos"] = {
         arquivo.name: sha256(arquivo)
         for arquivo in sorted(saida.iterdir())
-        if arquivo.is_file() and arquivo.name != "proveniencia.json"
+        if arquivo.is_file()
+        and arquivo.name != "proveniencia.json"
+        and arquivo.name in desta_execucao
     }
-    proveniencia["resumo"] = resumo(saida)
+    proveniencia["resumo"] = resumo(saida, desta_execucao)
     proveniencia["status"] = "ok" if status == 0 else "falhou"
 
     (saida / "proveniencia.json").write_text(
