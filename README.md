@@ -211,15 +211,17 @@ e protocolo do cabeçalho não são checados (os endereços são). O manifesto
 tem dois modos:
 
     python compiler/generate_semantic_manifest.py                                   # snort3, padrão
-    python compiler/generate_semantic_manifest.py --service-header-semantics legacy
+    python compiler/run_static_pipeline.py --ruleset rules/snort3-community.rules \
+        --saida <diretorio> --semantica legacy                                      # legacy
 
 O `snort3`, padrão desde 2026-10-05, delega porta e protocolo das regras
 service-based (com `service:` ou com serviço dado por opção, como as DCE),
 como o Snort 3 faz. O `legacy` trata o cabeçalho delas como o de uma regra
 por porta e reproduz byte a byte os artefatos arquivados em
 `output/historical/legacy_header_semantics/`, de que dependem os resultados
-congelados anteriores à troca. No executor estático:
-`python compiler/run_static_pipeline.py ... --semantica legacy`. Detalhes:
+congelados anteriores à troca. Com a saída em `output/` ele é recusado, porque
+gravaria por cima do manifesto congelado do `snort3`; o estágio isolado roda
+com `SNORT_P4_OUTPUT_DIR` apontando para outro diretório. Detalhes:
 `paper/IDS_P4/SERVICE_BASED_HEADER_FINDING.md` e
 `paper/IDS_P4/HEADER_SEMANTICS_DEFAULT_SUPERSESSION.md`.
 
