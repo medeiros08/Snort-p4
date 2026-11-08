@@ -5,6 +5,7 @@ from pathlib import Path
 
 import paths
 import pipeline_gate
+from parser import sem_texto_entre_aspas
 
 
 PROJECT_ROOT = (
@@ -370,7 +371,7 @@ def extract_sid_from_rule(
 ):
 
     match = SID_RE.search(
-        line
+        sem_texto_entre_aspas(line)
     )
 
     if not match:

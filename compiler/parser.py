@@ -33,6 +33,19 @@ def _aspas_desbalanceadas(texto: str) -> bool:
     return total % 2 == 1
 
 
+_TEXTO_ENTRE_ASPAS = re.compile(r'"(?:\\.|[^"\\])*"')
+
+
+def sem_texto_entre_aspas(regra: str) -> str:
+    """Troca cada string entre aspas por "".
+
+    Para procurar sid, gid e rev com expressao regular so fora de msg e
+    content: msg:"ver sid:5;" nao e a opcao sid da regra.
+    """
+
+    return _TEXTO_ENTRE_ASPAS.sub('""', regra)
+
+
 def split_options(
     options_text: str,
 ) -> List[str]:
