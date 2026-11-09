@@ -108,6 +108,29 @@ def test_regra_em_varias_linhas_e_juntada():
     assert "\\" not in regras[0]
 
 
+def test_regra_em_varias_linhas_conta_uma_vez():
+    # O numero de regras da proveniencia contava cada linha fisica: duas
+    # regras, uma delas em quatro linhas, saiam como 5.
+    from run_static_pipeline import contar_regras
+
+    texto = (
+        "# comentario\n"
+        "alert tcp any any -> any 80 ( \\\n"
+        '  msg:"a"; \\\n'
+        '  content:"z"; \\\n'
+        "  sid:61; rev:1; )\n"
+        "\n"
+        + _regra(62, 1, "uma linha")
+        + "\n"
+    )
+    with tempfile.TemporaryDirectory() as tmp:
+        origem = Path(tmp) / "entrada.rules"
+        origem.write_text(texto, encoding="utf-8")
+        assert contar_regras(origem) == 2
+        assert limpar_ruleset(origem, Path(tmp) / "saida.rules")["regras_mantidas"] == 2
+    assert contar_regras(RAIZ / "rules" / "snort3-community.rules") == 4017
+
+
 def test_ruleset_do_projeto_passa_intacto():
     # O ruleset padrao ja e limpo: a limpeza nao pode alterar uma regra.
     origem = RAIZ / "rules" / "snort3-community.rules"
@@ -141,6 +164,7 @@ if __name__ == "__main__":
     test_mesmo_sid_com_gid_diferente_nao_e_duplicata()
     test_duplicada_com_protocolo_diferente_e_recusada()
     test_regra_em_varias_linhas_e_juntada()
+    test_regra_em_varias_linhas_conta_uma_vez()
     test_ruleset_do_projeto_passa_intacto()
     test_sid_dentro_de_aspas_nao_e_a_opcao_sid()
     print("Limpeza de ruleset: testes passaram.")
